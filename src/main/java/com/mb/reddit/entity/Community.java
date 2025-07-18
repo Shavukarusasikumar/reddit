@@ -1,0 +1,47 @@
+package com.mb.reddit.entity;
+
+import jakarta.persistence.*;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
+
+@Entity
+@Table(name = "communities")
+@Data
+@NoArgsConstructor
+public class Community {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String name;
+
+    private String description;
+
+    private String iconUrl;
+
+    private String bannerUrl;
+
+    private Boolean isPrivate;
+
+    @ManyToOne
+    private User creator;
+
+    @OneToMany(mappedBy = "community")
+    private List<Post> posts;
+
+    @OneToMany(mappedBy = "community")
+    private List<JoinRequest> joinRequests;
+
+    @OneToMany(mappedBy = "community")
+    private List<Flair> flairs;
+
+    @ManyToMany(mappedBy = "joinedCommunities")
+    private List<User> members;
+
+    @OneToMany(mappedBy = "community", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Topic> topics;
+}
