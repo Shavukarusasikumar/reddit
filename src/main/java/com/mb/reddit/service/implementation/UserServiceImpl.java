@@ -1,0 +1,176 @@
+package com.mb.reddit.service.implementation;
+
+import com.mb.reddit.entity.Comment;
+import com.mb.reddit.entity.Community;
+import com.mb.reddit.entity.Post;
+import com.mb.reddit.entity.User;
+import com.mb.reddit.repository.UserRepository;
+import com.mb.reddit.service.UserService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
+import java.util.Objects;
+
+@Service
+public class UserServiceImpl implements UserService {
+
+    private final UserRepository userRepository;
+
+    public UserServiceImpl(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    @Override
+    public User addUser(User user) {
+        return userRepository.save(user);
+    }
+
+    @Override
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
+    }
+
+    @Override
+    public Page<Post> getAllPostsByUserId(long userId, int pageNo, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+
+        return userRepository.findAllPostsByUserId(userId, pageable);
+    }
+
+    @Override
+    public Page<Post> getSavedPostsByUserId(long userId, int pageNo, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNo, pageSize);
+
+        return userRepository.findAllSavedPostsByUserId(userId, pageable);
+    }
+
+    @Override
+    public List<Comment> getCommentsByUserId(long userId) {
+        return userRepository.findAllCommentsByUserId(userId);
+    }
+
+    @Override
+    public List<User> getFollowersByUserId(long userId) {
+        return userRepository.findAllFollowersByUserId(userId);
+    }
+
+    @Override
+    public List<User> getFollowingByUserId(long userId) {
+        return userRepository.findAllFollowingByUserId(userId);
+    }
+
+    @Override
+    public Page<Post> getUpVotedPostsByUserId(long userId) {
+        return null;
+    }
+
+    @Override
+    public Page<Post> getDownVotedPostsByUserId(long userId) {
+        return null;
+    }
+
+    @Override
+    public List<Community> getJoinedCommunitiesByUserId(long userId) {
+        return userRepository.findAllJoinedCommunitiesByUserId(userId);
+    }
+
+    @Override
+    public List<Community> getCreatedCommunitiesByUserId(long userId) {
+        return userRepository.findAllCreatedCommunitiesByUserId(userId);
+    }
+
+    @Override
+    public User getUserById(long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+    }
+
+    @Override
+    @Transactional
+    public void addFollowingById(long id) {
+        User currUser = getCurrentUser();
+
+        List<User> following = userRepository.findAllFollowingByUserId(currUser.getId());
+        User newUser = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+
+        following.add(newUser);
+
+        currUser.setFollowing(following);
+
+        userRepository.save(currUser);
+    }
+
+    @Override
+    @Transactional
+    public void addFollowerById(long id) {
+        User currUser = getCurrentUser();
+
+        List<User> followers = userRepository.findAllFollowersByUserId(currUser.getId());
+        User newUser = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id : " + id));
+
+        followers.add(newUser);
+
+        currUser.setFollowers(followers);
+
+        userRepository.save(currUser);
+    }
+
+    @Override
+    @Transactional
+    public void deleteFollowerById(long id) {
+        User currUser = getCurrentUser();
+
+        List<User> followers = userRepository.findAllFollowersByUserId(currUser.getId());
+        User newUser = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id " + id));
+
+        for (int i = 0; i < followers.size(); i++) {
+            if (Objects.equals(followers.get(i).getId(), newUser.getId())) {
+                followers.remove(i);
+
+                break;
+            }
+        }
+
+        currUser.setFollowers(followers);
+
+        userRepository.save(currUser);
+    }
+
+    @Override
+    @Transactional
+    public void deleteFollowingById(long id) {
+        User currUser = getCurrentUser();
+
+        List<User> following = userRepository.findAllFollowingByUserId(currUser.getId());
+        User newUser = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id " + id));
+
+        for (int i = 0; i < following.size(); i++) {
+
+            if (Objects.equals(following.get(i).getId(), newUser.getId())) {
+                following.remove(i);
+                break;
+            }
+        }
+
+        currUser.setFollowing(following);
+
+        userRepository.save(currUser);
+    }
+
+    private User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        return userRepository.findUserByUsername(authentication.getName());
+    }
+
+}
