@@ -1,0 +1,7 @@
+package com.mb.reddit.service;
+
+public interface PostVoteService {
+
+    void addVoteByPostId(Long postId, Boolean isLike);
+    void removeVoteByPostId(Long postId);
+}
