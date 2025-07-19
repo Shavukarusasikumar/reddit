@@ -36,7 +36,7 @@ public class Post {
     @ManyToOne
     private User author;
 
-    @ManyToOne
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Community community;
 
     @OneToMany(mappedBy = "post")

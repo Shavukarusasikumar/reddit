@@ -11,7 +11,7 @@ import java.util.List;
 public interface PostService {
 
     Post getPostById(Long postId);
-    Post createPost(Post post, MultipartFile media);
+    Post createPost(Post post, Long communityId,MultipartFile media);
     Post updatePost(Post post);
     void deletePost(Long postId);
 

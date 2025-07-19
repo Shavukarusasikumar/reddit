@@ -1,12 +1,14 @@
 package com.mb.reddit.service.implementation;
 
 import com.mb.reddit.entity.Comment;
+import com.mb.reddit.entity.Community;
 import com.mb.reddit.entity.Post;
-import com.mb.reddit.repository.CommentRepository;
-import com.mb.reddit.repository.PostRepository;
-import com.mb.reddit.repository.PostVoteRepository;
+import com.mb.reddit.entity.User;
+import com.mb.reddit.repository.*;
 import com.mb.reddit.service.PostService;
+
 import jakarta.transaction.Transactional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -27,13 +29,18 @@ public class PostServiceImpl implements PostService {
     private final CommentRepository commentRepository;
     private final CloudinaryService cloudinaryService;
     private final PostVoteRepository postVoteRepository;
+    private final CommunityRepository communityRepository;
+    private final UserRepository userRepository;
 
     public PostServiceImpl(PostRepository postRepository, CommentRepository commentRepository,
-                           CloudinaryService cloudinaryService, PostVoteRepository postVoteRepository) {
+                           CloudinaryService cloudinaryService, PostVoteRepository postVoteRepository,
+                           CommunityRepository communityRepository, UserRepository userRepository) {
         this.postRepository = postRepository;
         this.commentRepository = commentRepository;
         this.cloudinaryService = cloudinaryService;
         this.postVoteRepository = postVoteRepository;
+        this.communityRepository = communityRepository;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -63,7 +70,10 @@ public class PostServiceImpl implements PostService {
 
     @Transactional
     @Override
-    public Post createPost(Post post, MultipartFile media) {
+    public Post createPost(Post post, Long communityId ,MultipartFile media) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = userRepository.findUserByUsername(authentication.getName());
+
         if(media != null){
             try {
                 String mediaUrl = cloudinaryService.uploadFile(media);
@@ -73,8 +83,12 @@ public class PostServiceImpl implements PostService {
             }
         }
 
+        Community community = communityRepository.findById(communityId)
+                        .orElseThrow(() -> new RuntimeException("Community not found " + communityId));
+
+        post.setAuthor(currentUser);
         post.setCreatedAt(LocalDateTime.now());
-        //TODO : Have to add community and user
+        post.setCommunity(community);
 
         return postRepository.save(post);
     }
@@ -108,6 +122,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public Page<Post> getPostsByCommunityId(Long communityId, int pageNumber, int pageSize) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
+
         return postRepository.getPostsByCommunityId(communityId, pageable);
     }
 }
