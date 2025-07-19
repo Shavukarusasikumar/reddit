@@ -6,6 +6,8 @@ import com.mb.reddit.entity.Post;
 import com.mb.reddit.entity.User;
 import com.mb.reddit.repository.CommentRepository;
 import com.mb.reddit.repository.CommentVoteRepository;
+import com.mb.reddit.repository.PostRepository;
+import com.mb.reddit.repository.UserRepository;
 import com.mb.reddit.service.CommentService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

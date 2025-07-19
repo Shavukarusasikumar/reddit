@@ -1,5 +1,8 @@
 package com.mb.reddit.service;
 
+import com.mb.reddit.entity.Comment;
+import com.mb.reddit.entity.CommentVote;
+
 import java.util.List;
 
 public interface CommentService {

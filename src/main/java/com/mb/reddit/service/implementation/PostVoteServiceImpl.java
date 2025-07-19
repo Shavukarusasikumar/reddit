@@ -5,6 +5,7 @@ import com.mb.reddit.entity.PostVote;
 import com.mb.reddit.entity.User;
 import com.mb.reddit.repository.PostRepository;
 import com.mb.reddit.repository.PostVoteRepository;
+import com.mb.reddit.repository.UserRepository;
 import com.mb.reddit.service.PostVoteService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

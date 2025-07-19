@@ -1,5 +1,6 @@
 package com.mb.reddit.repository;
 
+import com.mb.reddit.entity.CommentVote;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
