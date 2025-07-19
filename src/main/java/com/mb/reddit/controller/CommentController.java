@@ -2,6 +2,8 @@ package com.mb.reddit.controller;
 
 import com.mb.reddit.entity.Comment;
 import com.mb.reddit.service.CommentService;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,6 +18,10 @@ public class CommentController {
         this.commentService = commentService;
     }
 
+    public void createComment(@RequestParam(required = false) long postId,
+                             @RequestParam(required = false) long parentCommentId,
+                             @ModelAttribute("newComment") Comment comment) {
+        commentService.createComment(comment, postId, parentCommentId);
     @PostMapping("/delete-comment/{commentId}")
     public String deleteCommentById(@PathVariable Long commentId) {
         Long postId = commentService.getCommentById(commentId).getPost().getId();
@@ -24,6 +30,8 @@ public class CommentController {
         return "redirect:/posts/" + postId;
     }
 
+    public Comment getCommentById(long commentId) {
+        return commentService.getCommentById(commentId);
     @GetMapping("/edit-comment/{commentId}")
     public String getCommentEditForm(@PathVariable Long commentId, Model model) {
         Comment comment = commentService.getCommentById(commentId);
