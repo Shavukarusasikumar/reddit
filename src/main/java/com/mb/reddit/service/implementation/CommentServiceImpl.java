@@ -43,14 +43,13 @@ public class CommentServiceImpl implements CommentService {
             throw new RuntimeException("Post not  found");
         }
 
-		Optional<User> optionalUser = null; // TODO : get USER by username using SecurityContextHolder
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String userName = authentication.getName();
 
-        if (optionalUser.isEmpty()) {
-            throw new RuntimeException("User not  found");
-        }
+        User user = userRepository.findUserByUsername(userName);
 
         comment.setPost(optionalPost.get());
-        comment.setUser(optionalUser.get());
+        comment.setUser(user);
         comment.setCreatedAt(LocalDateTime.now());
         comment.setUpdatedAt(LocalDateTime.now());
 
