@@ -34,13 +34,9 @@ public class CommentServiceImpl implements CommentService {
         this.commentVoteRepository = commentVoteRepository;
     }
 
-	@Override
-	@Transactional
-	public Comment createComment(Comment comment, Long postId, Long parentCommentId) {
-		Optional<Post> optionalPost = postRepository.findById(postId);
     @Override
     @Transactional
-    public Comment createComment(String content, Long userId, Long postId, Long parentCommentId) {
+    public Comment createComment(Comment comment, Long postId, Long parentCommentId) {
         Optional<Post> optionalPost = postRepository.findById(postId);
 
         if (optionalPost.isEmpty()) {
@@ -48,18 +44,11 @@ public class CommentServiceImpl implements CommentService {
         }
 
 		Optional<User> optionalUser = null; // TODO : get USER by username using SecurityContextHolder
-        Optional<User> optionalUser = userRepository.findById(userId);
 
         if (optionalUser.isEmpty()) {
             throw new RuntimeException("User not  found");
         }
 
-		comment.setPost(optionalPost.get());
-		comment.setUser(optionalUser.get());
-		comment.setCreatedAt(LocalDateTime.now());
-		comment.setUpdatedAt(LocalDateTime.now());
-        Comment comment = new Comment();
-        comment.setContent(content);
         comment.setPost(optionalPost.get());
         comment.setUser(optionalUser.get());
         comment.setCreatedAt(LocalDateTime.now());

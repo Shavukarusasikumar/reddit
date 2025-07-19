@@ -18,10 +18,17 @@ public class CommentController {
         this.commentService = commentService;
     }
 
-    public void createComment(@RequestParam(required = false) long postId,
-                             @RequestParam(required = false) long parentCommentId,
-                             @ModelAttribute("newComment") Comment comment) {
+    public void createComment(long postId, @RequestParam(required = false) long parentCommentId,
+                              @ModelAttribute(name = "newComment") Comment comment) {
         commentService.createComment(comment, postId, parentCommentId);
+
+    }
+
+    public Comment getCommentById(long commentId) {
+        return commentService.getCommentById(commentId);
+
+    }
+
     @PostMapping("/delete-comment/{commentId}")
     public String deleteCommentById(@PathVariable Long commentId) {
         Long postId = commentService.getCommentById(commentId).getPost().getId();
@@ -30,8 +37,6 @@ public class CommentController {
         return "redirect:/posts/" + postId;
     }
 
-    public Comment getCommentById(long commentId) {
-        return commentService.getCommentById(commentId);
     @GetMapping("/edit-comment/{commentId}")
     public String getCommentEditForm(@PathVariable Long commentId, Model model) {
         Comment comment = commentService.getCommentById(commentId);
