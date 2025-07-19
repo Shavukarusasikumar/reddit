@@ -50,7 +50,7 @@ public class PostController {
     }
 
     @GetMapping("/posts/{postId}")
-    public String getPostById(Long postId, Model model) {
+    public String getPostById(@PathVariable Long postId, Model model) {
         Post post = postService.getPostById(postId);
 
         model.addAttribute("post", post);
