@@ -54,7 +54,7 @@ public class PostServiceImpl implements PostService {
         Sort sort = Sort.by(sortby).descending(); //TODO check sort functionality
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
 
-        return postRepository.findAll(pageable);
+        return postRepository.findAllPublicPublishedPosts(pageable);
     }
 
     @Override

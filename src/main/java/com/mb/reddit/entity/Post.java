@@ -33,6 +33,9 @@ public class Post {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(name = "is_published")
+    private Boolean isPublished;
+
     @ManyToOne
     private User author;
 
