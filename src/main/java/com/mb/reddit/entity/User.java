@@ -40,6 +40,9 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<Comment> comments;
 
+    @OneToMany(mappedBy = "creator")
+    private List<Community> createdCommunities;
+
     @ManyToMany
     @JoinTable(
             name = "user_community",

@@ -20,4 +20,9 @@ public class TopicServiceImpl implements TopicService {
     public List<Topic> getAllTopics() {
         return topicRepository.findAll();
     }
+
+    @Override
+    public List<Topic> getAllTopicsByIds(List<Long> topicIds) {
+        return topicRepository.findAllById(topicIds);
+    }
 }

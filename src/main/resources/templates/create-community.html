@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Create Community</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f7f7f7;
+            padding: 40px;
+        }
+
+        .form-container {
+            background-color: white;
+            max-width: 600px;
+            margin: auto;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 6px;
+        }
+
+        input[type="text"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+
+        textarea {
+            resize: vertical;
+        }
+
+        .form-group input[type="file"] {
+            border: none;
+        }
+
+        .topics-container-wrapper {
+            max-height: 150px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 6px;
+        }
+
+        .topics-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .topic-box {
+            background-color: #f0f0f0;
+            border-radius: 20px;
+            padding: 8px 15px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .topic-box.selected {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .privacy-options {
+            display: flex;
+            gap: 20px;
+        }
+
+        .submit-btn {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+        }
+
+        .submit-btn:hover {
+            background-color: #0056b3;
+        }
+
+    </style>
+</head>
+<body>
+<div class="form-container">
+    <h2>Create a Community</h2>
+    <form th:action="@{/create-community}" method="post" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="name">Community Name</label>
+            <input type="text" id="name" name="name" required maxlength="100">
+        </div>
+
+        <div class="form-group">
+            <label for="description">Community Description</label>
+            <textarea id="description" name="description" rows="4" required maxlength="500"></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="icon">Icon Image</label>
+            <input type="file" id="icon" name="icon" accept="image/*">
+        </div>
+
+        <div class="form-group">
+            <label for="banner">Banner Image</label>
+            <input type="file" id="banner" name="banner" accept="image/*">
+        </div>
+
+        <div class="form-group">
+            <label>Community Topics (Select up to 3)</label>
+            <div class="topics-container-wrapper">
+                <div class="topics-container">
+                    <div th:each="topic : ${allTopics}"
+                         th:classappend="'topic-box'"
+                         th:attr="data-id=${topic.id}"
+                         th:text="${topic.name}">
+                    </div>
+                </div>
+            </div>
+            <input type="hidden" name="topics" id="topicsInput">
+        </div>
+
+        <div class="form-group">
+            <label>Privacy</label>
+            <div class="privacy-options">
+                <label><input type="radio" name="privacy" value="public" checked> Public</label>
+                <label><input type="radio" name="privacy" value="private"> Private</label>
+            </div>
+        </div>
+
+        <button type="submit" class="submit-btn">Create Community</button>
+    </form>
+</div>
+
+<script>
+    const topicBoxes = document.querySelectorAll('.topic-box');
+    const topicsInput = document.getElementById('topicsInput');
+    let selectedTopics = [];
+
+    topicBoxes.forEach(box => {
+        box.addEventListener('click', () => {
+            const topicId = box.getAttribute('data-id');
+            if (box.classList.contains('selected')) {
+                box.classList.remove('selected');
+                selectedTopics = selectedTopics.filter(id => id !== topicId);
+            } else {
+                if (selectedTopics.length >= 3) {
+                    alert("You can select up to 3 topics only.");
+                    return;
+                }
+                box.classList.add('selected');
+                selectedTopics.push(topicId);
+            }
+            topicsInput.value = selectedTopics.join(',');
+        });
+    });
+</script>
+</body>
+</html>

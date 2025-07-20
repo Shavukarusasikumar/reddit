@@ -3,12 +3,13 @@ package com.mb.reddit.service;
 
 import com.mb.reddit.entity.Community;
 import com.mb.reddit.entity.User;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 public interface CommunityService {
 
-    Community createCommunity(Community community);
+    Community createCommunity(Community community, MultipartFile fileIcon, MultipartFile fileBanner);
 
     void deleteCommunity(Long communityId);
 

@@ -1,108 +1,65 @@
 package com.mb.reddit.controller;
 
 import com.mb.reddit.entity.Community;
-import com.mb.reddit.entity.User;
+import com.mb.reddit.entity.Topic;
 import com.mb.reddit.service.CommunityService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import com.mb.reddit.service.TopicService;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
+import java.util.*;
 
 @Controller
 public class CommunityController {
 
-	private final CommunityService communityService;
+    private final CommunityService communityService;
+    private final TopicService topicService;
 
-	public  CommunityController(CommunityService communityService) {
-		this.communityService = communityService;
-	}
+    public CommunityController(CommunityService communityService , TopicService topicService) {
+        this.communityService = communityService;
+        this.topicService = topicService;
+    }
 
-	@PostMapping
-	public ResponseEntity<Community> createCommunity(@RequestBody Community community,
-													 @AuthenticationPrincipal User creator) {
-		community.setCreator(creator);
-		Community createdCommunity = communityService.createCommunity(community);
-		return ResponseEntity.ok(createdCommunity);
-	}
 
-	@DeleteMapping("/{communityId}")
-	public ResponseEntity<Void> deleteCommunity(@PathVariable Long communityId,
-												@AuthenticationPrincipal User user) {
-		User creator = communityService.getCreatorByCommunityId(communityId);
-		if (!creator.getId().equals(user.getId())) {
-			return ResponseEntity.status(403).build();
-		}
-		communityService.deleteCommunity(communityId);
-		return ResponseEntity.noContent().build();
-	}
+    @GetMapping("/create-community")
+    public String showCreateCommunityForm(Model model) {
+        List<Topic> allTopics = topicService.getAllTopics();
 
-	@GetMapping("/{communityId}/members")
-	public ResponseEntity<List<User>> getCommunityMembers(@PathVariable Long communityId) {
-		List<User> members = communityService.getCommunityMembers(communityId);
-		return ResponseEntity.ok(members);
-	}
+        model.addAttribute("allTopics", allTopics);
+        return "create-community";
+    }
 
-	@GetMapping("/{communityId}/members/count")
-	public ResponseEntity<Long> getMembersCount(@PathVariable Long communityId) {
-		Long count = communityService.getMembersCountByCommunityId(communityId);
-		return ResponseEntity.ok(count);
-	}
+    @PostMapping("/create-community")
+    public String handleCreateCommunity(
+            @RequestParam String name,
+            @RequestParam String description,
+            @RequestParam(value = "icon", required = false) MultipartFile iconFile,
+            @RequestParam(value = "banner", required = false) MultipartFile bannerFile,
+            @RequestParam("topics") String topicIds,
+            @RequestParam String privacy) {
 
-	@PostMapping("/{communityId}/join")
-	public ResponseEntity<Void> joinCommunity(@PathVariable Long communityId,
-											  @AuthenticationPrincipal User user) {
-		communityService.addMemberByCommunityId(user, communityId);
-		return ResponseEntity.ok().build();
-	}
+        List<Long> topics = Arrays.stream(topicIds.split(","))
+                .map(Long::parseLong)
+                .toList();
 
-	@GetMapping("/{communityId}/creator")
-	public ResponseEntity<User> getCommunityCreator(@PathVariable Long communityId) {
-		User creator = communityService.getCreatorByCommunityId(communityId);
-		return ResponseEntity.ok(creator);
-	}
+        if (topics.size() > 3) {
+            throw new IllegalArgumentException("You can select up to 3 topics only.");
+        }
 
-	@GetMapping("/{communityId}/view")
-	public String getCommunityView(@PathVariable Long communityId, Model model,
-								   @AuthenticationPrincipal User currentUser) {
-		Community community = communityService.getCommunityById(communityId);
-		model.addAttribute("community", community);
+        Community community = new Community();
+        community.setName(name);
+        community.setDescription(description);
+        community.setIsPrivate((privacy.equals("private")));
 
-		// Check if current user is creator
-		boolean isCreator = currentUser != null &&
-				community.getCreator().getId().equals(currentUser.getId());
-		model.addAttribute("isCreator", isCreator);
+        community = communityService.createCommunity(community, iconFile, bannerFile);
 
-		// Check if user has joined
-		boolean hasJoined = currentUser != null &&
-				community.getMembers().contains(currentUser);
-		model.addAttribute("hasJoined", hasJoined);
-
-		return "community-profile"; // This should match your Thymeleaf template name
-	}
-
-	@GetMapping
-	public ResponseEntity<List<Community>> getAllCommunities() {
-		List<Community> communities = communityService.getAllCommunities();
-		return ResponseEntity.ok(communities);
-	}
-
-	@GetMapping("/joined")
-	public ResponseEntity<List<Community>> getJoinedCommunities(@AuthenticationPrincipal User user) {
-		List<Community> communities = communityService.getAllCommunities(); // You might want to create a specific service method for this
-		// Filter communities where user is a member
-		communities.removeIf(community -> !community.getMembers().contains(user));
-		return ResponseEntity.ok(communities);
-	}
-
-	@GetMapping("/created")
-	public ResponseEntity<List<Community>> getCreatedCommunities(@AuthenticationPrincipal User user) {
-		List<Community> communities = communityService.getAllCommunities(); // You might want to create a specific service method for this
-		// Filter communities where user is the creator
-		communities.removeIf(community -> !community.getCreator().getId().equals(user.getId()));
-		return ResponseEntity.ok(communities);
-	}
+        List<Topic> selectedTopics = topicService.getAllTopicsByIds(topics);
+        for (Topic topic : selectedTopics) {
+            topic.setCommunity(community);
+        }
+        return "redirect:/";
+    }
 }
