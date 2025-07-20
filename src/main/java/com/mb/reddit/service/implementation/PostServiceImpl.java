@@ -55,8 +55,10 @@ public class PostServiceImpl implements PostService {
 
         Sort sort = Sort.by(sortby).descending();
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
-
+        long start = System.currentTimeMillis();
         Page<Post> postsPage = postRepository.findAllPublicPublishedPosts(pageable);
+        long dbTime = System.currentTimeMillis();
+        System.out.println("Service :   DB fetch time: " + (dbTime - start) + " ms");
 
         postsPage.forEach(post -> {
             int upVotes = postVoteRepository.countUpvoteByPostId(post.getId());

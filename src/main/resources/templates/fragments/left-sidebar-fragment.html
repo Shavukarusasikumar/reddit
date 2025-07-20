@@ -1,167 +1,411 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<!-- File: src/main/resources/templates/fragments/left-sidebar-fragment.html -->
+<th:block xmlns:th="http://www.thymeleaf.org" th:fragment="leftSidebar (communities, recentCommunities)">
+    <!-- Font Awesome (needed for the icons) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
     <style>
         .left-sidebar-container {
             font-family: 'Noto Sans', sans-serif;
             font-size: 16px;
-            background-color: #f8f9fa;
+            background-color: transparent;
+            height: 100%;
+            width: 100%;
         }
 
         .sidebar {
-            width: 340px;
+            width: 100%;
             background-color: #ffffff;
-            padding: 20px;
-            border-right: 1px solid #ddd;
-            height: 100vh;
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            height: 100%;
             box-sizing: border-box;
+            overflow-y: auto;
+            max-height: calc(100vh - 76px);
+            position: relative;
         }
 
         .sidebar-link {
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 14px 20px;
-            font-size: 16px;
-            color: #000;
+            padding: 10px 12px;
+            font-size: 14px;
+            color: #1c1c1c;
             text-decoration: none;
-            border-radius: 8px;
+            border-radius: 6px;
             transition: background-color 0.2s ease, color 0.2s ease;
+            margin-bottom: 2px;
+            font-weight: 500;
         }
 
         .sidebar-link:hover {
-            background-color: #f2f2f2;
+            background-color: #f6f7f8;
+            text-decoration: none;
+            color: #1c1c1c;
         }
 
         .sidebar-link.active {
-            background-color: #e6e6e6;
-            font-weight: bold;
-            color: #111;
+            background-color: #0079d3;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .sidebar-link.active:hover {
+            background-color: #0079d3;
+            color: #ffffff;
         }
 
         .sidebar-link i {
-            font-size: 22px;
-            color: #000;
-        }
-
-        .sidebar-link.active i {
-            color: #111;
+            font-size: 18px;
+            color: inherit;
+            width: 20px;
+            text-align: center;
+            flex-shrink: 0;
         }
 
         .sidebar-section {
-            margin-top: 20px;
-            border-top: 1px solid #ddd;
+            margin: 20px 0 16px 0;
+            border-top: 1px solid #edeff1;
+            padding-top: 16px;
+        }
+
+        .sidebar-section:first-of-type {
+            border-top: none;
+            margin-top: 16px;
+            padding-top: 0;
+        }
+
+        .dropdown-section {
+            margin-bottom: 8px;
         }
 
         .dropdown-header {
-            padding: 14px 20px;
-            font-weight: 600;
-            font-size: 17px;
+            padding: 8px 12px;
+            font-weight: 700;
+            font-size: 11px;
             display: flex;
             justify-content: space-between;
+            align-items: center;
             cursor: pointer;
-            color: #222;
+            color: #878a8c;
+            border-radius: 6px;
+            transition: background-color 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            user-select: none;
+        }
+
+        .dropdown-header:hover {
+            background-color: #f6f7f8;
+        }
+
+        .dropdown-header i {
+            font-size: 10px;
+            transition: transform 0.2s ease;
+            color: #878a8c;
+        }
+
+        .dropdown-header.open i {
+            transform: rotate(180deg);
         }
 
         .dropdown-content {
-            display: none;
-            flex-direction: column;
-            padding: 0 20px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
         }
 
         .dropdown-content.show {
-            display: flex;
+            max-height: 500px; /* Increased for better accommodation */
+        }
+
+        .dropdown-inner {
+            padding: 4px 0 8px 0;
         }
 
         .community-item {
             display: flex;
             align-items: center;
-            gap: 12px;
-            margin-bottom: 10px;
-            font-size: 18px;
+            gap: 8px;
+            padding: 6px 12px;
+            margin-bottom: 1px;
+            border-radius: 6px;
+            transition: background-color 0.2s ease;
+            cursor: pointer;
+        }
+
+        .community-item:hover {
+            background-color: #f6f7f8;
         }
 
         .community-item img {
-            width: 50px;
-            height: 50px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
             object-fit: cover;
+            flex-shrink: 0;
         }
 
         .community-link {
+            color: #1c1c1c;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            flex: 1;
+        }
+
+        .community-link:hover {
             color: #0079d3;
-            font-size: 16px;
-            font-weight: bold;
             text-decoration: none;
         }
+
+        .create-community-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            color: #0079d3;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: background-color 0.2s ease;
+        }
+
+        .create-community-btn:hover {
+            background-color: #f6f7f8;
+            text-decoration: none;
+            color: #0079d3;
+        }
+
+        .create-community-btn i {
+            font-size: 14px;
+        }
+
+        .empty-state {
+            color: #878a8c;
+            font-size: 12px;
+            padding: 8px 12px;
+            font-style: italic;
+        }
+
+        /* Custom scrollbar for the sidebar */
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+
+        /* Firefox scrollbar */
+        .sidebar {
+            scrollbar-width: thin;
+            scrollbar-color: #c1c1c1 transparent;
+        }
+
+        /* Ensure proper spacing */
+        .sidebar > *:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Smooth scrolling behavior */
+        .sidebar {
+            scroll-behavior: smooth;
+        }
+
+        /* Prevent text selection on interactive elements */
+        .dropdown-header,
+        .sidebar-link,
+        .community-item {
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        /* Links should allow text selection */
+        .community-link,
+        .create-community-btn {
+            -webkit-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
+        }
+
+        /* Focus states for accessibility */
+        .sidebar-link:focus,
+        .community-link:focus,
+        .create-community-btn:focus,
+        .dropdown-header:focus {
+            outline: 2px solid #0079d3;
+            outline-offset: 2px;
+        }
+
+        /* Active state for better feedback */
+        .sidebar-link:active,
+        .community-item:active,
+        .dropdown-header:active {
+            transform: scale(0.98);
+        }
     </style>
-</head>
-<body>
-<div th:fragment="leftSidebar" class="left-sidebar-container">
-    <div class="sidebar">
-        <!-- Top Navigation -->
-        <a href="#" class="sidebar-link active">
-            <i class="fas fa-home"></i> Home
-        </a>
-        <a href="#" class="sidebar-link">
-            <i class="fas fa-fire"></i> Popular
-        </a>
-        <a href="#" class="sidebar-link">
-            <i class="fas fa-compass"></i> Explore
-        </a>
-        <a href="#" class="sidebar-link">
-            <i class="fas fa-globe"></i> All
-        </a>
 
-        <!-- Divider -->
-        <div class="sidebar-section"></div>
+    <div class="left-sidebar-container">
+        <div class="sidebar">
+            <!-- Top Navigation -->
+            <a href="/" class="sidebar-link active">
+                <i class="fas fa-home"></i>
+                <span>Home</span>
+            </a>
+            <a href="/popular" class="sidebar-link">
+                <i class="fas fa-fire"></i>
+                <span>Popular</span>
+            </a>
+            <a href="/explore" class="sidebar-link">
+                <i class="fas fa-compass"></i>
+                <span>Explore</span>
+            </a>
+            <a href="/all" class="sidebar-link">
+                <i class="fas fa-globe"></i>
+                <span>All</span>
+            </a>
 
-        <!-- Recent Dropdown -->
-        <div class="dropdown-section">
-            <div class="dropdown-header" onclick="toggleDropdown('recentDropdown')">
-                Recent
-                <i class="fas fa-chevron-down"></i>
-            </div>
-            <div class="dropdown-content" id="recentDropdown">
-                <div th:each="community : ${recentCommunities}" class="community-item">
-                    <img th:src="${community.iconUrl}" alt="community"
-                         onerror="this.onerror=null;this.src='https://via.placeholder.com/50';">
-                    <a th:href="@{'/r/' + ${community.name}}"
-                       class="community-link"
-                       th:text="'r/' + ${community.name}"></a>
+            <!-- Recent Section -->
+            <div class="sidebar-section">
+                <div class="dropdown-section">
+                    <div class="dropdown-header" onclick="toggleDropdown('recentDropdown', this)" tabindex="0"
+                         onkeypress="if(event.key==='Enter'||event.key===' ') toggleDropdown('recentDropdown', this)">
+                        <span>Recent</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="dropdown-content" id="recentDropdown">
+                        <div class="dropdown-inner">
+                            <div th:each="community : ${recentCommunities}" class="community-item">
+                                <img th:src="${community.iconUrl}" alt="community icon"
+                                     onerror="this.onerror=null;this.src='https://via.placeholder.com/20x20/ff4500/ffffff?text=r';">
+                                <a th:href="@{'/r/' + ${community.name}}"
+                                   class="community-link"
+                                   th:text="'r/' + ${community.name}"
+                                   th:title="'r/' + ${community.name}"></a>
+                            </div>
+                            <div th:if="${#lists.isEmpty(recentCommunities)}" class="empty-state">
+                                <span>No recent communities</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Divider -->
-        <div class="sidebar-section"></div>
-
-        <!-- Communities Dropdown -->
-        <div class="dropdown-section">
-            <div class="dropdown-header" onclick="toggleDropdown('communitiesDropdown')">
-                Communities
-                <i class="fas fa-chevron-down"></i>
-            </div>
-            <div class="dropdown-content" id="communitiesDropdown">
-                <a href="#" class="community-link" style="margin-bottom: 10px;">+ Create Community</a>
-                <div th:each="community : ${communities}" class="community-item">
-                    <img th:src="${community.iconUrl}" alt="community"
-                         onerror="this.onerror=null;this.src='https://via.placeholder.com/50';">
-                    <a th:href="@{'/r/' + ${community.name}}"
-                       class="community-link"
-                       th:text="'r/' + ${community.name}"></a>
+            <!-- Communities Section -->
+            <div class="sidebar-section">
+                <div class="dropdown-section">
+                    <div class="dropdown-header" onclick="toggleDropdown('communitiesDropdown', this)" tabindex="0"
+                         onkeypress="if(event.key==='Enter'||event.key===' ') toggleDropdown('communitiesDropdown', this)">
+                        <span>Communities</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="dropdown-content" id="communitiesDropdown">
+                        <div class="dropdown-inner">
+                            <a href="/communities/create" class="create-community-btn">
+                                <i class="fas fa-plus"></i>
+                                <span>Create Community</span>
+                            </a>
+                            <div th:each="community : ${communities}" class="community-item">
+                                <img th:src="${community.iconUrl}" alt="community icon"
+                                     onerror="this.onerror=null;this.src='https://via.placeholder.com/20x20/ff4500/ffffff?text=r';">
+                                <a th:href="@{'/r/' + ${community.name}}"
+                                   class="community-link"
+                                   th:text="'r/' + ${community.name}"
+                                   th:title="'r/' + ${community.name}"></a>
+                            </div>
+                            <div th:if="${#lists.isEmpty(communities)}" class="empty-state">
+                                <span>No communities found</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<script>
-    function toggleDropdown(id) {
-      const el = document.getElementById(id);
-      el.classList.toggle("show");
-    }
-</script>
-</body>
-</html>
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        function toggleDropdown(id, headerElement) {
+            const el = document.getElementById(id);
+            const header = headerElement;
+
+            if (el && header) {
+                const isShowing = el.classList.contains("show");
+
+                // Close all other dropdowns first (optional - for accordion behavior)
+                // document.querySelectorAll('.dropdown-content.show').forEach(dropdown => {
+                //     if (dropdown !== el) {
+                //         dropdown.classList.remove('show');
+                //         dropdown.previousElementSibling.classList.remove('open');
+                //     }
+                // });
+
+                // Toggle current dropdown
+                el.classList.toggle("show");
+                header.classList.toggle("open");
+
+                // Store state in localStorage for persistence (optional)
+                try {
+                    const state = el.classList.contains("show");
+                    localStorage.setItem(`sidebar_${id}`, state.toString());
+                } catch (e) {
+                    // localStorage not available or full
+                }
+            }
+        }
+
+        // Initialize dropdown states
+        document.addEventListener('DOMContentLoaded', function() {
+            // Restore dropdown states from localStorage (optional)
+            try {
+                const dropdowns = ['recentDropdown', 'communitiesDropdown', 'resourcesDropdown'];
+                dropdowns.forEach(dropdownId => {
+                    const stored = localStorage.getItem(`sidebar_${dropdownId}`);
+                    if (stored === 'true') {
+                        const dropdown = document.getElementById(dropdownId);
+                        const header = document.querySelector(`[onclick*="${dropdownId}"]`);
+                        if (dropdown && header) {
+                            dropdown.classList.add('show');
+                            header.classList.add('open');
+                        }
+                    }
+                });
+            } catch (e) {
+                // localStorage not available
+            }
+
+            // Default: Open communities dropdown
+            // toggleDropdown('communitiesDropdown', document.querySelector('[onclick*="communitiesDropdown"]'));
+        });
+
+        // Handle keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.target.classList.contains('dropdown-header')) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    e.target.click();
+                }
+            }
+        });
+        /*]]>*/
+    </script>
+</th:block>

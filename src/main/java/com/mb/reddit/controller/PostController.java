@@ -43,7 +43,7 @@ public class PostController {
     public final FlairService flairService;
 
 
-    public PostController(PostService postService,UserService userService, CommunityService communityService, FlairService flairService,CommentService commentService,PostVoteService postVoteService) {
+    public PostController(PostService postService, UserService userService, CommunityService communityService, FlairService flairService, CommentService commentService, PostVoteService postVoteService) {
         this.postService = postService;
         this.commentService = commentService;
         this.postVoteService = postVoteService;
@@ -73,58 +73,63 @@ public class PostController {
     }
 
     @PostMapping("/new-post")
-    public String createPost(@ModelAttribute("post") Post post, @RequestParam Long communityId,
-                             MultipartFile file){
-        postService.createPost(post,communityId ,file);
+    public String createPost(@ModelAttribute("post") Post post, @RequestParam Long communityId, MultipartFile file) {
+        postService.createPost(post, communityId, file);
 
         return "redirect:/home";
     }
 
-    @GetMapping("/posts")
-    public String getAllPosts(@RequestParam(defaultValue = "0", required = false) int pageNumber,
-                              @RequestParam(defaultValue = "10", required = false) int pageSize,
-                              @RequestParam(defaultValue = "createdAt", required = false) String sortBy,
-                              Model model) {
-        Page<Post> posts = postService.getAllPost(pageNumber, pageSize, sortBy);
-        List<Community> joinedCommunities = communityService.getAllCommunities();
-//                .getJoinedCommunitiesByUserId(userService.getCurrentUser().getId());
+        @GetMapping("/posts")
+        public String getAllPosts(@RequestParam(defaultValue = "0", required = false) int pageNumber, @RequestParam(defaultValue = "10", required = false) int pageSize, @RequestParam(defaultValue = "createdAt", required = false) String sortBy, Model model) {
+            long start = System.currentTimeMillis();
+            Page<Post> posts = postService.getAllPost(pageNumber, pageSize, sortBy);
+            long dbTime = System.currentTimeMillis();
+            System.out.println("Controller : DB fetch time: " + (dbTime - start) + " ms");
 
-        List<Community> recentCommunities = joinedCommunities.stream()
-                .limit(5)
-                .toList();
+            long cumminityStart = System.currentTimeMillis();
+            List<Community> joinedCommunities = communityService.getAllCommunities();
+            //                .getJoinedCommunitiesByUserId(userService.getCurrentUser().getId());
 
-        List<Post> recentPosts = new ArrayList<>();
+            long communityEnd = System.currentTimeMillis();
+            System.out.println("Community fetching time : " + (communityEnd - cumminityStart) + " ms");
 
-        for (Community joinedCommunity : joinedCommunities) {
-            recentPosts.addAll(joinedCommunity.getPosts());
+            List<Community> recentCommunities = joinedCommunities.stream().limit(5).toList();
+
+            List<Post> recentPosts = new ArrayList<>();
+
+            for(Community joinedCommunity : joinedCommunities) {
+                recentPosts.addAll(joinedCommunity.getPosts());
+            }
+
+            recentPosts.sort(Comparator.comparing(Post::getCreatedAt).reversed());
+
+            List<Post> latest10Posts = posts.stream().limit(10).toList();
+
+            model.addAttribute("recentPosts", latest10Posts);
+            model.addAttribute("communities", joinedCommunities);
+            model.addAttribute("recentCommunities", recentCommunities);
+            model.addAttribute("posts", posts.getContent());
+            model.addAttribute("hasNext", posts.hasNext());
+
+            return "home";
         }
-
-        recentPosts.sort(Comparator.comparing(Post::getCreatedAt).reversed());
-
-        List<Post> latest10Posts = posts.stream()
-                .limit(10)
-                .toList();
-
-        model.addAttribute("recentPosts", latest10Posts);
-        model.addAttribute("communities", joinedCommunities);
-        model.addAttribute("recentCommunities", recentCommunities);
-        model.addAttribute("posts", posts);
-        model.addAttribute("hasNext", posts.hasNext());
-
-        return "home";
-    }
-
 
     @GetMapping("/posts/scroll")
     public String getMorePosts(@RequestParam(defaultValue = "0") int pageNumber,
                                @RequestParam(defaultValue = "10") int pageSize,
                                @RequestParam(defaultValue = "createdAt") String sortBy,
                                Model model) {
+
         Page<Post> posts = postService.getAllPost(pageNumber, pageSize, sortBy);
-        model.addAttribute("posts", posts);
+
+        // IMPORTANT: send only the list, not the Page
+        model.addAttribute("posts", posts.getContent());
         model.addAttribute("hasNext", posts.hasNext());
+
+        // return the lightweight fragment
         return "fragments/posts :: postSection";
     }
+
 
     @GetMapping("/posts/{postId}")
     public String getPostById(@PathVariable Long postId, Model model, Authentication authentication) {
@@ -138,7 +143,7 @@ public class PostController {
         User owner = community.getCreator();
 
         Map<Long, Integer> commentVotes = new HashMap<>();
-        for (Comment comment : topLevelComments) {
+        for(Comment comment : topLevelComments) {
             int voteCount = commentService.getVoteCountForComment(comment.getId());
             commentVotes.put(comment.getId(), voteCount);
         }

@@ -1,310 +1,66 @@
-<!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" th:fragment="postSection">
-<head>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f9f9f9;
-        }
-        .post-container {
-            max-width: 700px;
-            background-color: white;
-            margin: 20px auto;
-            padding: 16px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .post-container:hover {
-            background-color: #edf0f2;
-        }
-        .post-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .community-link {
-            text-decoration: none;
-            color: #333;
-            font-weight: 500;
-            transition: color 0.2s ease-in-out;
-        }
-        .community-link:hover {
-            color: #4da6ff;
-        }
-       .post-header-left {
-            font-size: 14px;
-        }
-        .community-link {
-            text-decoration: none;
-            color: #333; /* dark gray/black */
-            font-weight: 500;
-        }
-        .post-time {
-            color: #999; /* light gray for time */
-            margin-left: 4px;
-        }
-        .post-title {
-            font-size: 18px;
-            font-weight: bold;
-            margin-top: 8px;
-            color: #777;
-        }
-        .post-image {
-            width: 100%;
-            margin-top: 12px;
-            border-radius: 8px;
-        }
-        .post-actions {
-            display: flex;
-            gap: 20px;
-            padding-top: 12px;
-            font-size: 14px;
-            color: #555;
-            align-items: center;
-        }
-        .post-actions div {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .post-actions i {
-            font-size: 16px;
-        }
-        .join-btn {
-            background-color: #0079d3;
-            color: white;
-            border: none;
-            padding: 6px 12px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        .menu-container {
-            position: relative;
-            display: inline-block;
-        }
-        .menu-btn {
-            background: none;
-            border: none;
-            font-size: 18px;
-            cursor: pointer;
-        }
-        .menu-dropdown {
-            display: none;
-            position: absolute;
-            background-color: white;
-            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-            padding: 8px 0;
-            right: 0;
-            top: 25px;
-            border-radius: 6px;
-            z-index: 1000;
-        }
-        .menu-dropdown a {
-            display: block;
-            padding: 8px 16px;
-            color: #333;
-            text-decoration: none;
-            font-size: 14px;
-        }
-        .menu-dropdown a:hover {
-            background-color: #f0f0f0;
-        }
-        .menu-container:hover .menu-dropdown {
-            display: block;
-        }
-        .post-content {
-            margin-top: 12px;
-            font-size: 15px;
-            line-height: 1.5;
-            color: #333;
-        }
-        .vote-buttons {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 20px;
-        }
-        .vote-buttons .upvote-btn.active {
-            color: #ff4500;
-        }
-        .vote-buttons .downvote-btn.active {
-            color: #7193ff;
-        }
-        .vote-count {
-            font-size: 14px;
-        }
-        .action-button {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            background-color: #e2e6ea;
-            padding: 6px 12px;
-            border-radius: 999px;
-            font-size: 14px;
-            color: #555;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        .action-button:hover {
-            background-color: #f6f7f8;
-        }
-        .action-button i {
-            font-size: 16px;
-        }
-    </style>
-</head>
-<body>
-<div id="post-list">
-    <div th:each="post : ${posts.content}" class="post-container">
-        <div class="post-header">
-            <div class="post-header-left">
-                <a th:text="'r/' + ${post.community.name}"  href="========Have TO Provide ======"
-                   class="community-link"></a>
-                <span class="post-time" th:text="' • ' + ${post.showTime}"></span>
-            </div>
+<!--suppress HtmlUnknownAttribute -->
+<th:block xmlns:th="http://www.thymeleaf.org" th:fragment="postSection (posts, hasNext)">
 
-            <div>
-                <button class="join-btn">Join</button>
-                <div class="menu-container">
-                    <button class="menu-btn"><i class="fa-solid fa-ellipsis"></i></button>
-                    <div class="menu-dropdown">
-                        <a href="#">Save</a>
+    <!-- Match the exact structure from home.html -->
+    <div th:each="post : ${posts}" class="post-container">
+        <div class="post-votes">
+            <div class="vote-buttons" th:data-post-id="${post.id}">
+                <i class="fa-solid fa-arrow-up upvote-btn"
+                   th:classappend="${post.isLiked} == true ? ' active' : ''"></i>
+                <span class="vote-count" th:text="${post.voteCount}">0</span>
+                <i class="fa-solid fa-arrow-down downvote-btn"
+                   th:classappend="${post.isLiked} == false ? ' active' : ''"></i>
+            </div>
+        </div>
+
+        <div class="post-content-area">
+            <div class="post-header">
+                <div class="post-header-left">
+                    <a th:href="@{'/r/' + ${post.community.name}}"
+                       th:text="'r/' + ${post.community.name}"
+                       class="community-link"></a>
+                    <span class="post-time" th:text="' • ' + ${post.showTime}"></span>
+                </div>
+
+                <div class="post-header-right">
+                    <button class="join-btn">Join</button>
+                    <div class="menu-container">
+                        <button class="menu-btn"><i class="fa-solid fa-ellipsis"></i></button>
+                        <div class="menu-dropdown">
+                            <a href="#">Save</a>
+                            <a href="#">Hide</a>
+                            <a href="#">Report</a>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        <div class="post-title" th:text="${post.title}">Post title</div>
-        <div th:if="${post.mediaUrl != null}">
-            <img class="post-image" th:src="${post.mediaUrl}" alt="Post image">
-        </div>
-        <div class="post-content" th:if="${post.mediaUrl == null and post.content != null}" th:text="${post.content}">
-        </div>
 
-        <div class="post-actions">
-            <div class="action-button vote-buttons" th:data-post-id="${post.id}">
-                <i class="fa-solid fa-arrow-up upvote-btn" th:classappend="${post.isLiked} == true ? ' active' : ''"></i>
-                <span class="vote-count" th:text="${post.voteCount}">0</span>
-                <i class="fa-solid fa-arrow-down downvote-btn" th:classappend="${post.isLiked} == false ? ' active' : ''"></i>
+            <div class="post-title" th:text="${post.title}">Post title</div>
+
+            <div th:if="${post.mediaUrl != null}" class="post-media">
+                <img class="post-image" th:src="${post.mediaUrl}" alt="Post image">
             </div>
-            <a th:href="@{/posts/{id}(id=${post.id})}" style="text-decoration: none;">
-                <div class="action-button">
+
+            <div class="post-text"
+                 th:if="${post.mediaUrl == null and post.content != null}"
+                 th:text="${post.content}">
+            </div>
+
+            <div class="post-actions">
+                <a th:href="@{/posts/{id}(id=${post.id})}" class="action-button comment-btn">
                     <i class="fa-regular fa-comment"></i>
-                    <span th:text="${post.comments.size()}">0</span>
+                    <span th:text="${post.comments.size()} + ' Comments'">0 Comments</span>
+                </a>
+                <div class="action-button share-btn">
+                    <i class="fa-solid fa-share"></i>
+                    <span>Share</span>
                 </div>
-            </a>
-            <div class="action-button">
-                <i class="fa-solid fa-share"></i>
-                <span>Share</span>
+                <div class="action-button save-btn">
+                    <i class="fa-regular fa-bookmark"></i>
+                    <span>Save</span>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
-<div id="loading" style="text-align: center; padding: 10px; display: none;">
-    <p>Loading more posts...</p>
-</div>
-
-
-<!-- JavaScript to Infinite Scroll -->
-<script>
-    let currentPage = 1;
-    let loading = false;
-    let hasNext = /*[[${hasNext}]]*/ true;
-
-    window.addEventListener('scroll', () => {
-        if (loading || !hasNext) return;
-
-        const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 500;
-        if (nearBottom) {
-            loadMorePosts();
-        }
-    });
-
-    function loadMorePosts() {
-        loading = true;
-        document.getElementById('loading').style.display = 'block';
-
-        fetch(`/posts/scroll?pageNumber=${currentPage}&pageSize=10&sortBy=createdAt`)
-            .then(response => response.text())
-            .then(data => {
-                const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = data;
-
-                const newPosts = tempDiv.querySelectorAll('.post-container');
-                const postList = document.getElementById('post-list');
-                newPosts.forEach(post => postList.appendChild(post));
-
-                hasNext = data.includes('class="post-container"'); // crude check
-                currentPage++;
-                loading = false;
-                document.getElementById('loading').style.display = 'none';
-            })
-            .catch(error => {
-                console.error('Error loading more posts:', error);
-                loading = false;
-                document.getElementById('loading').style.display = 'none';
-            });
-    }
-</script>
-<script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const postList = document.getElementById('post-list');
-
-        postList.addEventListener('click', (e) => {
-            const target = e.target;
-            const voteGroup = target.closest('.vote-buttons');
-            if (!voteGroup) return;
-
-            const upvoteBtn = voteGroup.querySelector('.upvote-btn');
-            const downvoteBtn = voteGroup.querySelector('.downvote-btn');
-            const voteCountSpan = voteGroup.querySelector('.vote-count');
-            const postId = voteGroup.getAttribute('data-post-id');
-            let voteCount = parseInt(voteCountSpan.textContent);
-
-            // Store vote state on the element itself
-            if (voteGroup.dataset.voteState === undefined) {
-                voteGroup.dataset.voteState = "0"; // default neutral
-            }
-
-            let currentVote = parseInt(voteGroup.dataset.voteState);
-
-            if (target.classList.contains('upvote-btn')) {
-                if (currentVote === 1) {
-                    upvoteBtn.classList.remove('active');
-                    voteCount -= 1;
-                    voteGroup.dataset.voteState = "0";
-                    sendVote(`/votes/remove/${postId}`, 'DELETE');
-                } else {
-                    upvoteBtn.classList.add('active');
-                    downvoteBtn.classList.remove('active');
-                    voteCount += (currentVote === -1 ? 2 : 1);
-                    voteGroup.dataset.voteState = "1";
-                    sendVote(`/votes/upvote/${postId}`);
-                }
-            } else if (target.classList.contains('downvote-btn')) {
-                if (currentVote === -1) {
-                    downvoteBtn.classList.remove('active');
-                    voteCount += 1;
-                    voteGroup.dataset.voteState = "0";
-                    sendVote(`/votes/remove/${postId}`, 'DELETE');
-                } else {
-                    downvoteBtn.classList.add('active');
-                    upvoteBtn.classList.remove('active');
-                    voteCount -= (currentVote === 1 ? 2 : 1);
-                    voteGroup.dataset.voteState = "-1";
-                    sendVote(`/votes/downvote/${postId}`);
-                }
-            }
-
-            voteCountSpan.textContent = voteCount;
-        });
-
-        function sendVote(url, method = 'POST') {
-            fetch(url, { method }).catch(err => console.error('Vote error:', err));
-        }
-    });
-</script>
-</body>
-</html>
+</th:block>

@@ -32,7 +32,7 @@ public class UserController {
 		if (principal != null) {
 			model.addAttribute("username", principal.getName());
 		}
-		return "home-temp";
+		return "home";
 	}
 
 	@GetMapping("/user/register")

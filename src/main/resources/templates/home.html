@@ -2,15 +2,687 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8"/>
     <title>Reddit Clone - Home</title>
+    <!-- Global / reset CSS -->
+    <link rel="stylesheet" th:href="@{/css/base.css}"/>
+    <link rel="stylesheet" th:href="@{/css/layout.css}"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: #dae0e6;
+            font-family: 'IBM Plex Sans', Arial, sans-serif;
+            overflow-x: hidden;
+        }
+
+/* Add this to your existing <style> tag in home.html */
+
+/* Fixed height for post containers */
+.post-container {
+    min-height: 120px;
+    max-height: 600px; /* Prevents posts from getting too tall */
+}
+
+/* Control post content height */
+.post-text {
+    max-height: 300px;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Add "Read more" gradient for long text posts */
+.post-text::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+    background: linear-gradient(transparent, white);
+    pointer-events: none;
+}
+
+/* Limit post title height */
+.post-title {
+    max-height: 66px; /* About 3 lines */
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    line-height: 22px;
+}
+
+/* Fixed image dimensions */
+.post-image {
+    max-width: 100%;
+    max-height: 400px;
+    width: auto;
+    height: auto;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+/* Ensure consistent spacing */
+.post-content-area {
+    min-height: 80px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* Keep post actions at bottom */
+.post-actions {
+    margin-top: auto;
+    padding-top: 8px;
+}
+
+        /* Fixed header - exactly like Reddit */
+        .header-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: white;
+            border-bottom: 1px solid #ddd;
+            height: 48px; /* Reddit's exact header height */
+        }
+
+        /* Main content container - Reddit's exact layout */
+        .home-wrapper {
+            margin-top: 48px;
+            display: flex;
+            justify-content: center;
+            min-height: calc(100vh - 48px);
+            padding: 20px 24px;
+            gap: 24px;
+            max-width: 1248px; /* Reddit's max container width */
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* Left sidebar - exact Reddit dimensions */
+        .home-left {
+            width: 312px; /* Reddit's exact left sidebar width */
+            position: sticky;
+            top: 68px; /* header height + padding */
+            height: fit-content;
+            flex-shrink: 0;
+        }
+
+        /* Main content area - exact Reddit dimensions */
+        .home-main {
+            width: 640px; /* Reddit's exact main content width */
+            flex-shrink: 0;
+        }
+
+        /* Right sidebar - exact Reddit dimensions */
+        .home-right {
+            width: 312px; /* Reddit's exact right sidebar width */
+            position: sticky;
+            top: 68px;
+            height: fit-content;
+            flex-shrink: 0;
+        }
+
+        /* Loading indicator styling */
+        #loading {
+            text-align: center;
+            padding: 20px;
+            margin: 16px 0;
+            background: white;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            display: none;
+        }
+
+        #loading p {
+            margin: 0;
+            color: #878a8c;
+            font-size: 14px;
+        }
+
+        /* Reddit's exact responsive breakpoints */
+        @media (max-width: 1200px) {
+            .home-wrapper {
+                max-width: 984px;
+                padding: 20px 16px;
+                gap: 24px;
+            }
+
+            .home-right {
+                display: none;
+            }
+
+            .home-main {
+                width: 640px; /* Keep main content fixed width */
+            }
+        }
+
+        @media (max-width: 960px) {
+            .home-wrapper {
+                padding: 0;
+                gap: 0;
+                max-width: 100%;
+            }
+
+            .home-left {
+                display: none;
+            }
+
+            .home-main {
+                width: 100%;
+                padding: 0 16px;
+            }
+        }
+
+        /* Custom scrollbar for sidebars */
+        .home-left::-webkit-scrollbar,
+        .home-right::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .home-left::-webkit-scrollbar-track,
+        .home-right::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .home-left::-webkit-scrollbar-thumb,
+        .home-right::-webkit-scrollbar-thumb {
+            background: #c7c7c7;
+            border-radius: 2px;
+        }
+
+        /* Override sidebar container styles to match Reddit exactly */
+        .left-sidebar-container {
+            font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-size: 14px;
+            background-color: transparent;
+            height: 100%;
+        }
+
+        .sidebar {
+            width: 100%;
+            background-color: #ffffff;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            margin-bottom: 16px;
+        }
+
+        .post-sidebar {
+            width: 100%;
+            padding: 12px;
+            background-color: #ffffff;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            font-family: 'IBM Plex Sans', Arial, sans-serif;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+
+        /* Sort tabs container - Reddit style */
+        .sort-tabs {
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 4px 4px 0 0;
+            padding: 8px 12px;
+            margin-bottom: 0;
+            display: flex;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .sort-tab {
+            color: #878a8c;
+            text-decoration: none;
+            padding: 4px 8px;
+            border-radius: 2px;
+            transition: background-color 0.2s;
+        }
+
+        .sort-tab:hover {
+            background-color: #f6f7f8;
+        }
+
+        .sort-tab.active {
+            color: #0079d3;
+            background-color: #f6f7f8;
+        }
+    </style>
 </head>
 <body>
+<!-- Fixed Header -->
+<div class="header-container">
+    <div th:replace="fragments/header :: header"></div>
+</div>
 
-<!-- Include header -->
-<div th:replace="fragments/header :: header"></div>
+<!-- Main Layout Container -->
+<div class="home-wrapper">
+    <!-- Left Sidebar (Sticky) -->
+    <aside class="home-left"
+           th:replace="fragments/left-sidebar-fragment :: leftSidebar(${communities}, ${recentCommunities})"></aside>
 
-<!-- Add other page content below -->
+    <!-- Main Content Area -->
+    <main class="home-main">
+        <!-- Sort Tabs (like Reddit) -->
+        <div class="sort-tabs">
+            <a href="#" class="sort-tab active"><i class="fas fa-fire"></i> Hot</a>
+            <a href="#" class="sort-tab"><i class="fas fa-arrow-up"></i> New</a>
+            <a href="#" class="sort-tab"><i class="fas fa-chart-line"></i> Top</a>
+            <a href="#" class="sort-tab"><i class="fas fa-arrow-trend-up"></i> Rising</a>
+        </div>
 
+        <!-- Posts Section -->
+        <div id="post-list">
+            <div th:each="post : ${posts}" class="post-container">
+                <div class="post-votes">
+                    <div class="vote-buttons" th:data-post-id="${post.id}">
+                        <i class="fa-solid fa-arrow-up upvote-btn"
+                           th:classappend="${post.isLiked} == true ? ' active' : ''"></i>
+                        <span class="vote-count" th:text="${post.voteCount}">0</span>
+                        <i class="fa-solid fa-arrow-down downvote-btn"
+                           th:classappend="${post.isLiked} == false ? ' active' : ''"></i>
+                    </div>
+                </div>
+
+                <div class="post-content-area">
+                    <div class="post-header">
+                        <div class="post-header-left">
+                            <a th:href="@{'/r/' + ${post.community.name}}"
+                               th:text="'r/' + ${post.community.name}"
+                               class="community-link"></a>
+                            <span class="post-time" th:text="' • ' + ${post.showTime}"></span>
+                        </div>
+
+                        <div class="post-header-right">
+                            <button class="join-btn">Join</button>
+                            <div class="menu-container">
+                                <button class="menu-btn"><i class="fa-solid fa-ellipsis"></i></button>
+                                <div class="menu-dropdown">
+                                    <a href="#">Save</a>
+                                    <a href="#">Hide</a>
+                                    <a href="#">Report</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="post-title" th:text="${post.title}">Post title</div>
+
+                    <div th:if="${post.mediaUrl != null}" class="post-media">
+                        <img class="post-image" th:src="${post.mediaUrl}" alt="Post image">
+                    </div>
+
+                    <div class="post-text"
+                         th:if="${post.mediaUrl == null and post.content != null}"
+                         th:text="${post.content}">
+                    </div>
+
+                    <div class="post-actions">
+                        <a th:href="@{/posts/{id}(id=${post.id})}" class="action-button comment-btn">
+                            <i class="fa-regular fa-comment"></i>
+                            <span th:text="${post.comments.size()} + ' Comments'">0 Comments</span>
+                        </a>
+                        <div class="action-button share-btn">
+                            <i class="fa-solid fa-share"></i>
+                            <span>Share</span>
+                        </div>
+                        <div class="action-button save-btn">
+                            <i class="fa-regular fa-bookmark"></i>
+                            <span>Save</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Indicator -->
+        <div id="loading">
+            <p><i class="fas fa-spinner fa-spin"></i> Loading more posts...</p>
+        </div>
+    </main>
+
+    <!-- Right Sidebar (Sticky) -->
+    <aside class="home-right"
+           th:replace="fragments/right-sidebar-fragment :: rightSidebar(${recentPosts})"></aside>
+</div>
+
+<!-- Reddit-style Post Styling -->
+<style>
+    .post-container {
+        display: flex;
+        background-color: white;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        overflow: hidden;
+        transition: border-color 0.2s;
+    }
+
+    .post-container:hover {
+        border-color: #898989;
+    }
+
+    .post-votes {
+        width: 40px;
+        background-color: #f8f9fa;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 8px 4px;
+        flex-shrink: 0;
+    }
+
+    .vote-buttons {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+        font-size: 16px;
+    }
+
+    .vote-buttons i {
+        cursor: pointer;
+        padding: 2px;
+        border-radius: 2px;
+        color: #878a8c;
+        transition: color 0.2s, background-color 0.2s;
+    }
+
+    .vote-buttons i:hover {
+        background-color: #f6f7f8;
+    }
+
+    .vote-buttons .upvote-btn.active {
+        color: #ff4500;
+    }
+
+    .vote-buttons .downvote-btn.active {
+        color: #7193ff;
+    }
+
+    .vote-count {
+        font-size: 12px;
+        font-weight: bold;
+        color: #1c1c1c;
+        margin: 2px 0;
+    }
+
+    .post-content-area {
+        flex: 1;
+        padding: 8px 8px 8px 8px;
+        overflow: hidden;
+    }
+
+    .post-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+
+    .post-header-left {
+        font-size: 12px;
+        color: #787c7e;
+        display: flex;
+        align-items: center;
+    }
+
+    .community-link {
+        text-decoration: none;
+        color: #1c1c1c;
+        font-weight: bold;
+        font-size: 12px;
+    }
+
+    .community-link:hover {
+        text-decoration: underline;
+    }
+
+    .post-time {
+        color: #787c7e;
+        margin-left: 4px;
+    }
+
+    .post-header-right {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .post-title {
+        font-size: 18px;
+        font-weight: 500;
+        line-height: 22px;
+        color: #1c1c1c;
+        margin-bottom: 8px;
+        cursor: pointer;
+    }
+
+    .post-title:hover {
+        color: #0079d3;
+    }
+
+    .post-media {
+        margin-bottom: 8px;
+    }
+
+    .post-image {
+        max-width: 100%;
+        height: auto;
+        border-radius: 4px;
+    }
+
+    .post-text {
+        color: #1c1c1c;
+        font-size: 14px;
+        line-height: 21px;
+        margin-bottom: 8px;
+    }
+
+    .post-actions {
+        display: flex;
+        gap: 4px;
+        font-size: 12px;
+        color: #787c7e;
+        align-items: center;
+    }
+
+    .action-button {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 2px 8px;
+        border-radius: 2px;
+        cursor: pointer;
+        text-decoration: none;
+        color: #787c7e;
+        font-weight: bold;
+        transition: background-color 0.2s;
+    }
+
+    .action-button:hover {
+        background-color: #f6f7f8;
+    }
+
+    .action-button i {
+        font-size: 16px;
+    }
+
+    .join-btn {
+        background-color: #0079d3;
+        color: white;
+        border: none;
+        padding: 4px 16px;
+        border-radius: 9999px;
+        cursor: pointer;
+        font-weight: bold;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .join-btn:hover {
+        background-color: #0060a6;
+    }
+
+    .menu-container {
+        position: relative;
+    }
+
+    .menu-btn {
+        background: none;
+        border: none;
+        font-size: 16px;
+        cursor: pointer;
+        color: #787c7e;
+        padding: 4px;
+        border-radius: 2px;
+    }
+
+    .menu-btn:hover {
+        background-color: #f6f7f8;
+    }
+
+    .menu-dropdown {
+        display: none;
+        position: absolute;
+        background-color: white;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        border: 1px solid #edeff1;
+        border-radius: 4px;
+        right: 0;
+        top: 100%;
+        z-index: 1000;
+        min-width: 120px;
+    }
+
+    .menu-dropdown a {
+        display: block;
+        padding: 8px 16px;
+        color: #1c1c1c;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 400;
+    }
+
+    .menu-dropdown a:hover {
+        background-color: #f6f7f8;
+    }
+
+    .menu-container:hover .menu-dropdown {
+        display: block;
+    }
+</style>
+
+<!-- JavaScript for infinite scroll and voting -->
+<script>
+    let currentPage = 1;
+    let loading = false;
+    let hasNext = /*[[${hasNext}]]*/ true;
+
+    window.addEventListener('scroll', () => {
+        if (loading || !hasNext) return;
+        const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 500;
+        if (nearBottom) loadMorePosts();
+    });
+
+    function loadMorePosts() {
+        loading = true;
+        document.getElementById('loading').style.display = 'block';
+        fetch(`/posts/scroll?pageNumber=${currentPage}&pageSize=10&sortBy=createdAt`)
+            .then(response => response.text())
+            .then(data => {
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = data;
+                const newPosts = tempDiv.querySelectorAll('.post-container');
+                const postList = document.getElementById('post-list');
+                newPosts.forEach(post => postList.appendChild(post));
+                hasNext = newPosts.length > 0;
+                currentPage++;
+                loading = false;
+                document.getElementById('loading').style.display = 'none';
+            })
+            .catch(error => {
+                console.error('Error loading more posts:', error);
+                loading = false;
+                document.getElementById('loading').style.display = 'none';
+            });
+    }
+
+    // Voting functionality
+    document.addEventListener("DOMContentLoaded", () => {
+        const postList = document.getElementById('post-list');
+        postList.addEventListener('click', (e) => {
+            const target = e.target;
+            const voteGroup = target.closest('.vote-buttons');
+            if (!voteGroup) return;
+
+            const upvoteBtn = voteGroup.querySelector('.upvote-btn');
+            const downvoteBtn = voteGroup.querySelector('.downvote-btn');
+            const voteCountSpan = voteGroup.querySelector('.vote-count');
+            const postId = voteGroup.getAttribute('data-post-id');
+            let voteCount = parseInt(voteCountSpan.textContent);
+
+            if (voteGroup.dataset.voteState === undefined) {
+                voteGroup.dataset.voteState = "0";
+            }
+
+            let currentVote = parseInt(voteGroup.dataset.voteState);
+
+            if (target.classList.contains('upvote-btn')) {
+                if (currentVote === 1) {
+                    upvoteBtn.classList.remove('active');
+                    voteCount -= 1;
+                    voteGroup.dataset.voteState = "0";
+                    sendVote(`/votes/remove/${postId}`, 'DELETE');
+                } else {
+                    upvoteBtn.classList.add('active');
+                    downvoteBtn.classList.remove('active');
+                    voteCount += (currentVote === -1 ? 2 : 1);
+                    voteGroup.dataset.voteState = "1";
+                    sendVote(`/votes/upvote/${postId}`);
+                }
+            } else if (target.classList.contains('downvote-btn')) {
+                if (currentVote === -1) {
+                    downvoteBtn.classList.remove('active');
+                    voteCount += 1;
+                    voteGroup.dataset.voteState = "0";
+                    sendVote(`/votes/remove/${postId}`, 'DELETE');
+                } else {
+                    downvoteBtn.classList.add('active');
+                    upvoteBtn.classList.remove('active');
+                    voteCount -= (currentVote === 1 ? 2 : 1);
+                    voteGroup.dataset.voteState = "-1";
+                    sendVote(`/votes/downvote/${postId}`);
+                }
+            }
+
+            voteCountSpan.textContent = voteCount;
+        });
+
+        function sendVote(url, method = 'POST') {
+            fetch(url, { method }).catch(err => console.error('Vote error:', err));
+        }
+    });
+
+    // Dropdown functionality for left sidebar
+    function toggleDropdown(id) {
+        const el = document.getElementById(id);
+        if (el) {
+            el.classList.toggle("show");
+        }
+    }
+</script>
 </body>
 </html>
