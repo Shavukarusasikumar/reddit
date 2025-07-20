@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <style>
+    .sidebar-container {
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .post-sidebar {
+        width: 325px;
+        padding: 1.5rem;
+        margin: 50px 0 50px 50px; /* Only left margin to avoid right overflow */
+        background-color: #f9f9f9;
+        border-radius: 10px;
+        height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+        font-family: Arial, sans-serif;
+    }
+
+    .sidebar-heading {
+        font-size: 1.2rem;
+        font-weight: bold;
+        margin-bottom: 1rem;
+    }
+
+    .post-card {
+        display: flex;
+        justify-content: space-between;
+        gap: 0.75rem;
+        padding: 0.75rem 0;
+        cursor: pointer;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    .post-content {
+        flex: 1;
+    }
+
+    .post-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .community-icon {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        margin-right: 0.5rem;
+    }
+
+    .community-name {
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+    .post-title {
+        font-size: 1rem;
+        font-weight: bold;
+        margin: 0.3rem 0;
+    }
+
+    .post-meta {
+        color: #666;
+        font-size: 0.85rem;
+    }
+
+    .post-image-container {
+        flex-shrink: 0;
+        width: 80px;
+        height: 80px;
+        overflow: hidden;
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .post-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+<div th:fragment="rightSidebar" class="sidebar-container">
+  <div class="sidebar-container">
+    <div class="post-sidebar">
+      <h3 class="sidebar-heading">Recent Posts</h3>
+
+      <div class="post-card" th:each="post : ${posts}" th:onclick="|window.location.href='/posts/${post.id}'|">
+        <div class="post-content">
+          <div class="post-header">
+            <img th:src="${post.community.iconUrl}" alt="Community Icon"
+                 class="community-icon"
+                 onerror="this.onerror=null;this.src='https://via.placeholder.com/40'">
+            <span class="community-name" th:text="'r/' + ${post.community.name}">Community</span>
+          </div>
+          <div class="post-title" th:text="${post.title}">Post Title</div>
+          <div class="post-meta">
+            <span th:text="${#lists.size(post.postVotes)} + ' upvotes'"></span> ·
+            <span th:text="${#lists.size(post.comments)} + ' comments'"></span>
+          </div>
+        </div>
+
+        <div class="post-image-container" th:if="${post.mediaUrl != null}">
+          <img th:src="${post.mediaUrl}" class="post-image" alt="Post Image"
+               onerror="this.onerror=null;this.src='https://via.placeholder.com/80'">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
