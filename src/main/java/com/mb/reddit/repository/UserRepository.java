@@ -39,4 +39,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<Community> findAllCreatedCommunitiesByUserId(@Param("userId") Long userId);
 
     User findUserByUsername(String name);
+    boolean existsByUsername(String username);
+    boolean existsByEmail(String email);
 }

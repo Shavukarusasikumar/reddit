@@ -570,28 +570,24 @@
     <div class="post-actions">
         <div class="vote-container">
             <!-- Upvote Button -->
-            <form th:action="@{/posts/{postId}/upvote(postId=${post.id})}" method="post" class="vote-button-form">
-                <button type="submit" class="vote-button"
-                        th:classappend="${currentUserVote == true} ? 'active-upvote'">
-                    <svg class="upvote-arrow" width="16" height="16" viewBox="0 0 16 16"
-                         th:fill="${currentUserVote == true} ? '#ff4500' : 'currentColor'">
-                        <path d="M8 2l6 6H9v6H7V8H2l6-6z"/>
-                    </svg>
-                </button>
-            </form>
+            <button type="button" class="vote-button upvote-btn"
+                    th:classappend="${currentUserVote == true} ? 'active-upvote'">
+                <svg class="upvote-arrow" width="16" height="16" viewBox="0 0 16 16"
+                     th:fill="${currentUserVote == true} ? '#ff4500' : 'currentColor'">
+                    <path d="M8 2l6 6H9v6H7V8H2l6-6z"/>
+                </svg>
+            </button>
 
             <div class="vote-count" th:text="${postVoteCount}">0</div>
 
             <!-- Downvote Button -->
-            <form th:action="@{/posts/{postId}/downvote(postId=${post.id})}" method="post" class="vote-button-form">
-                <button type="submit" class="vote-button"
-                        th:classappend="${currentUserVote == false} ? 'active-downvote'">
-                    <svg class="downvote-arrow" width="16" height="16" viewBox="0 0 16 16"
-                         th:fill="${currentUserVote == false} ? '#7193ff' : 'currentColor'">
-                        <path d="M8 2l6 6H9v6H7V8H2l6-6z"/>
-                    </svg>
-                </button>
-            </form>
+            <button type="button" class="vote-button downvote-btn"
+                    th:classappend="${currentUserVote == false} ? 'active-downvote'">
+                <svg class="downvote-arrow" width="16" height="16" viewBox="0 0 16 16"
+                     th:fill="${currentUserVote == false} ? '#7193ff' : 'currentColor'">
+                    <path d="M8 2l6 6H9v6H7V8H2l6-6z"/>
+                </svg>
+            </button>
         </div>
 
         <div class="action-button comments-button">
@@ -670,8 +666,8 @@
                             </form>
                         </div>
                         <div class="comment-action reply-button">Reply</div>
-                        <div class="comment-action">Share</div>
-                        <div class="comment-action">•••</div>
+                        <!--<div class="comment-action">Share</div>
+                        <div class="comment-action">•••</div>-->
                     </div>
 
                     <!-- Reply Form -->
@@ -732,8 +728,8 @@
                                     </form>
                                 </div>
                                 <div class="comment-action reply-button">Reply</div>
-                                <div class="comment-action">Share</div>
-                                <div class="comment-action">•••</div>
+<!--                                <div class="comment-action">Share</div>-->
+<!--                                <div class="comment-action">•••</div>-->
                             </div>
 
                             <!-- Reply Form -->
@@ -804,6 +800,80 @@
                 this.closest('.reply-form').classList.add('hidden');
             });
         });
+    });
+
+        document.addEventListener('DOMContentLoaded', function() {
+        // Handle voting
+        const voteContainers = document.querySelectorAll('.vote-container');
+
+        voteContainers.forEach(container => {
+        const upvoteBtn = container.querySelector('.upvote-btn');
+        const downvoteBtn = container.querySelector('.downvote-btn');
+        const voteCountSpan = container.querySelector('.vote-count');
+        const postId = container.getAttribute('data-post-id');
+        let voteCount = parseInt(voteCountSpan.textContent);
+
+        // Initialize vote state from data attribute
+        let currentVote = parseInt(container.getAttribute('data-vote-state')) || 0;
+
+        upvoteBtn.addEventListener('click', async () => {
+        if (currentVote === 1) {
+        // Remove upvote
+        upvoteBtn.classList.remove('active-upvote');
+        voteCount -= 1;
+        currentVote = 0;
+        await sendVote(`/votes/remove/${postId}`, 'DELETE');
+    } else {
+        // Add upvote
+        upvoteBtn.classList.add('active-upvote');
+        downvoteBtn.classList.remove('active-downvote');
+        voteCount += (currentVote === -1 ? 2 : 1);
+        currentVote = 1;
+        await sendVote(`/votes/upvote/${postId}`);
+    }
+        voteCountSpan.textContent = voteCount;
+    });
+
+        downvoteBtn.addEventListener('click', async () => {
+        if (currentVote === -1) {
+        // Remove downvote
+        downvoteBtn.classList.remove('active-downvote');
+        voteCount += 1;
+        currentVote = 0;
+        await sendVote(`/votes/remove/${postId}`, 'DELETE');
+    } else {
+        // Add downvote
+        downvoteBtn.classList.add('active-downvote');
+        upvoteBtn.classList.remove('active-upvote');
+        voteCount -= (currentVote === 1 ? 2 : 1);
+        currentVote = -1;
+        await sendVote(`/votes/downvote/${postId}`);
+    }
+        voteCountSpan.textContent = voteCount;
+    });
+    });
+
+        async function sendVote(url, method = 'POST') {
+        try {
+        const response = await fetch(url, {
+        method: method,
+        headers: {
+        'Content-Type': 'application/json',
+        // Add CSRF token if needed
+        // 'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]').content
+    }
+    });
+
+        if (!response.ok) {
+        throw new Error('Vote failed');
+    }
+    } catch (error) {
+        console.error('Error:', error);
+        // You might want to revert the UI changes here if the vote failed
+    }
+    }
+
+        // ... (keep your existing reply button handling code) ...
     });
 </script>
 </body>

@@ -73,8 +73,6 @@ public class PostVoteServiceImpl implements PostVoteService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
 
-        PostVote postVote = postVoteRepository.getPostVoteByUserIdAndPostId(currentUser.getId(),
-                postId).orElseThrow(() -> new RuntimeException("No postVote present " + postId));
         return postVoteRepository.findByUserAndPost(user, post)
                 .map(PostVote::getIsLike)
                 .orElse(null);

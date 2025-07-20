@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -29,6 +30,8 @@ public class Community {
     private String bannerUrl;
 
     private Boolean isPrivate;
+
+    private LocalDateTime createdAt;
 
     @ManyToOne
     private User creator;
