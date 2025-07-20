@@ -28,4 +28,5 @@ public interface UserService {
     void deleteFollowerById(long id);
     void deleteFollowingById(long id);
     User getCurrentUser();
+    boolean hasUserJoinedCommunity(Community community);
 }

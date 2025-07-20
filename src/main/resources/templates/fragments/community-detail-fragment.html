@@ -1,0 +1,137 @@
+<!-- fragments/right-sidebar.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:fragment="communityDetail">
+<head>
+    <!-- ✅ [UNCHANGED STYLES AND LINK] -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        .sidebar-container {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .right-sidebar {
+            margin: 0px 80px 0px 50px;
+            background-color: #f6f7f8;
+            padding: 16px;
+            width: 350px;
+            border-radius: 8px;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .join-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            background-color: #0079d3;
+            color: white;
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .joined-btn {
+            background-color: #e0e0e0;
+            color: #333;
+        }
+
+        .community-title {
+            font-size: 18px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .community-description {
+            font-size: 18px;
+            color: #444;
+            margin-bottom: 12px;
+        }
+
+        .meta-info {
+            font-size: 16px;
+            color: #666;
+            display: flex;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .meta-info i {
+            margin-right: 8px;
+        }
+
+        .divider {
+            border-top: 1px solid #ccc;
+            margin: 16px 0;
+        }
+
+        .owner-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .owner-info img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+
+        .owner-name {
+            font-size: 16px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+<!-- ✅ Fragment wrapper: sidebar-container -->
+<div class="sidebar-container">
+    <div class="right-sidebar">
+        <!-- 1. Community name + join/joined -->
+        <div class="row">
+            <div class="community-name" th:text="'r/'+${community.name}">r/ExampleCommunity</div>
+            <button class="join-btn" th:classappend="${isJoined} ? 'joined-btn' : ''"
+                    th:text="${isJoined} ? 'Joined' : 'Join'"></button>
+        </div>
+
+        <!-- 2. Community title -->
+        <div class="community-title" th:text="'The ' + ${community.name} + ' Community'">Example Community Title</div>
+
+        <!-- 3. Community description -->
+        <div class="community-description" th:text="${community.description}">
+            This is a description of the community that talks about what this subreddit is for.
+        </div>
+
+        <!-- 4. Created at -->
+        <div class="meta-info">
+            <i class="fa-solid fa-calendar-days"></i>
+            <span th:text="'Created on ' + ${#temporals.format(community.createdAt, 'dd MMM yyyy')}">
+                Created on 01 Jan 2024
+            </span>
+        </div>
+
+        <!-- 5. Privacy -->
+        <div class="meta-info">
+            <i class="fa-solid fa-lock-open" th:if="${community.isPrivate}"></i>
+            <i class="fa-solid fa-lock" th:if="${!community.isPrivate}"></i>
+            <span th:text="${community.isPrivate} ? 'Private' : 'Public'">Public</span>
+        </div>
+
+        <!-- 6. Divider -->
+        <div class="divider"></div>
+
+        <!-- 7. Owner photo and name -->
+        <div class="owner-info">
+            <img th:src="${owner.profilePicture}" alt="Owner Profile">
+            <div class="owner-name" th:text="${owner.username}">John Doe</div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

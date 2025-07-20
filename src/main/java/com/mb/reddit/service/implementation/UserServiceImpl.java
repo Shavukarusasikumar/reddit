@@ -173,4 +173,18 @@ public class UserServiceImpl implements UserService {
         return userRepository.findUserByUsername(authentication.getName());
     }
 
+    @Override
+    public boolean hasUserJoinedCommunity(Community community) {
+
+        User user = getCurrentUser();
+        List<Community> joinedCommunities = user.getJoinedCommunities();
+
+        for(Community joinedCommunity : joinedCommunities) {
+            if(Objects.equals(joinedCommunity, community)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }

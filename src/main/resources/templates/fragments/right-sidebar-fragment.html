@@ -92,7 +92,7 @@
     <div class="post-sidebar">
       <h3 class="sidebar-heading">Recent Posts</h3>
 
-      <div class="post-card" th:each="post : ${posts}" th:onclick="|window.location.href='/posts/${post.id}'|">
+      <div class="post-card" th:each="post : ${recentPosts}" th:onclick="|window.location.href='/recentPosts/${post.id}'|">
         <div class="post-content">
           <div class="post-header">
             <img th:src="${post.community.iconUrl}" alt="Community Icon"

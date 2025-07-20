@@ -4,12 +4,14 @@ import com.mb.reddit.entity.Comment;
 import com.mb.reddit.entity.Community;
 import com.mb.reddit.entity.Post;
 import com.mb.reddit.service.CommentService;
+import com.mb.reddit.entity.User;
 import com.mb.reddit.service.CommunityService;
 import com.mb.reddit.service.PostService;
 
 import com.mb.reddit.service.PostVoteService;
 import org.springframework.security.core.Authentication;
 import com.mb.reddit.service.UserService;
+import org.springframework.security.core.Authentication;
 import org.springframework.ui.Model;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
@@ -26,6 +28,7 @@ import java.util.Map;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 
 @Controller
 public class PostController {
@@ -113,6 +116,8 @@ public class PostController {
         int commentCount = topLevelComments.size();
 
         Boolean currentUserVote = postVoteService.getVoteStatusByPostId(postId);
+        Community community = post.getCommunity();
+        User owner = community.getCreator();
 
         Map<Long, Integer> commentVotes = new HashMap<>();
         for (Comment comment : topLevelComments) {
@@ -122,6 +127,11 @@ public class PostController {
 
         boolean isAuthenticated = authentication != null && authentication.isAuthenticated();
         model.addAttribute("isAuthenticated", isAuthenticated);
+        boolean isJoined = userService.hasUserJoinedCommunity(community);
+
+        model.addAttribute("community", community);
+        model.addAttribute("owner", owner);
+        model.addAttribute("isJoined", isJoined);
         model.addAttribute("post", post);
         model.addAttribute("topLevelComments", topLevelComments);
         model.addAttribute("commentVotes", commentVotes);
