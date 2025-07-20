@@ -27,4 +27,5 @@ public interface UserService {
     void addFollowerById(long id);
     void deleteFollowerById(long id);
     void deleteFollowingById(long id);
+    User getCurrentUser();
 }

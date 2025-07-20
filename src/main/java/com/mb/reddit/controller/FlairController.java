@@ -17,22 +17,22 @@ public class FlairController {
         this.flairService = flairService;
     }
 
-    @PostMapping
+    @PostMapping("/flair")
     public void createFlair(@PathVariable long communityId, @ModelAttribute Flair flair) {
         flairService.createFlair(communityId, flair);
     }
 
-    @GetMapping
+    @GetMapping("/flair/{flairId}")
     public void getFlairById(@PathVariable long flairId) {
         flairService.getFlairById(flairId);
     }
 
-    @GetMapping
+    @GetMapping("/flair/community/{communityId}")
     public void getAllFlairsByCommunityId(@PathVariable long communityId) {
         flairService.getAllFlairsByCommunityId(communityId);
     }
 
-    @PostMapping
+    @PostMapping("/delete-flair/{flairId}")
     public void deleteFlairById(long flairId) {
         flairService.deleteFlairById(flairId);
     }

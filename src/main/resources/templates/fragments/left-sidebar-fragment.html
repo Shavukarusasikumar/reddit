@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        .left-sidebar-container {
+            font-family: 'Noto Sans', sans-serif;
+            font-size: 16px;
+            background-color: #f8f9fa;
+        }
+
+        .sidebar {
+            width: 340px;
+            background-color: #ffffff;
+            padding: 20px;
+            border-right: 1px solid #ddd;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 20px;
+            font-size: 16px;
+            color: #000;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        .sidebar-link:hover {
+            background-color: #f2f2f2;
+        }
+
+        .sidebar-link.active {
+            background-color: #e6e6e6;
+            font-weight: bold;
+            color: #111;
+        }
+
+        .sidebar-link i {
+            font-size: 22px;
+            color: #000;
+        }
+
+        .sidebar-link.active i {
+            color: #111;
+        }
+
+        .sidebar-section {
+            margin-top: 20px;
+            border-top: 1px solid #ddd;
+        }
+
+        .dropdown-header {
+            padding: 14px 20px;
+            font-weight: 600;
+            font-size: 17px;
+            display: flex;
+            justify-content: space-between;
+            cursor: pointer;
+            color: #222;
+        }
+
+        .dropdown-content {
+            display: none;
+            flex-direction: column;
+            padding: 0 20px;
+        }
+
+        .dropdown-content.show {
+            display: flex;
+        }
+
+        .community-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .community-item img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .community-link {
+            color: #0079d3;
+            font-size: 16px;
+            font-weight: bold;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+<div th:fragment="leftSidebar" class="left-sidebar-container">
+    <div class="sidebar">
+        <!-- Top Navigation -->
+        <a href="#" class="sidebar-link active">
+            <i class="fas fa-home"></i> Home
+        </a>
+        <a href="#" class="sidebar-link">
+            <i class="fas fa-fire"></i> Popular
+        </a>
+        <a href="#" class="sidebar-link">
+            <i class="fas fa-compass"></i> Explore
+        </a>
+        <a href="#" class="sidebar-link">
+            <i class="fas fa-globe"></i> All
+        </a>
+
+        <!-- Divider -->
+        <div class="sidebar-section"></div>
+
+        <!-- Recent Dropdown -->
+        <div class="dropdown-section">
+            <div class="dropdown-header" onclick="toggleDropdown('recentDropdown')">
+                Recent
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="dropdown-content" id="recentDropdown">
+                <div th:each="community : ${recentCommunities}" class="community-item">
+                    <img th:src="${community.iconUrl}" alt="community"
+                         onerror="this.onerror=null;this.src='https://via.placeholder.com/50';">
+                    <a th:href="@{'/r/' + ${community.name}}"
+                       class="community-link"
+                       th:text="'r/' + ${community.name}"></a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Divider -->
+        <div class="sidebar-section"></div>
+
+        <!-- Communities Dropdown -->
+        <div class="dropdown-section">
+            <div class="dropdown-header" onclick="toggleDropdown('communitiesDropdown')">
+                Communities
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="dropdown-content" id="communitiesDropdown">
+                <a href="#" class="community-link" style="margin-bottom: 10px;">+ Create Community</a>
+                <div th:each="community : ${communities}" class="community-item">
+                    <img th:src="${community.iconUrl}" alt="community"
+                         onerror="this.onerror=null;this.src='https://via.placeholder.com/50';">
+                    <a th:href="@{'/r/' + ${community.name}}"
+                       class="community-link"
+                       th:text="'r/' + ${community.name}"></a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function toggleDropdown(id) {
+      const el = document.getElementById(id);
+      el.classList.toggle("show");
+    }
+</script>
+</body>
+</html>
