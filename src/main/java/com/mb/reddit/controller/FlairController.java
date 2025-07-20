@@ -37,3 +37,4 @@ public class FlairController {
         flairService.deleteFlairById(flairId);
     }
 }
+

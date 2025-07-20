@@ -1,12 +1,10 @@
 package com.mb.reddit.service.implementation;
 
-import com.mb.reddit.entity.Comment;
-import com.mb.reddit.entity.Community;
-import com.mb.reddit.entity.Post;
-import com.mb.reddit.entity.User;
+import com.mb.reddit.entity.*;
 import com.mb.reddit.repository.*;
 import com.mb.reddit.service.PostService;
 
+import com.mb.reddit.utils.TimeAgoUtils;
 import jakarta.transaction.Transactional;
 
 import org.springframework.data.domain.Page;
@@ -21,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class PostServiceImpl implements PostService {
@@ -51,10 +50,30 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public Page<Post> getAllPost(int pageNumber, int pageSize, String sortby) {
-        Sort sort = Sort.by(sortby).descending(); //TODO check sort functionality
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = userRepository.findUserByUsername(authentication.getName());
+
+        Sort sort = Sort.by(sortby).descending();
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
 
-        return postRepository.findAllPublicPublishedPosts(pageable);
+        Page<Post> postsPage = postRepository.findAllPublicPublishedPosts(pageable);
+
+        postsPage.forEach(post -> {
+            int upVotes = postVoteRepository.countUpvoteByPostId(post.getId());
+            int downVotes = postVoteRepository.countDownvoteByPostId(post.getId());
+            post.setVoteCount(upVotes - downVotes);
+
+            if(currentUser != null){
+                Optional<PostVote> voteOptional = postVoteRepository.getPostVoteByUserIdAndPostId(
+                        currentUser.getId(), post.getId());
+                post.setIsLiked(voteOptional.isPresent() ? voteOptional.get().getIsLike() : null);
+            }
+
+            String showTime = TimeAgoUtils.getTimeAgo(post.getCreatedAt());
+            post.setShowTime(showTime);
+        });
+
+        return postsPage;
     }
 
     @Override

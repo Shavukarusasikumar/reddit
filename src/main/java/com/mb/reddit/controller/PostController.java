@@ -88,8 +88,21 @@ public class PostController {
         model.addAttribute("communities", joinedCommunities);
         model.addAttribute("recentCommunities", recentCommunities);
         model.addAttribute("posts", posts);
+        model.addAttribute("hasNext", posts.hasNext());
 
         return "home";
+    }
+
+
+    @GetMapping("/posts/scroll")
+    public String getMorePosts(@RequestParam(defaultValue = "0") int pageNumber,
+                               @RequestParam(defaultValue = "10") int pageSize,
+                               @RequestParam(defaultValue = "createdAt") String sortBy,
+                               Model model) {
+        Page<Post> posts = postService.getAllPost(pageNumber, pageSize, sortBy);
+        model.addAttribute("posts", posts);
+        model.addAttribute("hasNext", posts.hasNext());
+        return "fragments/posts :: postSection";
     }
 
     @GetMapping("/posts/{postId}")

@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 @Service
 public class PostVoteServiceImpl implements PostVoteService {
@@ -22,7 +21,8 @@ public class PostVoteServiceImpl implements PostVoteService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
 
-    public PostVoteServiceImpl(PostVoteRepository postVoteRepository, PostRepository postRepository, UserRepository userRepository) {
+    public PostVoteServiceImpl(PostVoteRepository postVoteRepository, PostRepository postRepository,
+                               UserRepository userRepository) {
         this.postVoteRepository = postVoteRepository;
         this.postRepository = postRepository;
         this.userRepository = userRepository;
@@ -31,33 +31,20 @@ public class PostVoteServiceImpl implements PostVoteService {
     @Override
     @Transactional
     public void addVoteByPostId(Long postId, Boolean isLike) {
+        Post post = postRepository.findById(postId).orElseThrow(() -> new RuntimeException("Post not found " + postId));
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
-        User user = userRepository.findUserByUsername(username);
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new RuntimeException("Post not found"));
+        User currentuser = userRepository.findUserByUsername(username);
 
-        Optional<PostVote> existingVote = postVoteRepository.findByUserAndPost(user, post);
+        PostVote postVote = postVoteRepository.getPostVoteByUserIdAndPostId(currentuser.getId(),
+                postId).orElse(new PostVote());
 
-        if (existingVote.isPresent()) {
-            PostVote vote = existingVote.get();
-
-            if (vote.getIsLike().equals(isLike)) {
-                postVoteRepository.delete(vote);
-                return;
-            }
-
-            vote.setIsLike(isLike);
-            vote.setLikedAt(LocalDateTime.now());
-            postVoteRepository.save(vote);
-        } else {
-            PostVote newVote = new PostVote();
-            newVote.setPost(post);
-            newVote.setUser(user);
-            newVote.setIsLike(isLike);
-            newVote.setLikedAt(LocalDateTime.now());
-            postVoteRepository.save(newVote);
-        }
+        postVote.setPost(post);
+        postVote.setUser(currentuser);
+        postVote.setIsLike(isLike);
+        postVote.setLikedAt(LocalDateTime.now());
+        postVoteRepository.save(postVote);
     }
 
     @Override
@@ -81,10 +68,13 @@ public class PostVoteServiceImpl implements PostVoteService {
         }
 
         String username = authentication.getName();
+        User currentUser = userRepository.findUserByUsername(username);
         User user = userRepository.findUserByUsername(username);
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
 
+        PostVote postVote = postVoteRepository.getPostVoteByUserIdAndPostId(currentUser.getId(),
+                postId).orElseThrow(() -> new RuntimeException("No postVote present " + postId));
         return postVoteRepository.findByUserAndPost(user, post)
                 .map(PostVote::getIsLike)
                 .orElse(null);
