@@ -1,10 +1,14 @@
 package com.mb.reddit.controller;
 
+import com.mb.reddit.entity.Comment;
 import com.mb.reddit.entity.Community;
 import com.mb.reddit.entity.Post;
+import com.mb.reddit.service.CommentService;
 import com.mb.reddit.service.CommunityService;
 import com.mb.reddit.service.PostService;
 
+import com.mb.reddit.service.PostVoteService;
+import org.springframework.security.core.Authentication;
 import com.mb.reddit.service.UserService;
 import org.springframework.ui.Model;
 import org.springframework.data.domain.Page;
@@ -16,20 +20,26 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.List;
 
 @Controller
 public class PostController {
 
-    public final PostService postService;
+    private final PostService postService;
+    private final CommentService commentService;
+    private final PostVoteService postVoteService;
     private final UserService userService;
     private final CommunityService communityService;
 
-
-    public PostController(PostService postService, UserService userService, CommunityService communityService) {
+    public PostController(PostService postService, UserService userService, CommunityService communityService,CommentService commentService,PostVoteService postVoteService) {
         this.postService = postService;
+        this.commentService = commentService;
+        this.postVoteService = postVoteService;
         this.userService = userService;
         this.communityService = communityService;
     }
@@ -49,10 +59,10 @@ public class PostController {
         return "redirect:/home";
     }
 
-    @GetMapping
+    @GetMapping("/posts")
     public String getAllPosts(@RequestParam(defaultValue = "0", required = false) int pageNumber,
                               @RequestParam(defaultValue = "10", required = false) int pageSize,
-                              @RequestParam(defaultValue = "publishedAt", required = false) String sortBy,
+                              @RequestParam(defaultValue = "createdAt", required = false) String sortBy,
                               Model model) {
         Page<Post> posts = postService.getAllPost(pageNumber, pageSize, sortBy);
         List<Community> joinedCommunities = communityService.getAllCommunities();
@@ -83,10 +93,28 @@ public class PostController {
     }
 
     @GetMapping("/posts/{postId}")
-    public String getPostById(@PathVariable Long postId, Model model) {
+    public String getPostById(@PathVariable Long postId, Model model, Authentication authentication) {
         Post post = postService.getPostById(postId);
+        List<Comment> topLevelComments = commentService.getTopLevelComments(postId);
+        int postVoteCount = postService.getPostVotesByPostId(postId);
+        int commentCount = topLevelComments.size();
 
+        Boolean currentUserVote = postVoteService.getVoteStatusByPostId(postId);
+
+        Map<Long, Integer> commentVotes = new HashMap<>();
+        for (Comment comment : topLevelComments) {
+            int voteCount = commentService.getVoteCountForComment(comment.getId());
+            commentVotes.put(comment.getId(), voteCount);
+        }
+
+        boolean isAuthenticated = authentication != null && authentication.isAuthenticated();
+        model.addAttribute("isAuthenticated", isAuthenticated);
         model.addAttribute("post", post);
+        model.addAttribute("topLevelComments", topLevelComments);
+        model.addAttribute("commentVotes", commentVotes);
+        model.addAttribute("postVoteCount", postVoteCount);
+        model.addAttribute("commentCount", commentCount);
+        model.addAttribute("currentUserVote", currentUserVote);
 
         return "view-post";
     }

@@ -9,12 +9,14 @@ import com.mb.reddit.repository.CommentVoteRepository;
 import com.mb.reddit.repository.PostRepository;
 import com.mb.reddit.repository.UserRepository;
 import com.mb.reddit.service.CommentService;
+import org.hibernate.Hibernate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,30 +39,22 @@ public class CommentServiceImpl implements CommentService {
     @Override
     @Transactional
     public Comment createComment(Comment comment, Long postId, Long parentCommentId) {
-        Optional<Post> optionalPost = postRepository.findById(postId);
-
-        if (optionalPost.isEmpty()) {
-            throw new RuntimeException("Post not  found");
-        }
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found"));
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String userName = authentication.getName();
+        String username = authentication.getName();
+        User user = userRepository.findUserByUsername(username);
 
-        User user = userRepository.findUserByUsername(userName);
-
-        comment.setPost(optionalPost.get());
+        comment.setPost(post);
         comment.setUser(user);
         comment.setCreatedAt(LocalDateTime.now());
         comment.setUpdatedAt(LocalDateTime.now());
 
         if (parentCommentId != null) {
-            Optional<Comment> parentComment = commentRepository.findById(parentCommentId);
-
-            if (parentComment.isEmpty()) {
-                throw new RuntimeException("Parent comment not found");
-            }
-
-            comment.setParentComment(parentComment.get());
+            Comment parentComment = commentRepository.findById(parentCommentId)
+                    .orElseThrow(() -> new RuntimeException("Parent comment not found"));
+            comment.setParentComment(parentComment);
         }
 
         return commentRepository.save(comment);
@@ -128,5 +122,38 @@ public class CommentServiceImpl implements CommentService {
         }
 
         return optionalComment.get();
+    }
+
+    @Override
+    public List<Comment> getTopLevelComments(Long postId) {
+        List<Comment> topLevelComments = commentRepository.findByPostIdAndParentCommentIsNull(postId);
+        return loadNestedReplies(topLevelComments);
+    }
+
+    private List<Comment> loadNestedReplies(List<Comment> comments) {
+        if (comments == null || comments.isEmpty()) {
+            return comments;
+        }
+
+        for (Comment comment : comments) {
+            if (comment.getReplies() != null && !comment.getReplies().isEmpty()) {
+                Hibernate.initialize(comment.getReplies());
+
+                loadNestedReplies(new ArrayList<>(comment.getReplies()));
+            }
+        }
+        return comments;
+    }
+
+    @Override
+    public int getVoteCountForComment(Long commentId) {
+        List<CommentVote> votes = commentVoteRepository.getCommentVotesByCommentId(commentId);
+        if (votes == null || votes.isEmpty()) {
+            return 0;
+        }
+
+        return votes.stream()
+                .mapToInt(vote -> Boolean.TRUE.equals(vote.getIsLike()) ? 1 : -1)
+                .sum();
     }
 }

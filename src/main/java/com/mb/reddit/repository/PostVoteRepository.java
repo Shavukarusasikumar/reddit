@@ -1,6 +1,8 @@
 package com.mb.reddit.repository;
 
+import com.mb.reddit.entity.Post;
 import com.mb.reddit.entity.PostVote;
+import com.mb.reddit.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -19,4 +21,9 @@ public interface PostVoteRepository extends JpaRepository<PostVote, Long> {
 
     @Query("SELECT p FROM PostVote p WHERE p.user.id = :userId AND p.post.id = :postId")
     Optional<PostVote> getPostVoteByUserIdAndPostId(@Param("userId") Long userId, @Param("postId") Long postId);
+
+    @Query("SELECT COUNT(pv) FROM PostVote pv WHERE pv.post.id = :postId AND pv.isLike = :isLike")
+    Integer countByPostIdAndIsLike(@Param("postId") Long postId, @Param("isLike") Boolean isLike);
+
+    Optional<PostVote> findByUserAndPost(User user, Post post);
 }

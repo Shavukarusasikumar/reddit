@@ -3,13 +3,16 @@ package com.mb.reddit.entity;
 import jakarta.persistence.*;
 
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.List;
 
 @Entity
 @Table(name = "communities")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 public class Community {
 

@@ -10,8 +10,10 @@ import com.mb.reddit.service.PostVoteService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 public class PostVoteServiceImpl implements PostVoteService {
@@ -27,31 +29,71 @@ public class PostVoteServiceImpl implements PostVoteService {
     }
 
     @Override
+    @Transactional
     public void addVoteByPostId(Long postId, Boolean isLike) {
-        Post post = postRepository.findById(postId).orElseThrow(() -> new RuntimeException("Post not found " + postId));
-
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
-        User currentuser = userRepository.findUserByUsername(username);
+        User user = userRepository.findUserByUsername(username);
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found"));
 
-        PostVote postVote = postVoteRepository.getPostVoteByUserIdAndPostId(postId, currentuser.getId()).orElse(new PostVote());
+        Optional<PostVote> existingVote = postVoteRepository.findByUserAndPost(user, post);
 
-        postVote.setPost(post);
-        postVote.setUser(currentuser);
-        postVote.setIsLike(isLike);
-        postVote.setLikedAt(LocalDateTime.now());
+        if (existingVote.isPresent()) {
+            PostVote vote = existingVote.get();
 
-        postVoteRepository.save(postVote);
+            if (vote.getIsLike().equals(isLike)) {
+                postVoteRepository.delete(vote);
+                return;
+            }
+
+            vote.setIsLike(isLike);
+            vote.setLikedAt(LocalDateTime.now());
+            postVoteRepository.save(vote);
+        } else {
+            PostVote newVote = new PostVote();
+            newVote.setPost(post);
+            newVote.setUser(user);
+            newVote.setIsLike(isLike);
+            newVote.setLikedAt(LocalDateTime.now());
+            postVoteRepository.save(newVote);
+        }
     }
 
     @Override
+    @Transactional
     public void removeVoteByPostId(Long postId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
-        User currentuser = userRepository.findUserByUsername(username);
+        User user = userRepository.findUserByUsername(username);
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found"));
 
-        PostVote postVote = postVoteRepository.getPostVoteByUserIdAndPostId(postId, currentuser.getId()).orElseThrow(() -> new RuntimeException("No postVote present " + postId));
+        postVoteRepository.findByUserAndPost(user, post)
+                .ifPresent(postVoteRepository::delete);
+    }
 
-        postVoteRepository.delete(postVote);
+    @Override
+    public Boolean getVoteStatusByPostId(Long postId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return null;
+        }
+
+        String username = authentication.getName();
+        User user = userRepository.findUserByUsername(username);
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found"));
+
+        return postVoteRepository.findByUserAndPost(user, post)
+                .map(PostVote::getIsLike)
+                .orElse(null);
+    }
+
+    @Override
+    public Integer getPostVotesByPostId(Long postId) {
+        Integer upVotes = postVoteRepository.countUpvoteByPostId(postId);
+        Integer downVotes = postVoteRepository.countDownvoteByPostId(postId);
+        return (upVotes != null ? upVotes : 0) - (downVotes != null ? downVotes : 0);
     }
 }

@@ -2,13 +2,16 @@ package com.mb.reddit.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "join_requests")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 public class JoinRequest {
 

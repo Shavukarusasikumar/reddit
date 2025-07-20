@@ -2,12 +2,15 @@ package com.mb.reddit.controller;
 
 import com.mb.reddit.entity.Comment;
 import com.mb.reddit.service.CommentService;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Controller
 public class CommentController {
@@ -16,12 +19,6 @@ public class CommentController {
 
     public CommentController(CommentService commentService) {
         this.commentService = commentService;
-    }
-
-    public void createComment(long postId, @RequestParam(required = false) long parentCommentId,
-                              @ModelAttribute(name = "newComment") Comment comment) {
-        commentService.createComment(comment, postId, parentCommentId);
-
     }
 
     public Comment getCommentById(long commentId) {
@@ -53,6 +50,33 @@ public class CommentController {
             @RequestParam("updatedContent") String updatedContent) {
         Long postId = commentService.getCommentById(commentId).getPost().getId();
         commentService.updateComment(commentId, updatedContent);
+
+        return "redirect:/posts/" + postId;
+    }
+
+    @GetMapping("/comments/{postId}")
+    public String getCommentsByPostId(@PathVariable("postId") Long postId, Model model) {
+        List<Comment> comments = commentService.getTopLevelComments(postId);
+
+        model.addAttribute("comments", comments);
+
+        return "comments";
+    }
+
+    @PostMapping("/posts/{postId}/comments")
+    public String createComment(
+            @PathVariable Long postId,
+            @RequestParam String content,
+            @RequestParam(required = false) Long parentCommentId,
+            Authentication authentication) {
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return "redirect:/user/login?redirect=/posts/" + postId;
+        }
+
+        Comment comment = new Comment();
+        comment.setContent(content);
+        commentService.createComment(comment, postId, parentCommentId);
 
         return "redirect:/posts/" + postId;
     }

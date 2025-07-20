@@ -2,11 +2,14 @@ package com.mb.reddit.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "topics")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 public class Topic {
 

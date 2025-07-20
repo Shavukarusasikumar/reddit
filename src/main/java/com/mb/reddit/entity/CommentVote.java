@@ -2,14 +2,17 @@ package com.mb.reddit.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
-@Table(name = "comment_likes", uniqueConstraints = {
+@Table(name = "comment_votes", uniqueConstraints = {
 		@UniqueConstraint(columnNames = {"user_id", "comment_id"})
 })
 public class CommentVote {

@@ -22,8 +22,9 @@ public class CommentVoteServiceImpl implements CommentVoteService {
 	private final UserRepository userRepository;
 	private final CommentRepository commentRepository;
 
-	public  CommentVoteServiceImpl(CommentVoteRepository commentVoteRepository, UserRepository userRepository,
-								   CommentRepository commentRepository) {
+	public CommentVoteServiceImpl(CommentVoteRepository commentVoteRepository,
+								  UserRepository userRepository,
+								  CommentRepository commentRepository) {
 		this.commentVoteRepository = commentVoteRepository;
 		this.userRepository = userRepository;
 		this.commentRepository = commentRepository;
@@ -32,59 +33,41 @@ public class CommentVoteServiceImpl implements CommentVoteService {
 	@Override
 	@Transactional
 	public void addUpVoteByCommentId(Long commentId) {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		String username = authentication.getName();
-
-		User user = userRepository.findUserByUsername(username);
-
-		Comment comment = commentRepository.findById(commentId)
-				.orElseThrow(() -> new RuntimeException("Comment not found"));
-
-		Optional<CommentVote> optionalCommentVote = commentVoteRepository
-				.findByUserIdAndCommentId(user.getId(), commentId);
-
-		if (optionalCommentVote.isPresent()) {
-			CommentVote existingVote = optionalCommentVote.get();
-			existingVote.setIsLike(true);
-			existingVote.setReactedAt(LocalDateTime.now());
-
-			commentVoteRepository.save(existingVote);
-		} else {
-			CommentVote newVote = new CommentVote();
-			newVote.setUser(user);
-			newVote.setComment(comment);
-			newVote.setIsLike(true);
-			newVote.setReactedAt(LocalDateTime.now());
-
-			commentVoteRepository.save(newVote);
-		}
+		handleVote(commentId, true);
 	}
 
 	@Override
 	@Transactional
 	public void addDownVoteByCommentId(Long commentId) {
+		handleVote(commentId, false);
+	}
+
+	private void handleVote(Long commentId, boolean isUpvote) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String username = authentication.getName();
-
 		User user = userRepository.findUserByUsername(username);
-
 		Comment comment = commentRepository.findById(commentId)
 				.orElseThrow(() -> new RuntimeException("Comment not found"));
 
-		Optional<CommentVote> optionalCommentVote = commentVoteRepository
-				.findByUserIdAndCommentId(user.getId(), commentId);
+		Optional<CommentVote> existingVote = commentVoteRepository.findByUserIdAndCommentId(user.getId(), commentId);
 
-		if (optionalCommentVote.isPresent()) {
-			CommentVote existingVote = optionalCommentVote.get();
-			existingVote.setIsLike(false);
-			existingVote.setReactedAt(LocalDateTime.now());
+		if (existingVote.isPresent()) {
+			CommentVote vote = existingVote.get();
 
-			commentVoteRepository.save(existingVote);
+			if (vote.getIsLike() == isUpvote) {
+				commentVoteRepository.delete(vote);
+				return;
+			}
+
+			vote.setIsLike(isUpvote);
+			vote.setReactedAt(LocalDateTime.now());
+
+			commentVoteRepository.save(vote);
 		} else {
 			CommentVote newVote = new CommentVote();
 			newVote.setUser(user);
 			newVote.setComment(comment);
-			newVote.setIsLike(false);
+			newVote.setIsLike(isUpvote);
 			newVote.setReactedAt(LocalDateTime.now());
 
 			commentVoteRepository.save(newVote);
@@ -96,30 +79,43 @@ public class CommentVoteServiceImpl implements CommentVoteService {
 	public void removeVoteByCommentId(Long commentId) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		String username = authentication.getName();
-
 		User user = userRepository.findUserByUsername(username);
 
-		CommentVote commentVote = commentVoteRepository
-				.findByUserIdAndCommentId(user.getId(), commentId)
-				.orElseThrow(() -> new RuntimeException("CommentVote not found"));
-
-		if (!commentVote.getUser().getId().equals(user.getId())) {
-			throw new RuntimeException("You are not allowed to remove this vote");
-		}
-
-		commentVoteRepository.delete(commentVote);
+		commentVoteRepository.findByUserIdAndCommentId(user.getId(), commentId)
+				.ifPresent(commentVoteRepository::delete);
 	}
 
 	@Override
 	public Boolean getVoteStatusByCommentId(Long commentId) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		String username = authentication.getName();
+		if (authentication == null || !authentication.isAuthenticated()) {
+			return null;
+		}
 
+		String username = authentication.getName();
 		User user = userRepository.findUserByUsername(username);
 
-		Optional<CommentVote> optionalVote = commentVoteRepository
-				.findByUserIdAndCommentId(user.getId(), commentId);
+		return commentVoteRepository.findByUserIdAndCommentId(user.getId(), commentId)
+				.map(CommentVote::getIsLike)
+				.orElse(null);
+	}
 
-		return optionalVote.map(CommentVote::getIsLike).orElse(null);
+	@Override
+	public Long getPostIdForComment(Long commentId) {
+		return commentRepository.findById(commentId)
+				.map(comment -> comment.getPost().getId())
+				.orElseThrow(() -> new RuntimeException("Comment not found"));
+	}
+
+	@Override
+	public Boolean getVoteStatusByCommentIdAndUsername(Long commentId, String username) {
+		if (username == null) return null;
+
+		User user = userRepository.findUserByUsername(username);
+		if (user == null) return null;
+
+		return commentVoteRepository.findByUserIdAndCommentId(user.getId(), commentId)
+				.map(CommentVote::getIsLike)
+				.orElse(null);
 	}
 }
