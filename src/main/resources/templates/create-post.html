@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create post</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background-color: #DAE0E6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 740px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .header h1 {
+            font-size: 18px;
+            font-weight: 500;
+            color: #1c1c1c;
+        }
+
+        .drafts-link {
+            color: #0079D3;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .drafts-link:hover {
+            text-decoration: underline;
+        }
+
+        .card {
+            background: white;
+            border-radius: 4px;
+            border: 1px solid #CFDAE4;
+            overflow: hidden;
+        }
+
+        .error-alert {
+            background: #FFE6E6;
+            color: #CC0000;
+            padding: 12px 16px;
+            border-left: 4px solid #CC0000;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+
+        .community-selector {
+            padding: 16px;
+            border-bottom: 1px solid #EDEFF1;
+            position: relative;
+        }
+
+        .community-btn {
+            display: flex;
+            align-items: center;
+            background: #F6F7F8;
+            border: 1px solid #EDEFF1;
+            border-radius: 4px;
+            padding: 8px 12px;
+            cursor: pointer;
+            width: fit-content;
+            min-width: 200px;
+            position: relative;
+        }
+
+        .community-btn:hover {
+            background: #EDEFF1;
+        }
+
+        .community-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 8px;
+            overflow: hidden;
+        }
+
+        .community-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .community-icon-placeholder {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 8px;
+            background: #0079D3;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .community-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: #1c1c1c;
+            margin-right: auto;
+        }
+
+        .dropdown-arrow {
+            margin-left: 8px;
+            color: #878A8C;
+            font-size: 12px;
+        }
+
+        .community-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #EDEFF1;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            z-index: 1000;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .community-search {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-bottom: 1px solid #EDEFF1;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .community-list {
+            list-style: none;
+        }
+
+        .community-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .community-item:hover {
+            background: #F6F7F8;
+        }
+
+        .community-item .community-icon {
+            margin-right: 8px;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #EDEFF1;
+            background: white;
+        }
+
+        .tab {
+            background: none;
+            border: none;
+            padding: 14px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: #878A8C;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+
+        .tab:hover {
+            color: #1c1c1c;
+        }
+
+        .tab.active {
+            color: #0079D3;
+            border-bottom-color: #0079D3;
+        }
+
+        .form-content {
+            padding: 16px;
+        }
+
+        .title-field {
+            position: relative;
+            margin-bottom: 12px;
+        }
+
+        .title-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #EDEFF1;
+            border-radius: 4px;
+            font-size: 14px;
+            background: white;
+            resize: none;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .title-input::placeholder {
+            color: #878A8C;
+        }
+
+        .title-input:focus {
+            border-color: #0079D3;
+            box-shadow: 0 0 0 1px #0079D3;
+        }
+
+        .char-count {
+            position: absolute;
+            right: 16px;
+            bottom: 12px;
+            font-size: 12px;
+            color: #878A8C;
+        }
+
+        /* New Flair Chips Styles */
+        .flair-chips-container {
+            margin-bottom: 16px;
+        }
+
+        .flair-chips-header {
+            font-size: 14px;
+            font-weight: 500;
+            color: #1c1c1c;
+            margin-bottom: 8px;
+        }
+
+        .flair-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .flair-chip {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1px solid #EDEFF1;
+            background-color: #F6F7F8;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .flair-chip:hover {
+            background-color: #EDEFF1;
+        }
+
+        .flair-chip.selected {
+            border-color: #0079D3;
+            background-color: #E8F4FF;
+            color: #0079D3;
+        }
+
+        .flair-chip.selected .flair-chip-color {
+            border-color: #0079D3;
+        }
+
+        .flair-chip-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+            margin-right: 4px;
+            border: 1px solid #EDEFF1;
+        }
+
+        .flair-chip-limit {
+            color: #878A8C;
+            font-size: 12px;
+            margin-top: 8px;
+        }
+
+        .editor-section {
+            margin-bottom: 16px;
+        }
+
+        .toolbar {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            padding: 8px 12px;
+            border: 1px solid #EDEFF1;
+            border-bottom: none;
+            border-radius: 4px 4px 0 0;
+            background: #F6F7F8;
+            flex-wrap: wrap;
+        }
+
+        .toolbar-btn {
+            background: none;
+            border: none;
+            padding: 6px 8px;
+            cursor: pointer;
+            border-radius: 2px;
+            color: #878A8C;
+            font-size: 14px;
+            font-weight: bold;
+            min-width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .toolbar-btn:hover {
+            background: #E9ECEF;
+            color: #1c1c1c;
+        }
+
+        .toolbar-separator {
+            width: 1px;
+            height: 20px;
+            background: #EDEFF1;
+            margin: 0 4px;
+        }
+
+        .markdown-switch {
+            margin-left: auto;
+            font-size: 14px;
+            color: #0079D3;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .markdown-switch:hover {
+            text-decoration: underline;
+        }
+
+        .text-editor {
+            width: 100%;
+            min-height: 200px;
+            padding: 12px 16px;
+            border: 1px solid #EDEFF1;
+            border-radius: 0 0 4px 4px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+            outline: none;
+        }
+
+        .text-editor::placeholder {
+            color: #878A8C;
+        }
+
+        .text-editor:focus {
+            border-color: #0079D3;
+            box-shadow: 0 0 0 1px #0079D3;
+        }
+
+        .media-upload {
+            border: 2px dashed #EDEFF1;
+            border-radius: 4px;
+            padding: 60px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: #FAFAFA;
+            margin-bottom: 16px;
+        }
+
+        .media-upload:hover {
+            border-color: #0079D3;
+            background: #F6F9FF;
+        }
+
+        .media-upload.dragover {
+            border-color: #0079D3;
+            background: #F6F9FF;
+        }
+
+        .upload-text {
+            color: #878A8C;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .upload-icon {
+            color: #878A8C;
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .media-upload input[type="file"] {
+            display: none;
+        }
+
+        .panel {
+            display: none;
+        }
+
+        .panel.active {
+            display: block;
+        }
+
+        .footer-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            padding: 16px;
+            border-top: 1px solid #EDEFF1;
+            background: #F6F7F8;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            border: 1px solid;
+            transition: all 0.2s ease;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #0079D3;
+            border-color: #0079D3;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: #F6F9FF;
+        }
+
+        .btn-primary {
+            background: #0079D3;
+            color: white;
+            border-color: #0079D3;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #0066CC;
+        }
+
+        .btn:disabled {
+            background: #F6F7F8;
+            color: #878A8C;
+            border-color: #EDEFF1;
+            cursor: not-allowed;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 24px 20px;
+            color: #878A8C;
+            font-size: 12px;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: #878A8C;
+            text-decoration: none;
+        }
+
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        /* Custom scrollbar for dropdown */
+        .flair-dropdown::-webkit-scrollbar {
+            width: 8px;
+        }
+
+                .flair-chips-container {
+            margin-bottom: 16px;
+        }
+
+        .flair-chips-header {
+            font-size: 14px;
+            font-weight: 500;
+            color: #1c1c1c;
+            margin-bottom: 8px;
+        }
+
+        .flair-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .flair-chip {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            color: white;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            border: 1px solid rgba(0,0,0,0.1);
+            text-shadow: 0 1px 1px rgba(0,0,0,0.2);
+        }
+
+        .flair-chip:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+        }
+
+        .flair-chip.selected {
+            position: relative;
+            box-shadow: 0 0 0 2px white, 0 0 0 4px rgba(0,0,0,0.2);
+            transform: scale(1.05);
+            z-index: 1;
+        }
+
+        .flair-chip.selected::after {
+            content: "✓";
+            margin-left: 6px;
+            font-weight: bold;
+        }
+
+        .flair-chip-limit {
+            color: #878A8C;
+            font-size: 12px;
+            margin-top: 8px;
+        }
+
+        .flair-dropdown::-webkit-scrollbar-track {
+            background: #F6F7F8;
+            border-radius: 4px;
+        }
+
+        .flair-dropdown::-webkit-scrollbar-thumb {
+            background: #EDEFF1;
+            border-radius: 4px;
+        }
+
+        .flair-dropdown::-webkit-scrollbar-thumb:hover {
+            background: #878A8C;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>Create post</h1>
+        <a th:href="@{/drafts}" class="drafts-link">Drafts</a>
+    </div>
+
+    <!-- Error Message -->
+    <div th:if="${errorMessage}" class="error-alert" th:text="${errorMessage}"></div>
+
+    <div class="card">
+        <form id="createPostForm"
+              th:action="@{/new-post}"
+              th:object="${postForm}"
+              method="post"
+              enctype="multipart/form-data">
+
+            <!-- Hidden Fields -->
+            <input type="hidden" id="postTypeInput" name="postType" value="TEXT" />
+            <input type="hidden" id="flairIdInput" name="flairId" />
+            <input type="hidden" id="communityIdInput" name="communityId"
+                   th:value="${selectedCommunity != null} ? ${selectedCommunity.id} : ''" />
+
+            <!-- CSRF Token -->
+            <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+            <!-- Community Selector -->
+            <div class="community-selector">
+                <button type="button" id="communityPickerBtn" class="community-btn">
+                    <div th:if="${selectedCommunity != null && selectedCommunity.iconUrl != null}" class="community-icon">
+                        <img th:src="${selectedCommunity.iconUrl}" alt="Community icon" />
+                    </div>
+                    <div th:if="${selectedCommunity == null || selectedCommunity.iconUrl == null}" class="community-icon-placeholder">
+                        r/
+                    </div>
+                    <span class="community-name" id="communityPickerLabel"
+                          th:text="${selectedCommunity != null} ? ${selectedCommunity.name} : 'Select a community'"></span>
+                    <span class="dropdown-arrow">▾</span>
+                </button>
+
+                <div id="communityPickerMenu" class="community-menu" style="display: none;">
+                    <input type="text" placeholder="Search communities" class="community-search" id="communitySearchInput" />
+                    <ul class="community-list" id="communityList">
+                        <li th:each="community : ${communities}"
+                            class="community-item"
+                            th:data-id="${community.id}"
+                            th:data-name="${community.name}">
+                            <div th:if="${community.iconUrl != null}" class="community-icon">
+                                <img th:src="${community.iconUrl}" alt="Community icon" />
+                            </div>
+                            <div th:if="${community.iconUrl == null}" class="community-icon-placeholder">
+                                r/
+                            </div>
+                            <span th:text="${community.name}"></span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <button type="button" class="tab active" data-type="TEXT" id="tab-text">Text</button>
+                <button type="button" class="tab" data-type="MEDIA" id="tab-media">Images &amp; Video</button>
+            </div>
+
+            <!-- Form Content -->
+            <div class="form-content">
+                <!-- Title Field -->
+                <div class="title-field">
+                    <label for="titleInput" class="sr-only">Title</label>
+                    <textarea id="titleInput" class="title-input" placeholder="Title*" maxlength="300"
+                              th:field="*{title}" rows="1"></textarea>
+                    <div class="char-count"><span id="titleChars">0</span>/300</div>
+                </div>
+
+                <!-- Flair Chips Selector -->
+                <div class="flair-chips-container" th:if="${selectedCommunity != null and not #lists.isEmpty(flairs)}">
+                    <div class="flair-chips-header">Select Flair (optional)</div>
+                    <div class="flair-chips" id="flairChips">
+                        <div th:each="flair : ${flairs}"
+                             class="flair-chip"
+                             th:data-id="${flair.id}"
+                             th:attr="data-color=${flair.color}"
+                             th:style="'background-color: ' + ${flair.color} + ';'">
+                            <span th:text="${flair.label}"></span>
+                        </div>
+                    </div>
+                    <div class="flair-chip-limit">Select up to 3 flairs</div>
+                </div>
+
+                <div class="editor-section">
+                    <!-- Text Panel -->
+                    <div class="panel active" id="panel-text">
+                        <textarea id="bodyInput" class="text-editor" placeholder="Body text (optional)"
+                                  th:field="*{content}"></textarea>
+                    </div>
+
+                    <!-- Media Panel -->
+                    <div class="panel" id="panel-media">
+                        <div class="media-upload" id="mediaDropzone">
+                            <div class="upload-icon">⬆</div>
+                            <div class="upload-text">Drag and Drop or upload media</div>
+                            <input type="file" id="mediaFileInput" name="mediaFiles" multiple accept="image/*,video/*">
+                        </div>
+
+                        <textarea class="text-editor" placeholder="Body text (optional)"></textarea>
+                        <div id="mediaPreview" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Buttons -->
+            <div class="footer-buttons">
+                <button type="button" id="saveDraftBtn" class="btn btn-secondary" disabled>Save Draft</button>
+                <button type="submit" id="postBtn" class="btn btn-primary" disabled>Post</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <div class="footer-links">
+            <a th:href="@{/rules}">Reddit Rules</a>
+            <a th:href="@{/privacy}">Privacy Policy</a>
+            <a th:href="@{/user-agreement}">User Agreement</a>
+            <a th:href="@{/accessibility}">Accessibility</a>
+        </div>
+        <div>Reddit, Inc. © <span th:text="${#temporals.format(#temporals.createNow(), 'yyyy')}"></span>. All rights reserved.</div>
+    </div>
+</div>
+
+<script>
+    (function(){
+        // Element references
+        const communityBtn = document.getElementById('communityPickerBtn');
+        const communityMenu = document.getElementById('communityPickerMenu');
+        const communityList = document.getElementById('communityList');
+        const communityLabel = document.getElementById('communityPickerLabel');
+        const communityIdInp = document.getElementById('communityIdInput');
+        const communitySearchInput = document.getElementById('communitySearchInput');
+
+        // Flair elements
+        const flairChips = document.getElementById('flairChips');
+        const flairIdInp = document.getElementById('flairIdInput');
+        const selectedFlairs = new Set();
+
+        // Form elements
+        const tabs = document.querySelectorAll('.tab');
+        const panels = {
+            TEXT: document.getElementById('panel-text'),
+            MEDIA: document.getElementById('panel-media')
+        };
+        const postTypeInp = document.getElementById('postTypeInput');
+        const titleInput = document.getElementById('titleInput');
+        const titleChars = document.getElementById('titleChars');
+        const postBtn = document.getElementById('postBtn');
+        const saveBtn = document.getElementById('saveDraftBtn');
+        const dropzone = document.getElementById('mediaDropzone');
+        const fileInput = document.getElementById('mediaFileInput');
+        const preview = document.getElementById('mediaPreview');
+
+        // Community picker toggle
+        if (communityBtn) {
+            communityBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                communityMenu.style.display = communityMenu.style.display === 'none' ? 'block' : 'none';
+            });
+        }
+
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', (e) => {
+            if (communityMenu && !communityMenu.contains(e.target) &&
+                communityBtn && !communityBtn.contains(e.target)) {
+                communityMenu.style.display = 'none';
+            }
+        });
+
+        // Community selection
+        if (communityList) {
+            communityList.addEventListener('click', e => {
+                const li = e.target.closest('.community-item');
+                if (!li) return;
+
+                const id = li.dataset.id;
+                const name = li.dataset.name;
+                communityLabel.textContent = name;
+                communityIdInp.value = id;
+                communityMenu.style.display = 'none';
+
+                // Reload page with selected community
+                window.location.href = '/new-post?c=' + encodeURIComponent(id);
+            });
+        }
+
+        // Community search filter
+        if (communitySearchInput) {
+            communitySearchInput.addEventListener('input', function() {
+                const query = this.value.toLowerCase();
+                communityList.querySelectorAll('.community-item').forEach(li => {
+                    const name = li.dataset.name?.toLowerCase() ?? '';
+                    li.style.display = name.includes(query) ? '' : 'none';
+                });
+            });
+        }
+
+        // Tab switching
+        tabs.forEach(tab => tab.addEventListener('click', () => {
+            const type = tab.dataset.type;
+            postTypeInp.value = type;
+
+            // Update active tab
+            tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+
+            // Update active panel
+            Object.keys(panels).forEach(k => {
+                panels[k].classList.remove('active');
+            });
+            if (panels[type]) {
+                panels[type].classList.add('active');
+            }
+
+            validate();
+        }));
+
+        // Form validation
+        function validate() {
+            const hasTitle = titleInput.value.trim().length > 0;
+            const hasCommunity = communityIdInp.value !== '';
+            let hasContent = true;
+
+            if (postTypeInp.value === 'MEDIA') {
+                hasContent = fileInput && fileInput.files && fileInput.files.length > 0;
+            }
+
+            const valid = hasTitle && hasCommunity && hasContent;
+            postBtn.disabled = !valid;
+            saveBtn.disabled = !hasTitle;
+        }
+
+        // Title character count and validation
+        if (titleInput) {
+            titleInput.addEventListener('input', () => {
+                titleChars.textContent = titleInput.value.length;
+                // Auto-resize textarea
+                titleInput.style.height = 'auto';
+                titleInput.style.height = titleInput.scrollHeight + 'px';
+                validate();
+            });
+        }
+
+        // Media upload functionality
+        if (dropzone) {
+            dropzone.addEventListener('click', () => fileInput.click());
+
+            dropzone.addEventListener('dragover', e => {
+                e.preventDefault();
+                dropzone.classList.add('dragover');
+            });
+
+            dropzone.addEventListener('dragleave', () => {
+                dropzone.classList.remove('dragover');
+            });
+
+            dropzone.addEventListener('drop', e => {
+                e.preventDefault();
+                dropzone.classList.remove('dragover');
+                fileInput.files = e.dataTransfer.files;
+                previewFiles(e.dataTransfer.files);
+                validate();
+            });
+
+            fileInput?.addEventListener('change', e => {
+                previewFiles(e.target.files);
+                validate();
+            });
+        }
+
+        function previewFiles(fileList) {
+            if (!preview) return;
+
+            preview.innerHTML = '';
+            [...fileList].forEach(file => {
+                const url = URL.createObjectURL(file);
+                let element;
+
+                if (file.type.startsWith('image/')) {
+                    element = document.createElement('img');
+                    element.src = url;
+                    element.style.maxWidth = '100px';
+                    element.style.maxHeight = '100px';
+                    element.style.objectFit = 'cover';
+                } else if (file.type.startsWith('video/')) {
+                    element = document.createElement('video');
+                    element.src = url;
+                    element.controls = true;
+                    element.style.maxWidth = '140px';
+                    element.style.maxHeight = '100px';
+                } else {
+                    // unsupported file type; skip
+                    return;
+                }
+
+                preview.appendChild(element);
+            });
+        }
+
+        // Flair chips selection - enhanced with better visual feedback
+        if (flairChips) {
+            flairChips.addEventListener('click', e => {
+                const chip = e.target.closest('.flair-chip');
+                if (!chip) return;
+
+                const flairId = chip.dataset.id;
+                const flairColor = chip.dataset.color;
+
+                if (selectedFlairs.has(flairId)) {
+                    // Deselect
+                    chip.classList.remove('selected');
+                    selectedFlairs.delete(flairId);
+                } else {
+                    // Enforce 3-flair limit
+                    if (selectedFlairs.size >= 3) {
+                        // Visual feedback when hitting limit
+                        chip.style.transform = 'scale(0.95)';
+                        setTimeout(() => {
+                            chip.style.transform = '';
+                        }, 200);
+
+                        // Show alert
+                        const alert = document.createElement('div');
+                        alert.textContent = 'Maximum 3 flairs allowed';
+                        alert.style.position = 'fixed';
+                        alert.style.bottom = '20px';
+                        alert.style.left = '50%';
+                        alert.style.transform = 'translateX(-50%)';
+                        alert.style.backgroundColor = '#FF4458';
+                        alert.style.color = 'white';
+                        alert.style.padding = '10px 20px';
+                        alert.style.borderRadius = '4px';
+                        alert.style.zIndex = '1000';
+                        alert.style.boxShadow = '0 2px 10px rgba(0,0,0,0.2)';
+                        document.body.appendChild(alert);
+
+                        setTimeout(() => {
+                            alert.style.opacity = '0';
+                            setTimeout(() => {
+                                document.body.removeChild(alert);
+                            }, 300);
+                        }, 2000);
+                        return;
+                    }
+
+                    // Select
+                    chip.classList.add('selected');
+                    selectedFlairs.add(flairId);
+
+                    // Visual feedback
+                    chip.style.transform = 'scale(1.05)';
+                    setTimeout(() => {
+                        chip.style.transform = '';
+                    }, 200);
+                }
+
+                // Update hidden input value (comma-separated IDs)
+                flairIdInp.value = Array.from(selectedFlairs).join(',');
+            });
+        }
+
+        /* ----- initial setup ----- */
+        document.addEventListener('DOMContentLoaded', () => {
+            // initialize char count + validation in case model pre-populated
+            if (titleInput && titleChars) {
+                titleChars.textContent = titleInput.value.length;
+                // auto-size title box
+                titleInput.style.height = 'auto';
+                titleInput.style.height = titleInput.scrollHeight + 'px';
+            }
+
+            validate();
+
+            // Initialize flair chips if any are pre-selected
+            if (flairChips && flairIdInp) {
+                const initialFlairIds = flairIdInp.value;
+                if (initialFlairIds) {
+                    initialFlairIds.split(',').forEach(id => {
+                        const chip = flairChips.querySelector(`.flair-chip[data-id="${id}"]`);
+                        if (chip) {
+                            chip.classList.add('selected');
+                            selectedFlairs.add(id);
+                        }
+                    });
+                }
+            }
+        });
+    })();
+</script>
+</body>
+</html>

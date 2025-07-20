@@ -2,10 +2,12 @@ package com.mb.reddit.controller;
 
 import com.mb.reddit.entity.Comment;
 import com.mb.reddit.entity.Community;
+import com.mb.reddit.entity.Flair;
 import com.mb.reddit.entity.Post;
 import com.mb.reddit.service.CommentService;
 import com.mb.reddit.entity.User;
 import com.mb.reddit.service.CommunityService;
+import com.mb.reddit.service.FlairService;
 import com.mb.reddit.service.PostService;
 
 import com.mb.reddit.service.PostVoteService;
@@ -38,18 +40,34 @@ public class PostController {
     private final PostVoteService postVoteService;
     private final UserService userService;
     private final CommunityService communityService;
+    public final FlairService flairService;
 
-    public PostController(PostService postService, UserService userService, CommunityService communityService,CommentService commentService,PostVoteService postVoteService) {
+
+    public PostController(PostService postService,UserService userService, CommunityService communityService, FlairService flairService,CommentService commentService,PostVoteService postVoteService) {
         this.postService = postService;
         this.commentService = commentService;
         this.postVoteService = postVoteService;
         this.userService = userService;
         this.communityService = communityService;
+        this.flairService = flairService;
     }
 
     @GetMapping("/new-post")
-    public String getCreatePostForm(Model model){
-        model.addAttribute("post", new Post());
+    public String getCreatePostForm(@RequestParam(name = "c", required = false) Long communityId, Model model) {
+        List<Community> communities = communityService.findCommunitiesUserCanPost();
+        model.addAttribute("communities", communities);
+
+        Community selected = null;
+        List<Flair> flairs = List.of();
+
+        if(communityId != null) {
+            selected = communityService.getCommunityById(communityId);
+            flairs = flairService.getAllFlairsByCommunityId(communityId);
+        }
+        model.addAttribute("selectedCommunity", selected);
+        model.addAttribute("flairs", flairs);
+
+        model.addAttribute("postForm", new Post());
 
         return "create-post";
     }

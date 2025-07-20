@@ -3,8 +3,11 @@ package com.mb.reddit.service.implementation;
 import com.mb.reddit.entity.Community;
 import com.mb.reddit.entity.User;
 import com.mb.reddit.repository.CommunityRepository;
+import com.mb.reddit.repository.UserRepository;
 import com.mb.reddit.service.CommunityService;
 import com.mb.reddit.service.UserService;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -12,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -20,8 +24,10 @@ public class CommunityServiceImpl implements CommunityService {
     public final CommunityRepository communityRepository;
     public final UserService userService;
     public final CloudinaryService cloudinaryService;
+    public final UserRepository userRepository;
 
-    public CommunityServiceImpl(CommunityRepository communityRepository, UserService userService, CloudinaryService cloudinaryService) {
+    public CommunityServiceImpl(CommunityRepository communityRepository, UserService userService, CloudinaryService cloudinaryService, UserRepository userRepository) {
+        this.userRepository = userRepository;
         this.communityRepository = communityRepository;
         this.userService = userService;
         this.cloudinaryService = cloudinaryService;
@@ -61,41 +67,46 @@ public class CommunityServiceImpl implements CommunityService {
 
     @Override
     public List<User> getCommunityMembers(Long communityId) {
-        return communityRepository.findById(communityId).orElseThrow(() ->
-                new RuntimeException("Community Not found")).getMembers();
+        return communityRepository.findById(communityId).orElseThrow(() -> new RuntimeException("Community Not found")).getMembers();
     }
 
     @Override
     public Long getMembersCountByCommunityId(Long communityId) {
-        return (long) communityRepository.findById(communityId).orElseThrow(() ->
-                new RuntimeException("Community Not found")).getMembers().size();
+        return (long) communityRepository.findById(communityId).orElseThrow(() -> new RuntimeException("Community Not found")).getMembers().size();
     }
 
     @Override
     public void addMemberByCommunityId(User member, Long communityId) {
-        Community community = communityRepository.findById(communityId).orElseThrow(() ->
-                new RuntimeException("Community Not found"));
+        Community community = communityRepository.findById(communityId).orElseThrow(() -> new RuntimeException("Community Not found"));
 
         community.getMembers().add(member);
-        member.getJoinedCommunities().add(community);
 
         communityRepository.save(community);
     }
 
     @Override
     public User getCreatorByCommunityId(Long communityId) {
-        return communityRepository.findById(communityId).orElseThrow(() ->
-                new RuntimeException("Community Not found")).getCreator();
+        return communityRepository.findById(communityId).orElseThrow(() -> new RuntimeException("Community Not found")).getCreator();
     }
 
     @Override
     public Community getCommunityById(Long communityId) {
-        return communityRepository.findById(communityId).orElseThrow(() ->
-                new RuntimeException("Community Not found"));
+        return communityRepository.findById(communityId).orElseThrow(() -> new RuntimeException("Community Not found"));
     }
 
     @Override
     public List<Community> getAllCommunities() {
         return communityRepository.findAll();
+    }
+
+    @Override
+    public List<Community> findCommunitiesUserCanPost() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+
+        List<Community> result = new ArrayList<>(communityRepository.findPublicCommunities());
+        result.addAll(communityRepository.findUserCommunities(username));
+
+        return result.stream().distinct().toList();
     }
 }
