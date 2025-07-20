@@ -17,4 +17,13 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     @Query("SELECT p FROM Post p WHERE p.isPublished = true AND p.community.isPrivate = false")
     Page<Post> findAllPublicPublishedPosts(Pageable pageable);
+
+    @Query("SELECT DISTINCT p from Post p Where p.isPublished = true AND p.author.id = :userId")
+    Page<Post> getPostsByUserId(@Param("userId") Integer userId, Pageable pageable);
+
+    @Query("SELECT DISTINCT p FROM Post p JOIN PostVote v ON v.post = p " +
+            "WHERE p.isPublished = true AND v.user.id = :userId AND v.isLike = :islike " +
+            "ORDER BY p.createdAt DESC")
+    Page<Post> getVotedPostByUserId(@Param("userId") Integer userId,@Param("islike") Boolean islike, Pageable pageable);
+
 }

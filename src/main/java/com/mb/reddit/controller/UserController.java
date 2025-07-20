@@ -2,6 +2,7 @@ package com.mb.reddit.controller;
 
 import com.mb.reddit.entity.User;
 import com.mb.reddit.repository.UserRepository;
+import com.mb.reddit.service.UserService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,10 +17,13 @@ public class UserController {
 
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
+    private final UserService userService;
 
-	public UserController(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+	public UserController(UserRepository userRepository, PasswordEncoder passwordEncoder,
+						  UserService userService) {
 		this.userRepository = userRepository;
 		this.passwordEncoder = passwordEncoder;
+		this.userService = userService;
 	}
 
 	@GetMapping("/user/login")
@@ -66,5 +70,16 @@ public class UserController {
 		userRepository.save(user);
 
 		return "redirect:/user/login?registered=true";
+	}
+
+	@GetMapping("/user")
+	public String getUserProfilePage(Model model){
+		User user = new User();//TODO :current user is null so just checking
+		user.setId(1L);
+		user.setUsername("Sanjeet Ji");
+		user.setProfilePicture("https://i.pravatar.cc/100?img=5%22");
+		model.addAttribute("user", user);
+
+		return "fragments/user-profile-middle";
 	}
 }

@@ -141,6 +141,32 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    public Page<Post> getPostsByUserId(Integer userId, int pageNumber, int size) {
+        Pageable pageable = PageRequest.of(pageNumber, size);
+        return postRepository.getPostsByUserId(userId, pageable);
+    }
+
+    @Override
+    public Page<Post> getUpvotedPostsByUserId(Integer userId, int pageNumber, int size) {
+        Pageable pageable = PageRequest.of(pageNumber, size);
+        Boolean isLike = true;
+        return postRepository.getVotedPostByUserId(userId, isLike ,pageable);
+    }
+
+    @Override
+    public Page<Post> getDownVotedPostsByUserId(Integer userId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Boolean isLike = false;
+
+        return postRepository.getVotedPostByUserId(userId, isLike ,pageable);
+    }
+
+    @Override
+    public Page<Post> getSavedPostsByUserId(Integer userId, int page, int size) {
+        return null; //TODO Tommorow
+    }
+
+    @Override
     public Page<Post> getPostsByCommunityId(Long communityId, int pageNumber, int pageSize) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
 

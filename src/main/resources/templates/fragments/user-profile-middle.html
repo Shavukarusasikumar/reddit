@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:fragment="userFragment">
+<head>
+    <style>
+        .user-fragment {
+          background-color: #ffffff;
+          padding: 16px;
+          border-radius: 8px;
+          font-family: 'Segoe UI', sans-serif;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+          max-width: 650px;
+          width: 100%;
+          margin: 0 auto;
+        }
+
+        .user-profile {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          margin-bottom: 20px;
+        }
+
+        .user-profile img {
+          width: 60px;
+          height: 60px;
+          border-radius: 50%;
+          object-fit: cover;
+        }
+
+        .user-info {
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          height: 60px;
+          overflow: hidden;
+        }
+
+        .user-info .username {
+          font-weight: 600;
+          font-size: 16px;
+          color: #222;
+        }
+
+        .user-info .email {
+          font-size: 14px;
+          color: #666;
+          text-overflow: ellipsis;
+          overflow: hidden;
+          white-space: nowrap;
+        }
+
+        .user-actions {
+          display: flex;
+          justify-content: space-between;
+          margin-top: 10px;
+          gap: 12px;
+          flex-wrap: wrap;
+        }
+
+        .user-actions button {
+          background: none;
+          border: none;
+          padding: 8px 12px;
+          font-size: 15px;
+          font-weight: 500;
+          color: #333;
+          cursor: pointer;
+          transition: background-color 0.2s ease, color 0.2s ease;
+          border-radius: 6px;
+        }
+
+        .user-actions button:hover {
+          background-color: #f0f0f0;
+        }
+       .post-layout-wrapper {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 0 16px;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="user-fragment">
+    <!-- User Profile Row -->
+    <div class="user-profile">
+        <img th:src="${user.profilePicture}" alt="User Profile">
+        <div class="user-info">
+            <div class="username" th:text="${user.username}">John Doe</div>
+            <div class="u/username" th:text="'u/' + ${user.username}">john.doe@example.com</div>
+        </div>
+    </div>
+
+    <!-- Action Buttons (Single Horizontal Row) -->
+    <div class="user-actions">
+        <button class="section-btn" data-section="posts">Posts</button>
+        <button class="section-btn" data-section="saved">Saved</button>
+        <button class="section-btn" data-section="upvoted">Upvoted</button>
+        <button class="section-btn" data-section="downvoted">Downvoted</button>
+    </div>
+
+    <!-- Content Area for dynamic loading -->
+    <div style="margin-top: 20px;">
+        <div class="post-layout-wrapper">
+            <div id="section-content"></div>
+        </div>
+    </div>
+
+    <!-- User’s posts will be loaded here -->
+    </div>
+</div>
+<script>
+    const userId = /*[[${user.id}]]*/ '2'; // Thymeleaf userId
+
+    function bindVoteButtons() {
+      console.log("Binding vote buttons");
+
+      document.querySelectorAll('.upvote-btn').forEach(btn => {
+        btn.addEventListener('click', (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+
+          console.log("Upvote clicked")
+
+          const postId = btn.closest('.vote-buttons').getAttribute('data-post-id');
+          fetch(`/votes/upvote/${postId}`, {
+            method: 'POST'
+          }).then(res => {
+            if (res.ok) {
+              location.reload();
+            }
+          });
+        });
+      });
+
+      document.querySelectorAll('.downvote-btn').forEach(btn => {
+        btn.addEventListener('click', (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+
+          const postId = btn.closest('.vote-buttons').getAttribute('data-post-id');
+          fetch(`/votes/downvote/${postId}`, {
+            method: 'POST'
+          }).then(res => {
+            if (res.ok) {
+              location.reload();
+            }
+          });
+        });
+      });
+    }
+
+    function bindSectionTabs() {
+      document.querySelectorAll('.section-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const section = btn.dataset.section;
+          fetch(`/user/${userId}/${section}`)
+            .then(res => res.text())
+            .then(html => {
+              const container = document.getElementById('section-content');
+              container.innerHTML = html;
+
+              // Wait until DOM updates, then bind votes
+              setTimeout(bindVoteButtons, 0);
+            });
+        });
+      });
+    }
+
+    // First page load
+    document.addEventListener('DOMContentLoaded', () => {
+      bindSectionTabs();
+      bindVoteButtons(); // For initial content
+    });
+</script>
+</body>
+</html>

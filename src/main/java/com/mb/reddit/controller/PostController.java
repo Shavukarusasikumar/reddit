@@ -114,6 +114,7 @@ public class PostController {
             return "home";
         }
 
+
     @GetMapping("/posts/scroll")
     public String getMorePosts(@RequestParam(defaultValue = "0") int pageNumber,
                                @RequestParam(defaultValue = "10") int pageSize,
@@ -170,5 +171,49 @@ public class PostController {
         postService.deletePost(postId);
 
         return "redirect:/";
+    }
+
+    @GetMapping("/user/{userId}/posts")
+    public String getUserPosts(@PathVariable Integer userId,
+                               @RequestParam(defaultValue = "0") int page,
+                               @RequestParam(defaultValue = "10") int size,
+                               Model model) {
+        Page<Post> posts = postService.getPostsByUserId(userId, page, size);
+        model.addAttribute("posts", posts);
+        model.addAttribute("hasNext", posts.hasNext());
+        return "fragments/posts :: postSection";
+    }
+
+    @GetMapping("/user/{userId}/upvoted")
+    public String getUserUpVotedPosts(@PathVariable Integer userId,
+                               @RequestParam(defaultValue = "0") int page,
+                               @RequestParam(defaultValue = "10") int size,
+                               Model model) {
+        Page<Post> posts = postService.getUpvotedPostsByUserId(userId, page, size);
+        model.addAttribute("posts", posts);
+        model.addAttribute("hasNext", posts.hasNext());
+        return "fragments/posts :: postSection";
+    }
+
+    @GetMapping("/user/{userId}/downvoted")
+    public String getUserDownVotedPosts(@PathVariable Integer userId,
+                                      @RequestParam(defaultValue = "0") int page,
+                                      @RequestParam(defaultValue = "10") int size,
+                                      Model model) {
+        Page<Post> posts = postService.getDownVotedPostsByUserId(userId, page, size);
+        model.addAttribute("posts", posts);
+        model.addAttribute("hasNext", posts.hasNext());
+        return "fragments/posts :: postSection";
+    }
+
+    @GetMapping("/user/{userId}/saved")
+    public String getUserSavedPosts(@PathVariable Integer userId,
+                                        @RequestParam(defaultValue = "0") int page,
+                                        @RequestParam(defaultValue = "10") int size,
+                                        Model model) {
+        Page<Post> posts = postService.getSavedPostsByUserId(userId, page, size);
+        model.addAttribute("posts", posts);
+        model.addAttribute("hasNext", posts.hasNext());
+        return "fragments/posts :: postSection";
     }
 }
