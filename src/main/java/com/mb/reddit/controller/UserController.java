@@ -52,7 +52,7 @@ public class UserController {
         return "register";
     }
 
-	@PostMapping("/user/register")
+	@PostMapping("/register")
 	public String registerUser(
 			@RequestParam String username,
 			@RequestParam String email,

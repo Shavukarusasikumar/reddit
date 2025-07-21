@@ -8,8 +8,6 @@ import com.mb.reddit.service.CommunityService;
 import com.mb.reddit.service.UserService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,11 +21,11 @@ import java.util.List;
 public class CommunityServiceImpl implements CommunityService {
 
     public final CommunityRepository communityRepository;
-    public final UserService userService;
     public final CloudinaryService cloudinaryService;
     public final UserRepository userRepository;
+    public final UserServiceImpl userService;
 
-    public CommunityServiceImpl(CommunityRepository communityRepository, UserService userService, CloudinaryService cloudinaryService, UserRepository userRepository) {
+    public CommunityServiceImpl(CommunityRepository communityRepository, CloudinaryService cloudinaryService, UserRepository userRepository, UserServiceImpl userService) {
         this.userRepository = userRepository;
         this.communityRepository = communityRepository;
         this.userService = userService;
@@ -44,7 +42,7 @@ public class CommunityServiceImpl implements CommunityService {
             try {
                 String iconUrl = cloudinaryService.uploadFile(fileIcon);
                 community.setIconUrl(iconUrl);
-            } catch (IOException exception) {
+            } catch(IOException exception) {
                 throw new RuntimeException("Failed to upload media", exception);
             }
         }
@@ -53,7 +51,7 @@ public class CommunityServiceImpl implements CommunityService {
             try {
                 String bannerUrl = cloudinaryService.uploadFile(fileBanner);
                 community.setIconUrl(bannerUrl);
-            } catch (IOException exception) {
+            } catch(IOException exception) {
                 throw new RuntimeException("Failed to upload media", exception);
             }
         }
@@ -99,6 +97,14 @@ public class CommunityServiceImpl implements CommunityService {
     @Override
     public List<Community> getAllCommunities() {
         return communityRepository.findAll();
+    }
+
+    @Override
+    public List<Community> findUserJoinedCommunities() {
+
+        User user = userService.getLoggedInUser();
+
+        return communityRepository.findUserCommunities(user.getUsername());
     }
 
     @Override

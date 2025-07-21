@@ -22,8 +22,7 @@ public class PostVoteServiceImpl implements PostVoteService {
     private final UserRepository userRepository;
     private final UserServiceImpl userServiceImpl;
 
-    public PostVoteServiceImpl(PostVoteRepository postVoteRepository, PostRepository postRepository,
-                               UserRepository userRepository,  UserServiceImpl userServiceImpl) {
+    public PostVoteServiceImpl(PostVoteRepository postVoteRepository, PostRepository postRepository, UserRepository userRepository, UserServiceImpl userServiceImpl) {
         this.postVoteRepository = postVoteRepository;
         this.postRepository = postRepository;
         this.userRepository = userRepository;

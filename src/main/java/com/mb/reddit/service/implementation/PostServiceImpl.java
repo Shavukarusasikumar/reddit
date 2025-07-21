@@ -1,5 +1,6 @@
 package com.mb.reddit.service.implementation;
 
+import com.mb.reddit.dto.PostWithVotesDTO;
 import com.mb.reddit.entity.*;
 import com.mb.reddit.repository.*;
 import com.mb.reddit.service.PostService;
@@ -46,33 +47,18 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Page<Post> getAllPost(int pageNumber, int pageSize, String sortby) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User currentUser = userRepository.findUserByUsername(authentication.getName());
-
+    public Page<PostWithVotesDTO> getAllPost(int pageNumber, int pageSize, String sortby) {
         Sort sort = Sort.by(sortby).descending();
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
+
         long start = System.currentTimeMillis();
-        Page<Post> postsPage = postRepository.findAllPublicPublishedPosts(pageable);
+        Page<PostWithVotesDTO> postsPage = postRepository.findAllPublicPublishedPosts(pageable);
         long dbTime = System.currentTimeMillis();
-        System.out.println("Service :   DB fetch time: " + (dbTime - start) + " ms");
 
-        postsPage.forEach(post -> {
-            int upVotes = postVoteRepository.countUpvoteByPostId(post.getId());
-            int downVotes = postVoteRepository.countDownvoteByPostId(post.getId());
-            post.setVoteCount(upVotes - downVotes);
-
-            if(currentUser != null) {
-                Optional<PostVote> voteOptional = postVoteRepository.getPostVoteByUserIdAndPostId(currentUser.getId(), post.getId());
-                post.setIsLiked(voteOptional.isPresent() ? voteOptional.get().getIsLike() : null);
-            }
-
-            String showTime = TimeAgoUtils.getTimeAgo(post.getCreatedAt());
-            post.setShowTime(showTime);
-        });
-
+        System.out.println("Service: DB fetch time: " + (dbTime - start) + " ms");
         return postsPage;
     }
+
 
     @Override
     public List<Comment> getCommentsByPostId(Long postId) {

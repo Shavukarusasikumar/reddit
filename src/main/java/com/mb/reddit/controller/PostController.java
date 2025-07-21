@@ -1,5 +1,6 @@
 package com.mb.reddit.controller;
 
+import com.mb.reddit.dto.PostWithVotesDTO;
 import com.mb.reddit.entity.Comment;
 import com.mb.reddit.entity.Community;
 import com.mb.reddit.entity.Flair;
@@ -21,6 +22,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.HashMap;
 import java.util.List;
@@ -83,34 +85,21 @@ public class PostController {
     }
 
     @GetMapping("/posts")
-    public String getAllPosts(@RequestParam(defaultValue = "0", required = false) int pageNumber,
-                              @RequestParam(defaultValue = "10", required = false) int pageSize,
-                              @RequestParam(defaultValue = "createdAt", required = false) String sortBy,
-                              Model model) {
+    public String getAllPosts(@RequestParam(defaultValue = "0", required = false) int pageNumber, @RequestParam(defaultValue = "10", required = false) int pageSize, @RequestParam(defaultValue = "createdAt", required = false) String sortBy, Model model) {
         long start = System.currentTimeMillis();
-        Page<Post> posts = postService.getAllPost(pageNumber, pageSize, sortBy);
+        Page<PostWithVotesDTO> posts = postService.getAllPost(pageNumber, pageSize, sortBy);
 
         long dbTime = System.currentTimeMillis();
         System.out.println("Controller : DB fetch time: " + (dbTime - start) + " ms");
 
         long cumminityStart = System.currentTimeMillis();
-        List<Community> joinedCommunities = communityService.getAllCommunities();
-        //                .getJoinedCommunitiesByUserId(userService.getCurrentUser().getId());
-
+        List<Community> joinedCommunities = communityService.findUserJoinedCommunities();
         long communityEnd = System.currentTimeMillis();
         System.out.println("Community fetching time : " + (communityEnd - cumminityStart) + " ms");
 
         List<Community> recentCommunities = joinedCommunities.stream().limit(5).toList();
 
-        List<Post> recentPosts = new ArrayList<>();
-
-        for(Community joinedCommunity : joinedCommunities) {
-            recentPosts.addAll(joinedCommunity.getPosts());
-        }
-
-        recentPosts.sort(Comparator.comparing(Post::getCreatedAt).reversed());
-
-        List<Post> latest10Posts = posts.stream().limit(10).toList();
+        List<PostWithVotesDTO> latest10Posts = posts.getContent();
 
         model.addAttribute("posts", posts.getContent());
         model.addAttribute("recentPosts", latest10Posts);
@@ -120,12 +109,10 @@ public class PostController {
 
         return "home";
     }
-
     @GetMapping("/posts/scroll")
     public String getMorePosts(@RequestParam(defaultValue = "0") int pageNumber, @RequestParam(defaultValue = "10") int pageSize, @RequestParam(defaultValue = "createdAt") String sortBy, Model model) {
 
-        Page<Post> posts = postService.getAllPost(pageNumber, pageSize, sortBy);
-
+        Page<PostWithVotesDTO> posts = postService.getAllPost(pageNumber, pageSize, sortBy);
         // IMPORTANT: send only the list, not the Page
         model.addAttribute("posts", posts.getContent());
         model.addAttribute("hasNext", posts.hasNext());
