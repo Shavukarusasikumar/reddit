@@ -23,10 +23,13 @@ public class Community {
 
     private String name;
 
+    @Column(columnDefinition = "TEXT")
     private String description;
 
+    @Column(columnDefinition = "TEXT")
     private String iconUrl;
 
+    @Column(columnDefinition = "TEXT")
     private String bannerUrl;
 
     private Boolean isPrivate;

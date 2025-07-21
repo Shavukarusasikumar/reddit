@@ -2,14 +2,18 @@ package com.mb.reddit.controller;
 
 import com.mb.reddit.entity.Community;
 import com.mb.reddit.entity.Topic;
+import com.mb.reddit.entity.User;
 import com.mb.reddit.service.CommunityService;
 import com.mb.reddit.service.TopicService;
 
+import com.mb.reddit.service.UserService;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Controller
@@ -17,10 +21,12 @@ public class CommunityController {
 
     private final CommunityService communityService;
     private final TopicService topicService;
+    private final UserService userService;
 
-    public CommunityController(CommunityService communityService , TopicService topicService) {
+    public CommunityController(CommunityService communityService , TopicService topicService, UserService userService) {
         this.communityService = communityService;
         this.topicService = topicService;
+        this.userService = userService;
     }
 
 
@@ -53,6 +59,8 @@ public class CommunityController {
         community.setName(name);
         community.setDescription(description);
         community.setIsPrivate((privacy.equals("private")));
+        community.setCreatedAt(LocalDateTime.now());
+        community.setCreator(userService.getCurrentUser());
 
         community = communityService.createCommunity(community, iconFile, bannerFile);
 
@@ -61,5 +69,22 @@ public class CommunityController {
             topic.setCommunity(community);
         }
         return "redirect:/";
+    }
+
+    @GetMapping("/community/r/{communityId}")
+    public String getCommunityView(@PathVariable Long communityId, Model model,
+                                   @AuthenticationPrincipal User currentUser) {
+        Community community = communityService.getCommunityById(communityId);
+        model.addAttribute("community", community);
+
+        boolean isCreator = currentUser != null &&
+                community.getCreator().getId().equals(currentUser.getId());
+        model.addAttribute("isCreator", isCreator);
+
+        boolean hasJoined = currentUser != null &&
+                community.getMembers().contains(currentUser);
+        model.addAttribute("hasJoined", hasJoined);
+
+        return "community-profile";
     }
 }

@@ -22,13 +22,13 @@ public class Post {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "title")
+    @Column(name = "title", columnDefinition = "TEXT")
     private String title;
 
     @Column(name = "content", columnDefinition = "TEXT")
     private String content;
 
-    @Column(name = "media_url")
+    @Column(name = "media_url", columnDefinition = "TEXT")
     private String mediaUrl;
 
     @Column(name = "created_at")
