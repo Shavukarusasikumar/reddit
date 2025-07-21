@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.Collections;
+import java.util.List;
 
 @Controller
 @RequestMapping("/user")
@@ -124,4 +125,17 @@ public class UserController {
 
 		return "fragments/user-profile-middle";
 	}
+
+    @GetMapping("/chat")
+    public String chatPage(Model model) {
+        User user = userService.getCurrentUser();
+        List<User> connectedUsers = userService.getAllUsers()
+                .stream()
+                .filter(u -> !u.getUsername().equals(user.getUsername()))
+                .toList();
+
+        model.addAttribute("username", user.getUsername());
+        model.addAttribute("connectedUsers", connectedUsers);
+        return "chat";
+    }
 }

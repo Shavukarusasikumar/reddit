@@ -1,0 +1,81 @@
+'use strict';
+
+const messageForm = document.querySelector('#messageForm');
+const messageInput = document.querySelector('#message');
+const chatArea = document.querySelector('#chat-messages');
+const userList = document.querySelectorAll('.user-item');
+
+let stompClient = null;
+let username = document.body.getAttribute('data-username');
+let selectedUser = null;
+
+function connectToSocket() {
+    const socket = new SockJS('/ws');
+    stompClient = Stomp.over(socket);
+
+    stompClient.connect({}, () => {
+        stompClient.subscribe(`/user/${username}/queue/messages`, onMessageReceived);
+    }, () => console.error('WebSocket connection failed'));
+}
+
+userList.forEach(userItem => {
+    userItem.addEventListener('click', () => {
+        userList.forEach(el => el.classList.remove('active'));
+        userItem.classList.add('active');
+
+        selectedUser = userItem.getAttribute('data-username');
+        messageForm.classList.remove('hidden');
+        chatArea.innerHTML = '';
+
+        // Fetch old messages from the server
+        fetch(`/messages/${username}/${selectedUser}`)
+            .then(response => response.json())
+            .then(messages => {
+                messages.forEach(msg => {
+                    displayMessage(msg.senderId, msg.content);
+                });
+                chatArea.scrollTop = chatArea.scrollHeight;
+            })
+            .catch(err => console.error("Error fetching messages:", err));
+    });
+});
+
+
+function sendMessage(event) {
+    const messageContent = messageInput.value.trim();
+    if (messageContent && stompClient && selectedUser) {
+        const chatMessage = {
+            senderId: username,
+            recipientId: selectedUser,
+            content: messageContent,
+            timestamp: new Date()
+        };
+        stompClient.send("/app/chat", {}, JSON.stringify(chatMessage));
+        displayMessage(username, messageContent);
+        messageInput.value = '';
+    }
+    chatArea.scrollTop = chatArea.scrollHeight;
+    event.preventDefault();
+}
+
+function displayMessage(senderId, content) {
+    const messageContainer = document.createElement('div');
+    messageContainer.classList.add('message', senderId === username ? 'sender' : 'receiver');
+
+    const message = document.createElement('p');
+    message.textContent = content;
+
+    messageContainer.appendChild(message);
+    chatArea.appendChild(messageContainer);
+}
+
+function onMessageReceived(payload) {
+    const message = JSON.parse(payload.body);
+    if (selectedUser === message.senderId || message.senderId === username) {
+        displayMessage(message.senderId, message.content);
+        chatArea.scrollTop = chatArea.scrollHeight;
+    }
+}
+
+messageForm.addEventListener('submit', sendMessage, true);
+connectToSocket();
