@@ -294,19 +294,20 @@
                     </div>
                     <div class="dropdown-content" id="recentDropdown">
                         <div class="dropdown-inner">
-                            <div th:each="community : ${recentCommunities}" class="community-item">
-                                <img th:src="${community.iconUrl}" alt="community icon"
+                            <div th:each="comm : ${recentCommunities}" class="community-item">
+                                <img th:src="${comm.iconUrl}" alt="community icon"
                                      onerror="this.onerror=null;this.src='https://via.placeholder.com/20x20/ff4500/ffffff?text=r';">
-                                <a th:href="@{'/r/' + ${community.name}}"
+                                <a th:href="@{/community/r/{id}(id=${comm.id})}"
                                    class="community-link"
-                                   th:text="'r/' + ${community.name}"
-                                   th:title="'r/' + ${community.name}"></a>
+                                   th:text="'r/' + ${comm.name}"
+                                   th:title="'r/' + ${comm.name}"></a>
                             </div>
                             <div th:if="${#lists.isEmpty(recentCommunities)}" class="empty-state">
                                 <span>No recent communities</span>
                             </div>
                         </div>
                     </div>
+
                 </div>
             </div>
 
@@ -320,17 +321,17 @@
                     </div>
                     <div class="dropdown-content" id="communitiesDropdown">
                         <div class="dropdown-inner">
-                            <a href="/communities/create" class="create-community-btn">
+                            <a href="/create-community" class="create-community-btn">
                                 <i class="fas fa-plus"></i>
                                 <span>Create Community</span>
                             </a>
-                            <div th:each="community : ${communities}" class="community-item">
-                                <img th:src="${community.iconUrl}" alt="community icon"
+                            <div th:each="comm : ${communities}" class="community-item">
+                                <img th:src="${comm.iconUrl}" alt="community icon"
                                      onerror="this.onerror=null;this.src='https://via.placeholder.com/20x20/ff4500/ffffff?text=r';">
-                                <a th:href="@{'/r/' + ${community.name}}"
+                                <a th:href="@{/community/r/{id}(id=${comm.id})}"
                                    class="community-link"
-                                   th:text="'r/' + ${community.name}"
-                                   th:title="'r/' + ${community.name}"></a>
+                                   th:text="'r/' + ${comm.name}"
+                                   th:title="'r/' + ${comm.name}"></a>
                             </div>
                             <div th:if="${#lists.isEmpty(communities)}" class="empty-state">
                                 <span>No communities found</span>
