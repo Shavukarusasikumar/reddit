@@ -21,6 +21,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.HashMap;
 import java.util.List;
@@ -46,15 +47,15 @@ public class PostController {
     public PostController(PostService postService, UserService userService,
                           CommunityService communityService, FlairService flairService,
                           CommentService commentService, PostVoteService postVoteService,
-                          UserServiceImpl userServiceImpl, NotificationService notificationService) {
+                          NotificationService notificationService, UserServiceImpl userServiceImpl) {
         this.postService = postService;
         this.commentService = commentService;
         this.postVoteService = postVoteService;
         this.userService = userService;
         this.communityService = communityService;
         this.flairService = flairService;
-        this.userServiceImpl = userServiceImpl;
         this.notificationService = notificationService;
+        this.userServiceImpl = userServiceImpl;
     }
 
     @GetMapping("/new-post")
