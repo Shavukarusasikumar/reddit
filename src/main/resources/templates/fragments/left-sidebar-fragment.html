@@ -287,12 +287,12 @@
             <!-- Recent Section -->
             <div class="sidebar-section">
                 <div class="dropdown-section">
-                    <div class="dropdown-header" onclick="toggleDropdown('recentDropdown', this)" tabindex="0"
+                    <div class="dropdown-header open" onclick="toggleDropdown('recentDropdown', this)" tabindex="0"
                          onkeypress="if(event.key==='Enter'||event.key===' ') toggleDropdown('recentDropdown', this)">
                         <span>Recent</span>
                         <i class="fas fa-chevron-down"></i>
                     </div>
-                    <div class="dropdown-content" id="recentDropdown">
+                    <div class="dropdown-content show" id="recentDropdown">
                         <div class="dropdown-inner">
                             <div th:each="comm : ${recentCommunities}" class="community-item">
                                 <img th:src="${comm.iconUrl}" alt="community icon"
@@ -314,12 +314,12 @@
             <!-- Communities Section -->
             <div class="sidebar-section">
                 <div class="dropdown-section">
-                    <div class="dropdown-header" onclick="toggleDropdown('communitiesDropdown', this)" tabindex="0"
+                    <div class="dropdown-header open" onclick="toggleDropdown('communitiesDropdown', this)" tabindex="0"
                          onkeypress="if(event.key==='Enter'||event.key===' ') toggleDropdown('communitiesDropdown', this)">
                         <span>Communities</span>
                         <i class="fas fa-chevron-down"></i>
                     </div>
-                    <div class="dropdown-content" id="communitiesDropdown">
+                    <div class="dropdown-content show" id="communitiesDropdown">
                         <div class="dropdown-inner">
                             <a href="/create-community" class="create-community-btn">
                                 <i class="fas fa-plus"></i>
