@@ -2,6 +2,7 @@ package com.mb.reddit.controller;
 
 import com.mb.reddit.entity.User;
 import com.mb.reddit.repository.UserRepository;
+import com.mb.reddit.service.NotificationService;
 import com.mb.reddit.service.UserService;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -26,13 +27,15 @@ public class UserController {
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
     private final UserService userService;
+	private final NotificationService notificationService;
 
 	public UserController(UserRepository userRepository, PasswordEncoder passwordEncoder,
-						  UserService userService) {
+                          UserService userService, NotificationService notificationService) {
 		this.userRepository = userRepository;
 		this.passwordEncoder = passwordEncoder;
 		this.userService = userService;
-	}
+        this.notificationService = notificationService;
+    }
 
     @GetMapping("/login")
     public String showLoginPage() {
@@ -120,6 +123,9 @@ public class UserController {
 		user.setUsername("Sanjeet Ji");
 		user.setProfilePicture("https://i.pravatar.cc/100?img=5%22");
 		user.setBio("User's Bio");*/
+
+        int notificationCount = notificationService.getNotificationCount();
+        model.addAttribute("notificationCount", notificationCount);
 
 		model.addAttribute("user", user);
 

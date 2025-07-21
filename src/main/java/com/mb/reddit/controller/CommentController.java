@@ -1,8 +1,11 @@
 package com.mb.reddit.controller;
 
 import com.mb.reddit.entity.Comment;
+import com.mb.reddit.entity.Notification;
+import com.mb.reddit.entity.Post;
 import com.mb.reddit.entity.User;
 import com.mb.reddit.service.CommentService;
+import com.mb.reddit.service.NotificationService;
 import com.mb.reddit.service.implementation.UserServiceImpl;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.core.Authentication;
@@ -12,6 +15,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Controller
@@ -19,10 +23,13 @@ public class CommentController {
 
     private final CommentService commentService;
     private final UserServiceImpl userServiceImpl;
+    private final NotificationService notificationService;
 
-    public CommentController(CommentService commentService, UserServiceImpl userServiceImpl) {
+    public CommentController(CommentService commentService, UserServiceImpl userServiceImpl,
+                             NotificationService notificationService) {
         this.commentService = commentService;
         this.userServiceImpl = userServiceImpl;
+        this.notificationService = notificationService;
     }
 
     public Comment getCommentById(long commentId) {
@@ -73,17 +80,27 @@ public class CommentController {
             @PathVariable Long postId,
             @RequestParam String content,
             @RequestParam(required = false) Long parentCommentId,
-            HttpServletRequest request) {
+            HttpServletRequest request, Authentication authentication) {
 
-        User user = userServiceImpl.getLoggedInUser();
-
-        if (user == null) {
-            return "redirect:/login";
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return "redirect:/user/login?redirect=/posts/" + postId;
         }
 
         Comment comment = new Comment();
         comment.setContent(content);
-        commentService.createComment(comment, postId, parentCommentId);
+
+        Comment savedComment = commentService.createComment(comment, postId, parentCommentId);
+        Post post = savedComment.getPost();
+
+        if(!post.getAuthor().getUsername().equals(authentication.getName())){
+            Notification notification = new Notification();
+            notification.setRecipient(post.getAuthor());
+            notification.setMessage(authentication.getName() + " commented on your post.");
+            notification.setType("COMMENT");
+            notification.setRead(false);
+            notification.setTimestamp(LocalDateTime.now());
+            notificationService.addNotification(notification);
+        }
 
         // Check if it's an AJAX request
         String ajaxHeader = request.getHeader("X-Requested-With");

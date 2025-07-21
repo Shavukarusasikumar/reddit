@@ -1,8 +1,10 @@
 package com.mb.reddit.service.implementation;
 
+import com.mb.reddit.entity.Notification;
 import com.mb.reddit.entity.Post;
 import com.mb.reddit.entity.PostVote;
 import com.mb.reddit.entity.User;
+import com.mb.reddit.repository.NotificationRepository;
 import com.mb.reddit.repository.PostRepository;
 import com.mb.reddit.repository.PostVoteRepository;
 import com.mb.reddit.repository.UserRepository;
@@ -21,39 +23,51 @@ public class PostVoteServiceImpl implements PostVoteService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final UserServiceImpl userServiceImpl;
+    private final NotificationRepository notificationRepository;
 
-    public PostVoteServiceImpl(PostVoteRepository postVoteRepository, PostRepository postRepository, UserRepository userRepository, UserServiceImpl userServiceImpl) {
+    public PostVoteServiceImpl(PostVoteRepository postVoteRepository, PostRepository postRepository,
+                               UserRepository userRepository, UserServiceImpl userServiceImpl,
+                               NotificationRepository notificationRepository) {
         this.postVoteRepository = postVoteRepository;
         this.postRepository = postRepository;
         this.userRepository = userRepository;
         this.userServiceImpl = userServiceImpl;
+        this.notificationRepository = notificationRepository;
     }
 
     @Override
     @Transactional
     public void addVoteByPostId(Long postId, Boolean isLike) {
-        System.out.println("----------------------------Starting Vote Process for Post: " + postId + " IsLike: " + isLike + "-------------------------------------");
-
         Post post = postRepository.findById(postId).orElseThrow(() -> new RuntimeException("Post not found " + postId));
 
-        User currentuser = userServiceImpl.getLoggedInUser();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        User currentUser = userRepository.findUserByUsername("shruti_dev"); //TODO Change it to username
 
-        if (currentuser == null) {
-            System.out.println("----------------------------Current user is null ---------------------------------------------");
-            throw new RuntimeException("Current user is null");
-        }
-
-        PostVote postVote = postVoteRepository.getPostVoteByUserIdAndPostId(currentuser.getId(),
+        PostVote postVote = postVoteRepository.getPostVoteByUserIdAndPostId(currentUser.getId(),
                 postId).orElse(new PostVote());
 
-        System.out.println("----------------------------Found existing vote: " + (postVote.getId() != null) + "-------------------------------------");
-
         postVote.setPost(post);
-        postVote.setUser(currentuser);
+        postVote.setUser(currentUser);
         postVote.setIsLike(isLike);
         postVote.setLikedAt(LocalDateTime.now());
         postVoteRepository.save(postVote);
-        System.out.println("----------------------------Vote Saved Successfully ---------------------------------------------");
+
+        if(postVote.getIsLike()){
+            String type = "UPVOTE";
+            Notification existing = notificationRepository.findTopByRecipientAndPostAndType(post.getAuthor(),
+                    post, type);
+            if (existing == null) {
+                Notification notification = new Notification();
+                notification.setRecipient(post.getAuthor());
+                notification.setPost(post);
+                notification.setMessage(currentUser.getUsername() + " upvoted your post: " + post.getTitle());
+                notification.setType("UPVOTE");
+                notification.setRead(false);
+                notification.setTimestamp(LocalDateTime.now());
+                notificationRepository.save(notification);
+            }
+        }
     }
 
     @Override
@@ -77,12 +91,14 @@ public class PostVoteServiceImpl implements PostVoteService {
 
     @Override
     public Boolean getVoteStatusByPostId(Long postId) {
-        User currentUser = userServiceImpl.getLoggedInUser();
-
-        if (currentUser == null) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
             return null;
         }
 
+        String username = authentication.getName();
+        User currentUser = userRepository.findUserByUsername(username);
+        User user = userRepository.findUserByUsername(username);
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
 
