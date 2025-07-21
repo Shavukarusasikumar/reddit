@@ -35,8 +35,7 @@ public class PostVoteServiceImpl implements PostVoteService {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
-        User currentuser = userRepository.findUserByUsername("shruti_dev"); //TODO Change it to username
-
+        User currentuser = userRepository.findUserByUsername(username);
         PostVote postVote = postVoteRepository.getPostVoteByUserIdAndPostId(currentuser.getId(),
                 postId).orElse(new PostVote());
 
