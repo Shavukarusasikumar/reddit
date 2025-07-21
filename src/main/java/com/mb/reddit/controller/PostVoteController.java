@@ -5,11 +5,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-
 @Controller
 @RequestMapping("/votes")
 public class PostVoteController {
-
     private final PostVoteService postVoteService;
 
     public PostVoteController(PostVoteService postVoteService) {
@@ -18,25 +16,31 @@ public class PostVoteController {
 
     @PostMapping("/upvote/{postId}")
     @ResponseBody
-    public ResponseEntity<String> upvote(@PathVariable Long postId) {
-        postVoteService.addVoteByPostId(postId, true);
-
-        return ResponseEntity.ok("Upvoted");
+    public void upvote(@PathVariable Long postId) {
+        try {
+            postVoteService.addVoteByPostId(postId, true);
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @PostMapping("/downvote/{postId}")
     @ResponseBody
-    public ResponseEntity<String> downvote(@PathVariable Long postId) {
-        postVoteService.addVoteByPostId(postId, false);
-
-        return ResponseEntity.ok("Downvoted");
+    public void downvote(@PathVariable Long postId) {
+        try {
+            postVoteService.addVoteByPostId(postId, false);
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @DeleteMapping("/remove/{postId}")
     @ResponseBody
-    public ResponseEntity<String> removeVote(@PathVariable Long postId) {
-        postVoteService.removeVoteByPostId(postId);
-
-        return ResponseEntity.ok("Vote removed");
+    public void removeVote(@PathVariable Long postId) {
+        try {
+            postVoteService.removeVoteByPostId(postId);
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
     }
 }

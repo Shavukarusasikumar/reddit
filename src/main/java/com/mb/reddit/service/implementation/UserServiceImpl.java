@@ -4,13 +4,18 @@ import com.mb.reddit.entity.Comment;
 import com.mb.reddit.entity.Community;
 import com.mb.reddit.entity.Post;
 import com.mb.reddit.entity.User;
+import com.mb.reddit.repository.CommunityRepository;
+import com.mb.reddit.repository.PostRepository;
 import com.mb.reddit.repository.UserRepository;
+import com.mb.reddit.service.CommunityService;
 import com.mb.reddit.service.UserService;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,10 +26,63 @@ import java.util.Objects;
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
+    private final PostRepository postRepository;
+    private final CommunityRepository communityRepository;
 
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, PostRepository postRepository, CommunityRepository communityRepository) {
         this.userRepository = userRepository;
+        this.postRepository = postRepository;
+        this.communityRepository = communityRepository;
     }
+
+    @Transactional
+    @Override
+    public void addPostToUserSavedPosts(Long postId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
+        User user = userRepository.findUserByUsername(username);
+        Post post = postRepository.findById(postId).orElseThrow(() -> new RuntimeException("Post not found"));
+
+        if(!user.getSavedPosts().contains(post)) {
+            user.getSavedPosts().add(post);
+            userRepository.save(user);
+        }
+    }
+
+    @Override
+    public void adduserToCommunityByCommunityId(Long communityId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
+        User user = userRepository.findUserByUsername(username);
+        Community community = communityRepository.findById(communityId).orElse(null);
+
+        if(!user.getJoinedCommunities().contains(community)) {
+            user.getJoinedCommunities().add(community);
+            userRepository.save(user);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void removeUserFromCommunityByCommunityId(Long communityId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+
+        User user = userRepository.findUserByUsername(username);
+        if (user == null) {
+            throw new UsernameNotFoundException("User not found: " + username);
+        }
+
+        Community community = communityRepository.findById(communityId)
+                .orElseThrow(() -> new EntityNotFoundException("Community not found with id: " + communityId));
+
+        if (user.getJoinedCommunities().remove(community)) {
+            userRepository.save(user); // Only save if a removal actually happened
+        }
+    }
+
 
     @Override
     public User addUser(User user) {
@@ -87,8 +145,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserById(long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+        return userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
     }
 
     @Override
@@ -97,8 +154,7 @@ public class UserServiceImpl implements UserService {
         User currUser = getCurrentUser();
 
         List<User> following = userRepository.findAllFollowingByUserId(currUser.getId());
-        User newUser = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+        User newUser = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found with id: " + id));
 
         following.add(newUser);
 
@@ -113,8 +169,7 @@ public class UserServiceImpl implements UserService {
         User currUser = getCurrentUser();
 
         List<User> followers = userRepository.findAllFollowersByUserId(currUser.getId());
-        User newUser = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id : " + id));
+        User newUser = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found with id : " + id));
 
         followers.add(newUser);
 
@@ -129,11 +184,10 @@ public class UserServiceImpl implements UserService {
         User currUser = getCurrentUser();
 
         List<User> followers = userRepository.findAllFollowersByUserId(currUser.getId());
-        User newUser = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id " + id));
+        User newUser = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found with id " + id));
 
-        for (int i = 0; i < followers.size(); i++) {
-            if (Objects.equals(followers.get(i).getId(), newUser.getId())) {
+        for(int i = 0; i < followers.size(); i++) {
+            if(Objects.equals(followers.get(i).getId(), newUser.getId())) {
                 followers.remove(i);
 
                 break;
@@ -151,12 +205,11 @@ public class UserServiceImpl implements UserService {
         User currUser = getCurrentUser();
 
         List<User> following = userRepository.findAllFollowingByUserId(currUser.getId());
-        User newUser = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id " + id));
+        User newUser = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found with id " + id));
 
-        for (int i = 0; i < following.size(); i++) {
+        for(int i = 0; i < following.size(); i++) {
 
-            if (Objects.equals(following.get(i).getId(), newUser.getId())) {
+            if(Objects.equals(following.get(i).getId(), newUser.getId())) {
                 following.remove(i);
                 break;
             }

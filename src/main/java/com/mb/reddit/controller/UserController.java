@@ -3,46 +3,47 @@ package com.mb.reddit.controller;
 import com.mb.reddit.entity.User;
 import com.mb.reddit.repository.UserRepository;
 import com.mb.reddit.service.UserService;
+import com.mb.reddit.service.UserService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 
 @Controller
+@RequestMapping("/user")
 public class UserController {
 
-	private final UserRepository userRepository;
-	private final PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
     private final UserService userService;
 
-	public UserController(UserRepository userRepository, PasswordEncoder passwordEncoder,
-						  UserService userService) {
-		this.userRepository = userRepository;
-		this.passwordEncoder = passwordEncoder;
-		this.userService = userService;
-	}
+    public UserController(UserRepository userRepository, PasswordEncoder passwordEncoder, UserService userService) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.userService = userService;
+    }
 
-	@GetMapping("/user/login")
-	public String showLoginPage() {
-		return "login";
-	}
+    @GetMapping("/login")
+    public String showLoginPage() {
+        return "login";
+    }
 
-	@GetMapping("/")
-	public String home(Model model, Principal principal) {
-		if (principal != null) {
-			model.addAttribute("username", principal.getName());
-		}
-		return "home";
-	}
+    @GetMapping("/")
+    public String home(Model model, Principal principal) {
+        if(principal != null) {
+            model.addAttribute("username", principal.getName());
+        }
+        return "home";
+    }
 
-	@GetMapping("/user/register")
-	public String showRegisterPage() {
-		return "register";
-	}
+    @GetMapping("/register")
+    public String showRegisterPage() {
+        return "register";
+    }
 
 	@PostMapping("/user/register")
 	public String registerUser(
@@ -69,8 +70,36 @@ public class UserController {
 
 		userRepository.save(user);
 
-		return "redirect:/user/login?registered=true";
-	}
+        return "redirect:/user/login?registered=true";
+    }
+
+    @PostMapping("/join-community/{id}")
+    @ResponseBody
+    public ResponseEntity<String> joinCommunity(@PathVariable("id") Long communityId, Authentication authentication) {
+        if(authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(401).body("Authentication required");
+        }
+
+        try {
+            userService.adduserToCommunityByCommunityId(communityId);
+            return ResponseEntity.ok("Joined community");
+        } catch(Exception e) {
+            return ResponseEntity.badRequest().body("Error joining community");
+        }
+    }
+
+
+    @PostMapping("/leave-community/{id}")
+    @ResponseBody
+    public ResponseEntity<String> leaveCommunity(@PathVariable("id") Long communityId, Authentication authentication) {
+        if(authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(401).body("Authentication required");
+        }
+
+        userService.removeUserFromCommunityByCommunityId(communityId);
+
+        return ResponseEntity.ok("Removed  community");
+    }
 
 	@GetMapping("/user")
 	public String getUserProfilePage(Model model){

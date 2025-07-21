@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @Controller
+@RequestMapping("/comment")
 public class CommentController {
 
     private final CommentService commentService;
@@ -45,16 +46,14 @@ public class CommentController {
     }
 
     @PostMapping("/edit-comment/{commentId}")
-    public String updateCommentById(
-            @PathVariable Long commentId,
-            @RequestParam("updatedContent") String updatedContent) {
+    public String updateCommentById(@PathVariable Long commentId, @RequestParam("updatedContent") String updatedContent) {
         Long postId = commentService.getCommentById(commentId).getPost().getId();
         commentService.updateComment(commentId, updatedContent);
 
         return "redirect:/posts/" + postId;
     }
 
-    @GetMapping("/comments/{postId}")
+    @GetMapping("/get-all/{postId}")
     public String getCommentsByPostId(@PathVariable("postId") Long postId, Model model) {
         List<Comment> comments = commentService.getTopLevelComments(postId);
 
@@ -63,21 +62,16 @@ public class CommentController {
         return "comments";
     }
 
-    @PostMapping("/posts/{postId}/comments")
-    public String createComment(
-            @PathVariable Long postId,
-            @RequestParam String content,
-            @RequestParam(required = false) Long parentCommentId,
-            Authentication authentication) {
+    @PostMapping("/add-comment/{postId}/")
+    public void createComment(@PathVariable Long postId, @RequestParam String content,
+                              @RequestParam(required = false) Long parentCommentId, Authentication authentication) {
 
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return "redirect:/user/login?redirect=/posts/" + postId;
+        if(authentication == null || !authentication.isAuthenticated()) {
+            return;
         }
 
         Comment comment = new Comment();
         comment.setContent(content);
         commentService.createComment(comment, postId, parentCommentId);
-
-        return "redirect:/posts/" + postId;
     }
 }

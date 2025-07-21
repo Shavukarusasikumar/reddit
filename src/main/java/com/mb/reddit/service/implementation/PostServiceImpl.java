@@ -31,9 +31,7 @@ public class PostServiceImpl implements PostService {
     private final CommunityRepository communityRepository;
     private final UserRepository userRepository;
 
-    public PostServiceImpl(PostRepository postRepository, CommentRepository commentRepository,
-                           CloudinaryService cloudinaryService, PostVoteRepository postVoteRepository,
-                           CommunityRepository communityRepository, UserRepository userRepository) {
+    public PostServiceImpl(PostRepository postRepository, CommentRepository commentRepository, CloudinaryService cloudinaryService, PostVoteRepository postVoteRepository, CommunityRepository communityRepository, UserRepository userRepository) {
         this.postRepository = postRepository;
         this.commentRepository = commentRepository;
         this.cloudinaryService = cloudinaryService;
@@ -44,8 +42,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public Post getPostById(Long postId) {
-        return postRepository.findById(postId)
-                .orElseThrow(()-> new RuntimeException("Post not found with id " + postId));
+        return postRepository.findById(postId).orElseThrow(() -> new RuntimeException("Post not found with id " + postId));
     }
 
     @Override
@@ -65,9 +62,8 @@ public class PostServiceImpl implements PostService {
             int downVotes = postVoteRepository.countDownvoteByPostId(post.getId());
             post.setVoteCount(upVotes - downVotes);
 
-            if(currentUser != null){
-                Optional<PostVote> voteOptional = postVoteRepository.getPostVoteByUserIdAndPostId(
-                        currentUser.getId(), post.getId());
+            if(currentUser != null) {
+                Optional<PostVote> voteOptional = postVoteRepository.getPostVoteByUserIdAndPostId(currentUser.getId(), post.getId());
                 post.setIsLiked(voteOptional.isPresent() ? voteOptional.get().getIsLike() : null);
             }
 
@@ -91,21 +87,22 @@ public class PostServiceImpl implements PostService {
 
     @Transactional
     @Override
-    public Post createPost(Post post, Long communityId ,MultipartFile media) {
+    public Post createPost(Post post, Long communityId, MultipartFile media) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = userRepository.findUserByUsername(authentication.getName());
 
-        if(media != null){
+        if(media != null) {
             try {
                 String mediaUrl = cloudinaryService.uploadFile(media);
                 post.setMediaUrl(mediaUrl);
-            } catch (IOException exception) {
+                post.setCreatedAt(LocalDateTime.now());
+                post.setIsPublished(true);
+            } catch(IOException exception) {
                 throw new RuntimeException("Failed to upload media", exception);
             }
         }
 
-        Community community = communityRepository.findById(communityId)
-                        .orElseThrow(() -> new RuntimeException("Community not found " + communityId));
+        Community community = communityRepository.findById(communityId).orElseThrow(() -> new RuntimeException("Community not found " + communityId));
 
         post.setAuthor(currentUser);
         post.setCreatedAt(LocalDateTime.now());
@@ -122,7 +119,7 @@ public class PostServiceImpl implements PostService {
 
         Post oldPost = postRepository.findById(updatedPost.getId()).orElseThrow();
 
-        if(!username.equals(oldPost.getAuthor().getUsername())){
+        if(!username.equals(oldPost.getAuthor().getUsername())) {
             throw new RuntimeException("UnAuthorized");
         }
 
@@ -137,7 +134,7 @@ public class PostServiceImpl implements PostService {
         Integer upVoteCount = postVoteRepository.countUpvoteByPostId(postId);
         Integer downVoteCount = postVoteRepository.countDownvoteByPostId(postId);
 
-        return upVoteCount-downVoteCount;
+        return upVoteCount - downVoteCount;
     }
 
     @Override

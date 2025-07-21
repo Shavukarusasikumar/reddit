@@ -165,6 +165,25 @@
             }
         }
 
+        .copy-toast {
+            position: fixed;
+            bottom: 32px;
+            right: 32px;
+            padding: 8px 16px;
+            background: #333;
+            color: #fff;
+            font-size: 14px;
+            border-radius: 4px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.18s ease;
+            z-index: 1000;
+        }
+        .copy-toast.show {
+            opacity: 1;
+        }
+
+
         @media (max-width: 960px) {
             .home-wrapper {
                 padding: 0;
@@ -258,6 +277,10 @@
             color: #0079d3;
             background-color: #f6f7f8;
         }
+        .dot-separator {
+            color: #787c7e;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -285,16 +308,6 @@
         <!-- Posts Section -->
         <div id="post-list">
             <div th:each="post : ${posts}" class="post-container">
-                <div class="post-votes">
-                    <div class="vote-buttons" th:data-post-id="${post.id}">
-                        <i class="fa-solid fa-arrow-up upvote-btn"
-                           th:classappend="${post.isLiked} == true ? ' active' : ''"></i>
-                        <span class="vote-count" th:text="${post.voteCount}">0</span>
-                        <i class="fa-solid fa-arrow-down downvote-btn"
-                           th:classappend="${post.isLiked} == false ? ' active' : ''"></i>
-                    </div>
-                </div>
-
                 <div class="post-content-area">
                     <div class="post-header">
                         <div class="post-header-left">
@@ -303,22 +316,11 @@
                                class="community-link"></a>
                             <span class="post-time" th:text="' • ' + ${post.showTime}"></span>
                         </div>
-
-                        <div class="post-header-right">
-                            <button class="join-btn">Join</button>
-                            <div class="menu-container">
-                                <button class="menu-btn"><i class="fa-solid fa-ellipsis"></i></button>
-                                <div class="menu-dropdown">
-                                    <a href="#">Save</a>
-                                    <a href="#">Hide</a>
-                                    <a href="#">Report</a>
-                                </div>
-                            </div>
-                        </div>
                     </div>
 
-                    <div class="post-title" th:text="${post.title}">Post title</div>
-
+                    <a th:href="@{/posts/{id}(id=${post.id})}" class="post-link">
+                        <div class="post-title" th:text="${post.title}">Post title</div>
+                    </a>
                     <div th:if="${post.mediaUrl != null}" class="post-media">
                         <img class="post-image" th:src="${post.mediaUrl}" alt="Post image">
                     </div>
@@ -328,23 +330,37 @@
                          th:text="${post.content}">
                     </div>
 
-                    <div class="post-actions">
+                    <!-- Actions: Votes inline + comments, share, save -->
+                    <div class="post-actions"
+                         th:data-post-id="${post.id}">
+                        <div class="action-button likes-count"
+                             th:data-vote-state="${post.isLiked == null ? 0 : (post.isLiked ? 1 : -1)}">
+                            <i class="fa-solid fa-arrow-up upvote-btn"
+                               th:classappend="${post.isLiked} == true ? ' active' : ''"></i>
+                            <span class="vote-count" th:text="${post.voteCount}">0</span>
+                            <i class="fa-solid fa-arrow-down downvote-btn"
+                               th:classappend="${post.isLiked} == false ? ' active' : ''"></i>
+                        </div>
+
+                        <span class="dot-separator">•</span>
+
                         <a th:href="@{/posts/{id}(id=${post.id})}" class="action-button comment-btn">
                             <i class="fa-regular fa-comment"></i>
                             <span th:text="${post.comments.size()} + ' Comments'">0 Comments</span>
                         </a>
+
+                        <span class="dot-separator">•</span>
+
                         <div class="action-button share-btn">
                             <i class="fa-solid fa-share"></i>
                             <span>Share</span>
-                        </div>
-                        <div class="action-button save-btn">
-                            <i class="fa-regular fa-bookmark"></i>
-                            <span>Save</span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <div id="copy-toast" class="copy-toast" role="status" aria-live="polite">Link Copied!</div>
 
         <!-- Loading Indicator -->
         <div id="loading">
@@ -373,49 +389,13 @@
         border-color: #898989;
     }
 
-    .post-votes {
-        width: 40px;
-        background-color: #f8f9fa;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 8px 4px;
-        flex-shrink: 0;
-    }
-
-    .vote-buttons {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 2px;
-        font-size: 16px;
-    }
-
-    .vote-buttons i {
-        cursor: pointer;
-        padding: 2px;
-        border-radius: 2px;
-        color: #878a8c;
-        transition: color 0.2s, background-color 0.2s;
-    }
-
-    .vote-buttons i:hover {
-        background-color: #f6f7f8;
-    }
-
-    .vote-buttons .upvote-btn.active {
-        color: #ff4500;
-    }
-
-    .vote-buttons .downvote-btn.active {
-        color: #7193ff;
-    }
+    /* Removed .post-votes sidebar since voting is now inline */
 
     .vote-count {
         font-size: 12px;
         font-weight: bold;
         color: #1c1c1c;
-        margin: 2px 0;
+        margin: 0 4px;
     }
 
     .post-content-area {
@@ -492,10 +472,12 @@
 
     .post-actions {
         display: flex;
-        gap: 4px;
+        align-items: center;
+        gap: 6px; /* spacing between buttons */
         font-size: 12px;
         color: #787c7e;
-        align-items: center;
+        margin-top: 8px;
+        flex-wrap: wrap; /* Wrap if screen is small */
     }
 
     .action-button {
@@ -519,21 +501,31 @@
         font-size: 16px;
     }
 
-    .join-btn {
-        background-color: #0079d3;
-        color: white;
-        border: none;
-        padding: 4px 16px;
-        border-radius: 9999px;
-        cursor: pointer;
-        font-weight: bold;
-        font-size: 12px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
+    /* -------- Added Styles for Inline Voting -------- */
+    .likes-count {
+        display: flex;
+        align-items: center;
+        gap: 4px;
     }
 
-    .join-btn:hover {
-        background-color: #0060a6;
+    .likes-count i {
+        cursor: pointer;
+        padding: 2px;
+        border-radius: 2px;
+        color: #878a8c;
+        transition: color 0.2s, background-color 0.2s;
+    }
+
+    .likes-count i:hover {
+        background-color: #f6f7f8;
+    }
+
+    .likes-count .upvote-btn.active {
+        color: #ff4500; /* Orange when upvoted */
+    }
+
+    .likes-count .downvote-btn.active {
+        color: #7193ff; /* Blue when downvoted */
     }
 
     .menu-container {
@@ -587,102 +579,245 @@
 
 <!-- JavaScript for infinite scroll and voting -->
 <script>
-    let currentPage = 1;
+    /* --------------------------
+       PAGINATION / INFINITE LOAD
+       -------------------------- */
+    const PAGE_SIZE = 10;
+    const TRIGGER_AT = 7; // load when user reaches 7th post of the current batch
+    let currentPage = 1;  // we've already rendered page 1 on initial load
+    let nextTriggerIndex = TRIGGER_AT; // 1-based index of the post that triggers next load
     let loading = false;
-    let hasNext = /*[[${hasNext}]]*/ true;
+    let hasNext = /*[[${hasNext}]]*/ true; // server sets for initial page
 
-    window.addEventListener('scroll', () => {
+    window.addEventListener('scroll', handleScroll);
+
+    /* Improved Scroll Handler */
+    function handleScroll() {
         if (loading || !hasNext) return;
-        const nearBottom = window.innerHeight + window.scrollY >= document.body.offsetHeight - 500;
-        if (nearBottom) loadMorePosts();
-    });
 
-    function loadMorePosts() {
-        loading = true;
-        document.getElementById('loading').style.display = 'block';
-        fetch(`/posts/scroll?pageNumber=${currentPage}&pageSize=10&sortBy=createdAt`)
-            .then(response => response.text())
-            .then(data => {
-                const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = data;
-                const newPosts = tempDiv.querySelectorAll('.post-container');
-                const postList = document.getElementById('post-list');
-                newPosts.forEach(post => postList.appendChild(post));
-                hasNext = newPosts.length > 0;
-                currentPage++;
-                loading = false;
-                document.getElementById('loading').style.display = 'none';
-            })
-            .catch(error => {
-                console.error('Error loading more posts:', error);
-                loading = false;
-                document.getElementById('loading').style.display = 'none';
-            });
+        const posts = document.querySelectorAll('#post-list .post-container');
+        if (posts.length < nextTriggerIndex) return;
+
+        const triggerPost = posts[nextTriggerIndex - 1];
+        const { top, bottom } = triggerPost.getBoundingClientRect();
+
+        // Trigger when post enters viewport
+        if (top < window.innerHeight && bottom > 0) {
+            loadMorePosts();
+        }
     }
 
-    // Voting functionality
-    document.addEventListener("DOMContentLoaded", () => {
+    function isInViewport(el) {
+        if (!el) return false;
+        const rect = el.getBoundingClientRect();
+        return rect.top < window.innerHeight && rect.bottom > 0;
+    }
+
+    /* Fixed Infinite Scroll */
+function loadMorePosts() {
+    loading = true;
+    const loadingEl = document.getElementById('loading');
+    if (loadingEl) loadingEl.style.display = 'block';
+
+    // Request NEXT page (currentPage + 1)
+    fetch(`/posts/scroll?pageNumber=${currentPage + 1}&pageSize=${PAGE_SIZE}&sortBy=createdAt`)
+        .then(response => {
+            if (!response.ok) throw new Error('Network error');
+            return response.text();
+        })
+        .then(html => {
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = html;
+
+            const newPosts = tempDiv.querySelectorAll('.post-container');
+            const postList = document.getElementById('post-list');
+
+            // Append new posts
+            newPosts.forEach(post => postList.appendChild(post));
+
+            // Update state
+            hasNext = newPosts.length === PAGE_SIZE;
+            currentPage++;  // Only increment AFTER successful load
+
+            // Update trigger index for next batch
+            nextTriggerIndex += PAGE_SIZE;
+
+            // Initialize voting for new posts
+            initVoteState(postList);
+        })
+        .catch(err => {
+            console.error('Error loading posts:', err);
+            // Reset trigger index to retry
+            nextTriggerIndex -= PAGE_SIZE;
+        })
+        .finally(() => {
+            loading = false;
+            if (loadingEl) loadingEl.style.display = 'none';
+        });
+}
+
+    /* ---------------
+       VOTING
+       --------------- */
+    document.addEventListener('DOMContentLoaded', () => {
         const postList = document.getElementById('post-list');
+
+        // initialize vote-state from active classes (server-rendered)
+        initVoteState(postList);
+
+        // event delegation: works for new posts appended later
         postList.addEventListener('click', (e) => {
             const target = e.target;
-            const voteGroup = target.closest('.vote-buttons');
-            if (!voteGroup) return;
+            const likesContainer = target.closest('.likes-count');
+            if (!likesContainer) return; // click was elsewhere
 
-            const upvoteBtn = voteGroup.querySelector('.upvote-btn');
-            const downvoteBtn = voteGroup.querySelector('.downvote-btn');
-            const voteCountSpan = voteGroup.querySelector('.vote-count');
-            const postId = voteGroup.getAttribute('data-post-id');
-            let voteCount = parseInt(voteCountSpan.textContent);
+            const upvoteBtn = likesContainer.querySelector('.upvote-btn');
+            const downvoteBtn = likesContainer.querySelector('.downvote-btn');
+            const voteCountSpan = likesContainer.querySelector('.vote-count');
+            const postId = likesContainer.closest('.post-actions').dataset.postId;
 
-            if (voteGroup.dataset.voteState === undefined) {
-                voteGroup.dataset.voteState = "0";
-            }
+            // read current state
+            let currentVote = parseInt(likesContainer.dataset.voteState, 10);
+            if (isNaN(currentVote)) currentVote = 0;
 
-            let currentVote = parseInt(voteGroup.dataset.voteState);
+            // numeric vote count from UI
+            let voteCount = parseInt(voteCountSpan.textContent.trim(), 10);
+            if (isNaN(voteCount)) voteCount = 0;
 
             if (target.classList.contains('upvote-btn')) {
+                target.disabled = true;
+                setTimeout(() => target.disabled = false, 500);
                 if (currentVote === 1) {
+                    // remove upvote
                     upvoteBtn.classList.remove('active');
                     voteCount -= 1;
-                    voteGroup.dataset.voteState = "0";
+                    likesContainer.dataset.voteState = "0";
                     sendVote(`/votes/remove/${postId}`, 'DELETE');
                 } else {
+                    // apply upvote (and remove downvote if present)
                     upvoteBtn.classList.add('active');
                     downvoteBtn.classList.remove('active');
                     voteCount += (currentVote === -1 ? 2 : 1);
-                    voteGroup.dataset.voteState = "1";
+                    likesContainer.dataset.voteState = "1";
                     sendVote(`/votes/upvote/${postId}`);
                 }
             } else if (target.classList.contains('downvote-btn')) {
                 if (currentVote === -1) {
+                    // remove downvote
                     downvoteBtn.classList.remove('active');
                     voteCount += 1;
-                    voteGroup.dataset.voteState = "0";
+                    likesContainer.dataset.voteState = "0";
                     sendVote(`/votes/remove/${postId}`, 'DELETE');
                 } else {
+                    // apply downvote (and remove upvote if present)
                     downvoteBtn.classList.add('active');
                     upvoteBtn.classList.remove('active');
                     voteCount -= (currentVote === 1 ? 2 : 1);
-                    voteGroup.dataset.voteState = "-1";
+                    likesContainer.dataset.voteState = "-1";
                     sendVote(`/votes/downvote/${postId}`);
                 }
             }
 
             voteCountSpan.textContent = voteCount;
         });
-
-        function sendVote(url, method = 'POST') {
-            fetch(url, { method }).catch(err => console.error('Vote error:', err));
-        }
     });
 
-    // Dropdown functionality for left sidebar
+    function initVoteState(scopeEl) {
+        scopeEl.querySelectorAll('.likes-count').forEach(container => {
+            const upBtn = container.querySelector('.upvote-btn');
+            const downBtn = container.querySelector('.downvote-btn');
+
+            container.dataset.voteState =
+                upBtn.classList.contains('active') ? "1" :
+                downBtn.classList.contains('active') ? "-1" : "0";
+        });
+    }
+
+    function sendVote(url, method = 'POST') {
+        fetch(url, { method })
+            .catch(err => console.error('Vote error:', err));
+    }
+
+
+    /* --------------------------
+       OPTIONAL: LEFT SIDEBAR DROPDOWN
+       -------------------------- */
     function toggleDropdown(id) {
         const el = document.getElementById(id);
-        if (el) {
-            el.classList.toggle("show");
-        }
+        if (el) el.classList.toggle("show");
     }
 </script>
+
+<script>
+    /* --------------------------
+       SHARE: COPY LINK TO CLIPBOARD
+       -------------------------- */
+    document.addEventListener('DOMContentLoaded', initShareCopy);
+
+    function initShareCopy() {
+        const postList = document.getElementById('post-list');
+        if (!postList) return;
+
+        postList.addEventListener('click', handleShareClick);
+    }
+
+    function handleShareClick(e) {
+        const shareBtn = e.target.closest('.share-btn');
+        if (!shareBtn) return; // click wasn't on a share button
+
+        const postActions = shareBtn.closest('.post-actions');
+        if (!postActions) return;
+
+        const postId = postActions.dataset.postId;
+        if (!postId) return;
+
+        // Build the link to copy
+        // Requirement: literal "localhost:8080/posts/{postId}"
+        // If you later want env-aware, swap to window.location.origin.
+        const urlToCopy = `localhost:8080/posts/${postId}`;
+
+        copyTextToClipboard(urlToCopy)
+            .then(() => showCopyToast('Link Copied!'))
+            .catch(() => showCopyToast('Copy failed'));
+    }
+
+    function copyTextToClipboard(text) {
+        // Modern async API first
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            return navigator.clipboard.writeText(text);
+        }
+        // Fallback (execCommand)
+        return new Promise((resolve, reject) => {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            // Move off-screen but selectable
+            ta.style.position = 'fixed';
+            ta.style.top = '-1000px';
+            ta.style.left = '-1000px';
+            document.body.appendChild(ta);
+            ta.focus();
+            ta.select();
+            try {
+                const ok = document.execCommand('copy');
+                document.body.removeChild(ta);
+                ok ? resolve() : reject();
+            } catch (err) {
+                document.body.removeChild(ta);
+                reject(err);
+            }
+        });
+    }
+
+    function showCopyToast(message) {
+        const toast = document.getElementById('copy-toast');
+        if (!toast) return;
+        toast.textContent = message;
+        toast.classList.add('show');
+        clearTimeout(showCopyToast._t);
+        showCopyToast._t = setTimeout(() => toast.classList.remove('show'), 2000);
+    }
+</script>
+
+
 </body>
 </html>

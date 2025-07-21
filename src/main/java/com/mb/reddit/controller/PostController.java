@@ -79,51 +79,47 @@ public class PostController {
         return "redirect:/home";
     }
 
-        @GetMapping("/posts")
-        public String getAllPosts(@RequestParam(defaultValue = "0", required = false) int pageNumber,
-                                  @RequestParam(defaultValue = "10", required = false) int pageSize,
-                                  @RequestParam(defaultValue = "createdAt", required = false) String sortBy,
-                                  Model model) {
-            long start = System.currentTimeMillis();
-            Page<Post> posts = postService.getAllPost(pageNumber, pageSize, sortBy);
+    @GetMapping("/posts")
+    public String getAllPosts(@RequestParam(defaultValue = "0", required = false) int pageNumber,
+                              @RequestParam(defaultValue = "10", required = false) int pageSize,
+                              @RequestParam(defaultValue = "createdAt", required = false) String sortBy,
+                              Model model) {
+        long start = System.currentTimeMillis();
+        Page<Post> posts = postService.getAllPost(pageNumber, pageSize, sortBy);
 
-            long dbTime = System.currentTimeMillis();
-            System.out.println("Controller : DB fetch time: " + (dbTime - start) + " ms");
+        long dbTime = System.currentTimeMillis();
+        System.out.println("Controller : DB fetch time: " + (dbTime - start) + " ms");
 
-            long cumminityStart = System.currentTimeMillis();
-            List<Community> joinedCommunities = communityService.getAllCommunities();
-            //                .getJoinedCommunitiesByUserId(userService.getCurrentUser().getId());
+        long cumminityStart = System.currentTimeMillis();
+        List<Community> joinedCommunities = communityService.getAllCommunities();
+        //                .getJoinedCommunitiesByUserId(userService.getCurrentUser().getId());
 
-            long communityEnd = System.currentTimeMillis();
-            System.out.println("Community fetching time : " + (communityEnd - cumminityStart) + " ms");
+        long communityEnd = System.currentTimeMillis();
+        System.out.println("Community fetching time : " + (communityEnd - cumminityStart) + " ms");
 
-            List<Community> recentCommunities = joinedCommunities.stream().limit(5).toList();
+        List<Community> recentCommunities = joinedCommunities.stream().limit(5).toList();
 
-            List<Post> recentPosts = new ArrayList<>();
+        List<Post> recentPosts = new ArrayList<>();
 
-            for(Community joinedCommunity : joinedCommunities) {
-                recentPosts.addAll(joinedCommunity.getPosts());
-            }
-
-            recentPosts.sort(Comparator.comparing(Post::getCreatedAt).reversed());
-
-            List<Post> latest10Posts = posts.stream().limit(10).toList();
-
-            model.addAttribute("posts", posts.getContent());
-            model.addAttribute("recentPosts", latest10Posts);
-            model.addAttribute("communities", joinedCommunities);
-            model.addAttribute("recentCommunities", recentCommunities);
-            model.addAttribute("hasNext", posts.hasNext());
-
-            return "home";
+        for(Community joinedCommunity : joinedCommunities) {
+            recentPosts.addAll(joinedCommunity.getPosts());
         }
 
+        recentPosts.sort(Comparator.comparing(Post::getCreatedAt).reversed());
+
+        List<Post> latest10Posts = posts.stream().limit(10).toList();
+
+        model.addAttribute("posts", posts.getContent());
+        model.addAttribute("recentPosts", latest10Posts);
+        model.addAttribute("communities", joinedCommunities);
+        model.addAttribute("recentCommunities", recentCommunities);
+        model.addAttribute("hasNext", posts.hasNext());
+
+        return "home";
+    }
 
     @GetMapping("/posts/scroll")
-    public String getMorePosts(@RequestParam(defaultValue = "0") int pageNumber,
-                               @RequestParam(defaultValue = "10") int pageSize,
-                               @RequestParam(defaultValue = "createdAt") String sortBy,
-                               Model model) {
+    public String getMorePosts(@RequestParam(defaultValue = "0") int pageNumber, @RequestParam(defaultValue = "10") int pageSize, @RequestParam(defaultValue = "createdAt") String sortBy, Model model) {
 
         Page<Post> posts = postService.getAllPost(pageNumber, pageSize, sortBy);
 
@@ -132,7 +128,7 @@ public class PostController {
         model.addAttribute("hasNext", posts.hasNext());
 
         // return the lightweight fragment
-        return "fragments/posts :: postSection";
+        return "home";
     }
 
 
@@ -219,5 +215,10 @@ public class PostController {
         model.addAttribute("posts", posts.getContent());
         model.addAttribute("hasNext", posts.hasNext());
         return "fragments/posts :: postSection";
+    }
+
+    @PostMapping("/save/{postId}")
+    public void savePost(@PathVariable("postId") Long postId){
+        userService.addPostToUserSavedPosts(postId);
     }
 }
