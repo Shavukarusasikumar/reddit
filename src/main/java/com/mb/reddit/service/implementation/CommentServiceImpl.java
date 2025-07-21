@@ -27,13 +27,16 @@ public class CommentServiceImpl implements CommentService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
     private final CommentVoteRepository commentVoteRepository;
+    private final UserServiceImpl userServiceImpl;
 
     public CommentServiceImpl(CommentRepository commentRepository, PostRepository postRepository,
-                              UserRepository userRepository, CommentVoteRepository commentVoteRepository) {
+                              UserRepository userRepository, CommentVoteRepository commentVoteRepository,
+                              UserServiceImpl userServiceImpl) {
         this.commentRepository = commentRepository;
         this.postRepository = postRepository;
         this.userRepository = userRepository;
         this.commentVoteRepository = commentVoteRepository;
+        this.userServiceImpl = userServiceImpl;
     }
 
     @Override
@@ -42,9 +45,7 @@ public class CommentServiceImpl implements CommentService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
-        User user = userRepository.findUserByUsername(username);
+        User user = userServiceImpl.getLoggedInUser();
 
         comment.setPost(post);
         comment.setUser(user);

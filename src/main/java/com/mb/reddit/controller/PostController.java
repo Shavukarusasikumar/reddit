@@ -139,7 +139,10 @@ public class PostController {
         int postVoteCount = postService.getPostVotesByPostId(postId);
         int commentCount = topLevelComments.size();
 
-        Boolean currentUserVote = postVoteService.getVoteStatusByPostId(postId);
+        Boolean currentUserVote = null;
+        if (authentication != null && authentication.isAuthenticated()) {
+            currentUserVote = postVoteService.getVoteStatusByPostId(postId);
+        }
         Community community = post.getCommunity();
         User owner = community.getCreator();
 
@@ -151,7 +154,13 @@ public class PostController {
 
         boolean isAuthenticated = authentication != null && authentication.isAuthenticated();
         model.addAttribute("isAuthenticated", isAuthenticated);
-        boolean isJoined = userService.hasUserJoinedCommunity(community);
+        boolean isJoined = false;
+        if (isAuthenticated) {
+            User currentUser = userService.getCurrentUser();
+            if (currentUser != null) {
+                isJoined = userService.hasUserJoinedCommunity(community);
+            }
+        }
 
         model.addAttribute("community", community);
         model.addAttribute("owner", owner);

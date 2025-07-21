@@ -33,4 +33,7 @@ public interface UserService {
     void deleteFollowingById(long id);
     User getCurrentUser();
     boolean hasUserJoinedCommunity(Community community);
+    boolean isUsernameTaken(String username);
+    boolean isEmailRegistered(String email);
+    User registerUser(String username, String email, String password, String bio);
 }

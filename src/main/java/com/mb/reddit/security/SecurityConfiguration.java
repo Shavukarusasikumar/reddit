@@ -1,6 +1,5 @@
 package com.mb.reddit.security;
 
-import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -35,6 +34,11 @@ public class SecurityConfiguration {
                         .failureUrl("/user/login?error=true")
                         .permitAll()
                 )
+                .oauth2Login(oauth2 -> oauth2
+                        .loginPage("/user/login")
+                        .defaultSuccessUrl("/", true)
+                        .failureUrl("/user/login?error=true")
+                )
                 .logout(logout -> logout
                         .logoutUrl("/logout")
                         .logoutSuccessUrl("/user/login?logout")
@@ -48,5 +52,4 @@ public class SecurityConfiguration {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
 }

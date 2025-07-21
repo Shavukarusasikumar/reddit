@@ -1,9 +1,10 @@
 package com.mb.reddit.controller;
 
 import com.mb.reddit.entity.Comment;
+import com.mb.reddit.entity.User;
 import com.mb.reddit.service.CommentService;
+import com.mb.reddit.service.implementation.UserServiceImpl;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import org.springframework.stereotype.Controller;
@@ -13,13 +14,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @Controller
-@RequestMapping("/comment")
 public class CommentController {
 
     private final CommentService commentService;
+    private final UserServiceImpl userServiceImpl;
 
-    public CommentController(CommentService commentService) {
+    public CommentController(CommentService commentService, UserServiceImpl userServiceImpl) {
         this.commentService = commentService;
+        this.userServiceImpl = userServiceImpl;
     }
 
     public Comment getCommentById(long commentId) {
@@ -46,7 +48,9 @@ public class CommentController {
     }
 
     @PostMapping("/edit-comment/{commentId}")
-    public String updateCommentById(@PathVariable Long commentId, @RequestParam("updatedContent") String updatedContent) {
+    public String updateCommentById(
+            @PathVariable Long commentId,
+            @RequestParam("updatedContent") String updatedContent) {
         Long postId = commentService.getCommentById(commentId).getPost().getId();
         commentService.updateComment(commentId, updatedContent);
 
@@ -61,6 +65,25 @@ public class CommentController {
 
         return "comments";
     }
+
+//    @PostMapping("/posts/{postId}/comments")
+//    public String createComment(
+//            @PathVariable Long postId,
+//            @RequestParam String content,
+//            @RequestParam(required = false) Long parentCommentId,
+//            Authentication authentication) {
+//        User user = userServiceImpl.getLoggedInUser();
+//
+//        if (user == null) {
+//            return "redirect:/login";
+//        }
+//
+//        Comment comment = new Comment();
+//        comment.setContent(content);
+//        commentService.createComment(comment, postId, parentCommentId);
+//
+//        return "redirect:/posts/" + postId;
+//    }
 
     @PostMapping("/add-comment/{postId}/")
     public void createComment(@PathVariable Long postId, @RequestParam String content,

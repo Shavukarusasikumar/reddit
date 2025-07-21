@@ -21,31 +21,31 @@ public class CommentVoteServiceImpl implements CommentVoteService {
 	private final CommentVoteRepository commentVoteRepository;
 	private final UserRepository userRepository;
 	private final CommentRepository commentRepository;
+	private final UserServiceImpl userServiceImpl;
 
 	public CommentVoteServiceImpl(CommentVoteRepository commentVoteRepository,
 								  UserRepository userRepository,
-								  CommentRepository commentRepository) {
+								  CommentRepository commentRepository,
+								  UserServiceImpl userServiceImpl) {
 		this.commentVoteRepository = commentVoteRepository;
 		this.userRepository = userRepository;
 		this.commentRepository = commentRepository;
+		this.userServiceImpl = userServiceImpl;
 	}
 
 	@Override
 	@Transactional
-	public void addUpVoteByCommentId(Long commentId) {
-		handleVote(commentId, true);
+	public void addUpVoteByCommentId(Long commentId, User user) {
+		handleVote(commentId, true, user);
 	}
 
 	@Override
 	@Transactional
-	public void addDownVoteByCommentId(Long commentId) {
-		handleVote(commentId, false);
+	public void addDownVoteByCommentId(Long commentId, User user) {
+		handleVote(commentId, false, user);
 	}
 
-	private void handleVote(Long commentId, boolean isUpvote) {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		String username = authentication.getName();
-		User user = userRepository.findUserByUsername(username);
+	private void handleVote(Long commentId, boolean isUpvote, User user) {
 		Comment comment = commentRepository.findById(commentId)
 				.orElseThrow(() -> new RuntimeException("Comment not found"));
 
@@ -76,24 +76,18 @@ public class CommentVoteServiceImpl implements CommentVoteService {
 
 	@Override
 	@Transactional
-	public void removeVoteByCommentId(Long commentId) {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		String username = authentication.getName();
-		User user = userRepository.findUserByUsername(username);
-
+	public void removeVoteByCommentId(Long commentId, User user) {
 		commentVoteRepository.findByUserIdAndCommentId(user.getId(), commentId)
 				.ifPresent(commentVoteRepository::delete);
 	}
 
 	@Override
 	public Boolean getVoteStatusByCommentId(Long commentId) {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-		if (authentication == null || !authentication.isAuthenticated()) {
-			return null;
-		}
+		User user = userServiceImpl.getLoggedInUser();
 
-		String username = authentication.getName();
-		User user = userRepository.findUserByUsername(username);
+		if (user == null) {
+			return false;
+		}
 
 		return commentVoteRepository.findByUserIdAndCommentId(user.getId(), commentId)
 				.map(CommentVote::getIsLike)

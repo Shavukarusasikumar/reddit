@@ -15,6 +15,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,11 +30,13 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final CommunityRepository communityRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserServiceImpl(UserRepository userRepository, PostRepository postRepository, CommunityRepository communityRepository) {
+    public UserServiceImpl(UserRepository userRepository, PostRepository postRepository, CommunityRepository communityRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.postRepository = postRepository;
         this.communityRepository = communityRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional
@@ -145,7 +149,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getUserById(long userId) {
-        return userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
     }
 
     @Override
@@ -154,7 +159,8 @@ public class UserServiceImpl implements UserService {
         User currUser = getCurrentUser();
 
         List<User> following = userRepository.findAllFollowingByUserId(currUser.getId());
-        User newUser = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+        User newUser = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
 
         following.add(newUser);
 
@@ -169,7 +175,8 @@ public class UserServiceImpl implements UserService {
         User currUser = getCurrentUser();
 
         List<User> followers = userRepository.findAllFollowersByUserId(currUser.getId());
-        User newUser = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found with id : " + id));
+        User newUser = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id : " + id));
 
         followers.add(newUser);
 
@@ -184,10 +191,11 @@ public class UserServiceImpl implements UserService {
         User currUser = getCurrentUser();
 
         List<User> followers = userRepository.findAllFollowersByUserId(currUser.getId());
-        User newUser = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found with id " + id));
+        User newUser = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id " + id));
 
-        for(int i = 0; i < followers.size(); i++) {
-            if(Objects.equals(followers.get(i).getId(), newUser.getId())) {
+        for (int i = 0; i < followers.size(); i++) {
+            if (Objects.equals(followers.get(i).getId(), newUser.getId())) {
                 followers.remove(i);
 
                 break;
@@ -205,11 +213,12 @@ public class UserServiceImpl implements UserService {
         User currUser = getCurrentUser();
 
         List<User> following = userRepository.findAllFollowingByUserId(currUser.getId());
-        User newUser = userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found with id " + id));
+        User newUser = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with id " + id));
 
-        for(int i = 0; i < following.size(); i++) {
+        for (int i = 0; i < following.size(); i++) {
 
-            if(Objects.equals(following.get(i).getId(), newUser.getId())) {
+            if (Objects.equals(following.get(i).getId(), newUser.getId())) {
                 following.remove(i);
                 break;
             }
@@ -226,6 +235,7 @@ public class UserServiceImpl implements UserService {
         return userRepository.findUserByUsername(authentication.getName());
     }
 
+
     @Override
     public boolean hasUserJoinedCommunity(Community community) {
 
@@ -240,4 +250,45 @@ public class UserServiceImpl implements UserService {
         return false;
     }
 
+    public User getLoggedInUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return null;
+        }
+
+        Object principal = authentication.getPrincipal();
+
+        if (principal instanceof org.springframework.security.core.userdetails.User userDetails) {
+            return userRepository.findUserByUsername(userDetails.getUsername());
+        } else if (principal instanceof OAuth2User oauth2User) {
+            String email = oauth2User.getAttribute("email");
+            return userRepository.findUserByEmail(email).orElse(null);
+        } else if (principal instanceof String username) {
+            return userRepository.findUserByUsername(username);
+        }
+
+        return null;
+    }
+
+    @Override
+    public boolean isUsernameTaken(String username) {
+        return userRepository.existsByUsername(username);
+    }
+
+    @Override
+    public boolean isEmailRegistered(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
+    @Override
+    @Transactional
+    public User registerUser(String username, String email, String password, String bio) {
+        User user = new User();
+        user.setUsername(username);
+        user.setEmail(email);
+        user.setPassword(passwordEncoder.encode(password));
+        user.setBio(bio != null ? bio : "");
+        return userRepository.save(user);
+    }
 }

@@ -3,6 +3,10 @@ package com.mb.reddit.controller;
 import com.mb.reddit.entity.User;
 import com.mb.reddit.repository.UserRepository;
 import com.mb.reddit.service.UserService;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import com.mb.reddit.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -12,20 +16,22 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.util.Collections;
 
 @Controller
 @RequestMapping("/user")
 public class UserController {
 
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+	private final UserRepository userRepository;
+	private final PasswordEncoder passwordEncoder;
     private final UserService userService;
 
-    public UserController(UserRepository userRepository, PasswordEncoder passwordEncoder, UserService userService) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.userService = userService;
-    }
+	public UserController(UserRepository userRepository, PasswordEncoder passwordEncoder,
+						  UserService userService) {
+		this.userRepository = userRepository;
+		this.passwordEncoder = passwordEncoder;
+		this.userService = userService;
+	}
 
     @GetMapping("/login")
     public String showLoginPage() {
@@ -62,16 +68,18 @@ public class UserController {
 			return "register";
 		}
 
-		User user = new User();
-		user.setUsername(username);
-		user.setEmail(email);
-		user.setPassword(passwordEncoder.encode(password));
-		user.setBio(bio != null ? bio : "");
+		User registeredUser = userService.registerUser(username, email, password, bio);
 
-		userRepository.save(user);
+		Authentication authentication = new UsernamePasswordAuthenticationToken(
+				registeredUser.getUsername(),
+				null,
+				Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
+		);
+		SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        return "redirect:/user/login?registered=true";
-    }
+		return "redirect:/";
+	}
+
 
     @PostMapping("/join-community/{id}")
     @ResponseBody
@@ -100,6 +108,7 @@ public class UserController {
 
         return ResponseEntity.ok("Removed  community");
     }
+
 
 	@GetMapping("/user")
 	public String getUserProfilePage(Model model){
