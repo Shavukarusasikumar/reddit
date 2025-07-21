@@ -57,14 +57,14 @@ public class PostController {
         List<Community> communities = communityService.findCommunitiesUserCanPost();
         model.addAttribute("communities", communities);
 
-        Community selected = null;
+        Community selectedCommunity = null;
         List<Flair> flairs = List.of();
 
         if(communityId != null) {
-            selected = communityService.getCommunityById(communityId);
+            selectedCommunity = communityService.getCommunityById(communityId);
             flairs = flairService.getAllFlairsByCommunityId(communityId);
         }
-        model.addAttribute("selectedCommunity", selected);
+        model.addAttribute("selectedCommunity", selectedCommunity);
         model.addAttribute("flairs", flairs);
 
         model.addAttribute("postForm", new Post());
@@ -80,9 +80,13 @@ public class PostController {
     }
 
         @GetMapping("/posts")
-        public String getAllPosts(@RequestParam(defaultValue = "0", required = false) int pageNumber, @RequestParam(defaultValue = "10", required = false) int pageSize, @RequestParam(defaultValue = "createdAt", required = false) String sortBy, Model model) {
+        public String getAllPosts(@RequestParam(defaultValue = "0", required = false) int pageNumber,
+                                  @RequestParam(defaultValue = "10", required = false) int pageSize,
+                                  @RequestParam(defaultValue = "createdAt", required = false) String sortBy,
+                                  Model model) {
             long start = System.currentTimeMillis();
             Page<Post> posts = postService.getAllPost(pageNumber, pageSize, sortBy);
+
             long dbTime = System.currentTimeMillis();
             System.out.println("Controller : DB fetch time: " + (dbTime - start) + " ms");
 
@@ -105,10 +109,10 @@ public class PostController {
 
             List<Post> latest10Posts = posts.stream().limit(10).toList();
 
+            model.addAttribute("posts", posts.getContent());
             model.addAttribute("recentPosts", latest10Posts);
             model.addAttribute("communities", joinedCommunities);
             model.addAttribute("recentCommunities", recentCommunities);
-            model.addAttribute("posts", posts.getContent());
             model.addAttribute("hasNext", posts.hasNext());
 
             return "home";
@@ -174,7 +178,7 @@ public class PostController {
     }
 
     @GetMapping("/user/{userId}/posts")
-    public String getUserPosts(@PathVariable Integer userId,
+    public String getUserPosts(@PathVariable Long userId,
                                @RequestParam(defaultValue = "0") int page,
                                @RequestParam(defaultValue = "10") int size,
                                Model model) {
@@ -185,18 +189,18 @@ public class PostController {
     }
 
     @GetMapping("/user/{userId}/upvoted")
-    public String getUserUpVotedPosts(@PathVariable Integer userId,
+    public String getUserUpVotedPosts(@PathVariable Long userId,
                                @RequestParam(defaultValue = "0") int page,
                                @RequestParam(defaultValue = "10") int size,
                                Model model) {
         Page<Post> posts = postService.getUpvotedPostsByUserId(userId, page, size);
-        model.addAttribute("posts", posts);
+        model.addAttribute("posts", posts.getContent());
         model.addAttribute("hasNext", posts.hasNext());
         return "fragments/posts :: postSection";
     }
 
     @GetMapping("/user/{userId}/downvoted")
-    public String getUserDownVotedPosts(@PathVariable Integer userId,
+    public String getUserDownVotedPosts(@PathVariable Long userId,
                                       @RequestParam(defaultValue = "0") int page,
                                       @RequestParam(defaultValue = "10") int size,
                                       Model model) {
@@ -207,12 +211,12 @@ public class PostController {
     }
 
     @GetMapping("/user/{userId}/saved")
-    public String getUserSavedPosts(@PathVariable Integer userId,
-                                        @RequestParam(defaultValue = "0") int page,
-                                        @RequestParam(defaultValue = "10") int size,
-                                        Model model) {
+    public String getUserSavedPosts(@PathVariable Long userId,
+                                    @RequestParam(defaultValue = "0") int page,
+                                    @RequestParam(defaultValue = "10") int size,
+                                    Model model) {
         Page<Post> posts = postService.getSavedPostsByUserId(userId, page, size);
-        model.addAttribute("posts", posts);
+        model.addAttribute("posts", posts.getContent());
         model.addAttribute("hasNext", posts.hasNext());
         return "fragments/posts :: postSection";
     }

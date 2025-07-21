@@ -18,19 +18,21 @@
         }
 
         .container {
-            max-width: 740px;
+           transform: scale(1.4);
+            transform-origin: top center;
+            max-width: 70vh;
             margin: 0 auto;
             padding: 20px;
         }
 
-        .header {
+        .headline {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 24px;
         }
 
-        .header h1 {
+        .headline h1 {
             font-size: 18px;
             font-weight: 500;
             color: #1c1c1c;
@@ -575,8 +577,11 @@
     </style>
 </head>
 <body>
+<div th:replace="fragments/header :: header"></div>
+
 <div class="container">
-    <div class="header">
+
+    <div class="headline">
         <h1>Create post</h1>
         <a th:href="@{/drafts}" class="drafts-link">Drafts</a>
     </div>
@@ -636,7 +641,7 @@
             <!-- Tabs -->
             <div class="tabs">
                 <button type="button" class="tab active" data-type="TEXT" id="tab-text">Text</button>
-                <button type="button" class="tab" data-type="MEDIA" id="tab-media">Images &amp; Video</button>
+                <button type="button" class="tab" data-type="MEDIA" id="tab-media">Images</button>
             </div>
 
             <!-- Form Content -->
@@ -704,6 +709,7 @@
         <div>Reddit, Inc. © <span th:text="${#temporals.format(#temporals.createNow(), 'yyyy')}"></span>. All rights reserved.</div>
     </div>
 </div>
+
 
 <script>
     (function(){

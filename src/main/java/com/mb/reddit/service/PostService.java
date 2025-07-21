@@ -21,11 +21,11 @@ public interface PostService {
     List<Comment> getCommentsByPostId(Long postId);
     Integer getPostVotesByPostId(Long postId);
 
-    Page<Post> getPostsByUserId(Integer userId, int page, int size);
+    Page<Post> getPostsByUserId(Long userId, int page, int size);
 
-    Page<Post> getUpvotedPostsByUserId(Integer userId, int page, int size);
+    Page<Post> getUpvotedPostsByUserId(Long userId, int page, int size);
 
-    Page<Post> getDownVotedPostsByUserId(Integer userId, int page, int size);
+    Page<Post> getDownVotedPostsByUserId(Long userId, int page, int size);
 
-    Page<Post> getSavedPostsByUserId(Integer userId, int page, int size);
+    Page<Post> getSavedPostsByUserId(Long userId, int page, int size);
 }

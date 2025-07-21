@@ -141,29 +141,58 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Page<Post> getPostsByUserId(Integer userId, int pageNumber, int size) {
+    public Page<Post> getPostsByUserId(Long userId, int pageNumber, int size) {
         Pageable pageable = PageRequest.of(pageNumber, size);
-        return postRepository.getPostsByUserId(userId, pageable);
+        Page<Post> postsPage =  postRepository.getPostsByUserId(userId, pageable);
+        postsPage.forEach(post -> {
+            String showTime = TimeAgoUtils.getTimeAgo(post.getCreatedAt());
+            post.setShowTime(showTime);
+        });
+
+        return postsPage;
     }
 
     @Override
-    public Page<Post> getUpvotedPostsByUserId(Integer userId, int pageNumber, int size) {
+    public Page<Post> getUpvotedPostsByUserId(Long userId, int pageNumber, int size) {
         Pageable pageable = PageRequest.of(pageNumber, size);
         Boolean isLike = true;
-        return postRepository.getVotedPostByUserId(userId, isLike ,pageable);
+        Page<Post> postsPage = postRepository.getVotedPostByUserId(userId, isLike ,pageable);
+
+        postsPage.forEach(post -> {
+            String showTime = TimeAgoUtils.getTimeAgo(post.getCreatedAt());
+            post.setShowTime(showTime);
+        });
+
+        return postsPage;
     }
 
     @Override
-    public Page<Post> getDownVotedPostsByUserId(Integer userId, int page, int size) {
+    public Page<Post> getDownVotedPostsByUserId(Long userId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Boolean isLike = false;
 
-        return postRepository.getVotedPostByUserId(userId, isLike ,pageable);
+        Page<Post> postsPage = postRepository.getVotedPostByUserId(userId, isLike ,pageable);
+
+        postsPage.forEach(post -> {
+            String showTime = TimeAgoUtils.getTimeAgo(post.getCreatedAt());
+            post.setShowTime(showTime);
+        });
+
+        return postsPage;
     }
 
     @Override
-    public Page<Post> getSavedPostsByUserId(Integer userId, int page, int size) {
-        return null; //TODO Tommorow
+    public Page<Post> getSavedPostsByUserId(Long userId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<Post> postsPage = postRepository.getSavedPostsByUserId(userId ,pageable);
+
+        postsPage.forEach(post -> {
+            String showTime = TimeAgoUtils.getTimeAgo(post.getCreatedAt());
+            post.setShowTime(showTime);
+        });
+
+        return postsPage;
     }
 
     @Override

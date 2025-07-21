@@ -2,87 +2,387 @@
 <html xmlns:th="http://www.thymeleaf.org" th:fragment="userFragment">
 <head>
     <style>
-        .user-fragment {
-          background-color: #ffffff;
-          padding: 16px;
-          border-radius: 8px;
-          font-family: 'Segoe UI', sans-serif;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-          max-width: 650px;
-          width: 100%;
-          margin: 0 auto;
+        .layout-container {
+           display: grid;
+           grid-template-columns: 312px 1fr 400px;
+           padding-top: 20px;
+           gap: 20px;
+        }
+       .home-left {
+            width: 312px;
+            flex-shrink: 0;
+            flex-grow: 0;
+            flex-basis: 312px;
+            position: sticky;
+            top: 68px;
+            height: fit-content;
         }
 
-        .user-profile {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          margin-bottom: 20px;
+
+       .user-fragment {
+           background-color: #ffffff;
+           padding: 16px;
+           border-radius: 8px;
+           font-family: 'Segoe UI', sans-serif;
+           box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+           max-width: 650px;
+           width: 100%;
+           justify-self: center;
+       }
+
+
+       .user-profile {
+         display: flex;
+         align-items: center;
+         gap: 12px;
+         margin-bottom: 20px;
+       }
+
+       .user-profile img {
+         width: 60px;
+         height: 60px;
+         border-radius: 50%;
+         object-fit: cover;
+       }
+
+       .user-info {
+         display: flex;
+         flex-direction: column;
+         justify-content: center;
+         height: 60px;
+         overflow: hidden;
+       }
+
+       .user-info .username {
+         font-weight: 600;
+         font-size: 16px;
+         color: #222;
+       }
+
+       .user-info .email {
+         font-size: 14px;
+         color: #666;
+         text-overflow: ellipsis;
+         overflow: hidden;
+         white-space: nowrap;
+       }
+
+       .user-actions {
+         display: flex;
+         justify-content: space-between;
+         margin-top: 10px;
+         gap: 12px;
+         flex-wrap: wrap;
+       }
+
+       .user-actions button {
+         background: none;
+         border: none;
+         padding: 8px 12px;
+         font-size: 15px;
+         font-weight: 500;
+         color: #333;
+         cursor: pointer;
+         transition: background-color 0.2s ease, color 0.2s ease;
+         border-radius: 6px;
+       }
+
+       .user-actions button:hover {
+         background-color: #f0f0f0;
+       }
+      .post-layout-wrapper {
+           max-width: 700px;
+           margin: 0 auto;
+           padding: 0 16px;
+       }
+
+   .post-container {
+       display: flex;
+       background-color: white;
+       margin-bottom: 10px;
+       border: 1px solid #ccc;
+       border-radius: 4px;
+       overflow: hidden;
+       transition: border-color 0.2s;
+   }
+
+   .post-container:hover {
+       border-color: #898989;
+   }
+
+   .post-votes {
+       width: 40px;
+       background-color: #f8f9fa;
+       display: flex;
+       flex-direction: column;
+       align-items: center;
+       padding: 8px 4px;
+       flex-shrink: 0;
+   }
+ .post-content-area {
+       flex: 1;
+       padding: 8px 8px 8px 8px;
+       overflow: hidden;
+   }
+
+   .post-header {
+       display: flex;
+       justify-content: space-between;
+       align-items: center;
+       margin-bottom: 8px;
+   }
+
+   .post-header-left {
+       font-size: 12px;
+       color: #787c7e;
+       display: flex;
+       align-items: center;
+   }
+
+   .community-link {
+       text-decoration: none;
+       color: #1c1c1c;
+       font-weight: bold;
+       font-size: 12px;
+   }
+
+   .community-link:hover {
+       text-decoration: underline;
+   }
+
+   .post-time {
+       color: #787c7e;
+       margin-left: 4px;
+   }
+
+   .post-header-right {
+       display: flex;
+       align-items: center;
+       gap: 8px;
+   }
+
+   .post-title {
+       font-size: 18px;
+       font-weight: 500;
+       line-height: 22px;
+       color: #1c1c1c;
+       margin-bottom: 8px;
+       cursor: pointer;
+   }
+
+   .post-title:hover {
+       color: #0079d3;
+   }
+
+   .post-media {
+       margin-bottom: 8px;
+   }
+
+   .post-image {
+       max-width: 100%;
+       height: auto;
+       border-radius: 4px;
+   }
+
+   .post-text {
+       color: #1c1c1c;
+       font-size: 14px;
+       line-height: 21px;
+       margin-bottom: 8px;
+   }
+
+   .post-actions {
+       display: flex;
+       gap: 4px;
+       font-size: 12px;
+       color: #787c7e;
+       align-items: center;
+   }
+
+   .action-button {
+       display: flex;
+       align-items: center;
+       gap: 4px;
+       padding: 2px 8px;
+       border-radius: 2px;
+       cursor: pointer;
+       text-decoration: none;
+       color: #787c7e;
+       font-weight: bold;
+       transition: background-color 0.2s;
+   }
+
+   .action-button:hover {
+       background-color: #f6f7f8;
+   }
+
+   .action-button i {
+       font-size: 16px;
+   }
+
+   .join-btn {
+       background-color: #0079d3;
+       color: white;
+       border: none;
+       padding: 4px 16px;
+       border-radius: 9999px;
+       cursor: pointer;
+       font-weight: bold;
+       font-size: 12px;
+       text-transform: uppercase;
+       letter-spacing: 0.5px;
+   }
+
+   .menu-container {
+       position: relative;
+   }
+
+   .menu-btn {
+       background: none;
+       border: none;
+       font-size: 16px;
+       cursor: pointer;
+       color: #787c7e;
+       padding: 4px;
+       border-radius: 2px;
+   }
+
+   .menu-btn:hover {
+       background-color: #f6f7f8;
+   }
+
+   .menu-dropdown {
+       display: none;
+       position: absolute;
+       background-color: white;
+       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+       border: 1px solid #edeff1;
+       border-radius: 4px;
+       right: 0;
+       top: 100%;
+       z-index: 1000;
+       min-width: 120px;
+   }
+
+   .menu-dropdown a {
+       display: block;
+       padding: 8px 16px;
+       color: #1c1c1c;
+       text-decoration: none;
+       font-size: 14px;
+       font-weight: 400;
+   }
+
+   .menu-dropdown a:hover {
+       background-color: #f6f7f8;
+   }
+
+   .menu-container:hover .menu-dropdown {
+       display: block;
+   }
+       .right-sidebar {
+    width: 100%;
+    max-width: 320px;
+    padding: 16px;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', sans-serif;
+}
+        .right-sidebar {
+            width: 500px;
+            padding: 0 25px;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f5faff; /* Very light blue for the whole sidebar */
         }
 
-        .user-profile img {
-          width: 60px;
-          height: 60px;
-          border-radius: 50%;
-          object-fit: cover;
+        .sidebar-card {
+            background-color: #ffffff;
+            border: 1px solid #d8eafc;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            width: 100%;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
         }
 
-        .user-info {
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          height: 60px;
-          overflow: hidden;
+        /* Slightly darker background for special sections */
+        .sidebar-card.profile-card,
+        .sidebar-card.karma-card {
+            background-color: #e9f3fc; /* Light blue tint */
         }
 
-        .user-info .username {
-          font-weight: 600;
-          font-size: 16px;
-          color: #222;
+        /* Titles */
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #222;
+            margin-bottom: 8px;
         }
 
-        .user-info .email {
-          font-size: 14px;
-          color: #666;
-          text-overflow: ellipsis;
-          overflow: hidden;
-          white-space: nowrap;
+        /* Text */
+        .sidebar-card p {
+            font-size: 14px;
+            color: #444;
+            line-height: 1.5;
         }
 
-        .user-actions {
-          display: flex;
-          justify-content: space-between;
-          margin-top: 10px;
-          gap: 12px;
-          flex-wrap: wrap;
+        .sidebar-card ul {
+            padding-left: 20px;
+            margin: 0;
+            font-size: 14px;
+            color: #444;
         }
 
-        .user-actions button {
-          background: none;
-          border: none;
-          padding: 8px 12px;
-          font-size: 15px;
-          font-weight: 500;
-          color: #333;
-          cursor: pointer;
-          transition: background-color 0.2s ease, color 0.2s ease;
-          border-radius: 6px;
+        .sidebar-card ul li {
+            margin-bottom: 6px;
         }
 
-        .user-actions button:hover {
-          background-color: #f0f0f0;
+        /* User Meta Section */
+        .user-meta-card {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
         }
-       .post-layout-wrapper {
-            max-width: 700px;
-            margin: 0 auto;
-            padding: 0 16px;
+
+        .user-meta-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .meta-label {
+            font-weight: 500;
+        }
+
+        .meta-value {
+            font-weight: 600;
+            color: #000;
+        }
+
+        /* Role List */
+        .role-list {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .role-list li::before {
+            content: "✓";
+            color: #0079d3;
+            margin-right: 8px;
         }
 
     </style>
 </head>
 <body>
+<div th:replace="fragments/header :: header"></div>
 
-<div class="user-fragment">
+<div class="layout-container">
+    <aside class="home-left"
+           th:replace="fragments/left-sidebar-fragment :: leftSidebar(${communities}, ${recentCommunities})">
+    </aside>
+
+    <div class="user-fragment">
     <!-- User Profile Row -->
     <div class="user-profile">
         <img th:src="${user.profilePicture}" alt="User Profile">
@@ -102,14 +402,63 @@
 
     <!-- Content Area for dynamic loading -->
     <div style="margin-top: 20px;">
-        <div class="post-layout-wrapper">
-            <div id="section-content"></div>
-        </div>
-    </div>
 
-    <!-- User’s posts will be loaded here -->
+            <div id="section-content"></div>
+
     </div>
+    </div>
+    <aside class="right-sidebar">
+        <div class="sidebar-card profile-card">
+            <div class="card-title">u/SanjeetJi</div>
+            <p>User’s bio goes here.</p>
+        </div>
+
+        <div class="sidebar-card karma-card">
+            <div class="card-title">Karma</div>
+            <div class="user-meta-card">
+                <div class="user-meta-item">
+                    <span class="meta-label">Post Karma</span>
+                    <span class="meta-value">123</span>
+                </div>
+                <div class="user-meta-item">
+                    <span class="meta-label">Comment Karma</span>
+                    <span class="meta-value">456</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. About Reddit Section -->
+        <div class="sidebar-card">
+            <h3 class="card-title">About Reddit</h3>
+            <p>Reddit is a social news aggregation, discussion, and content sharing platform where registered
+                users can post content such as text, links, images, and videos, which are then upvoted
+                or downvoted by other users.
+            .</p>
+        </div>
+
+        <div class="sidebar-card">
+            <h3 class="card-title">Community Rules</h3>
+            <ul>
+                <li>Be respectful</li>
+                <li>No spam</li>
+                <li>Stay on topic</li>
+            </ul>
+        </div>
+
+        <!-- 3. Community Role -->
+        <div class="sidebar-card">
+            <h3 class="card-title">Community Role</h3>
+            <ul class="role-list">
+                <li>Contributor</li>
+                <li>Active Member</li>
+            </ul>
+
+        </div>
+
+    </aside>
 </div>
+
+
 <script>
     const userId = /*[[${user.id}]]*/ '2'; // Thymeleaf userId
 

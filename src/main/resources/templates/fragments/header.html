@@ -3,13 +3,14 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
 <div th:fragment="header">
-    <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; border-bottom: 1px solid #ccc; background-color: white;">
+    <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; border-bottom: 1px solid #ccc;background-color: white;">
 
         <!-- Left: Reddit Logo -->
         <div style="display: flex; align-items: center;">
-            <img src="/images/reddit-icon.png" alt="Reddit Logo" style="height: 30px; margin-right: 6px;">
+            <a href="/posts" >
+                <img src="/images/reddit-icon.png" alt="Reddit Logo" style="height: 30px; margin-right: 6px;">
+            </a>
         </div>
-
         <!-- Middle: Search Bar -->
         <div style="flex: 1; max-width: 600px; margin: 0 40px; position: relative;">
             <img src="/images/search-icon.png" alt="Search"
@@ -24,14 +25,18 @@
         <div style="display: flex; align-items: center; gap: 16px;">
 
             <!-- Create Button -->
+            <a href="/new-post" style="text-decoration: none;">
             <div style="cursor: pointer;">
                 <div style="display: flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 24px; transition: background-color 0.2s;"
                      onmouseover="this.style.backgroundColor='#f6f7f8'"
                      onmouseout="this.style.backgroundColor='transparent'">
+
                     <img src="/images/add-post-icon.webp" alt="Create" style="height: 30px; width: 30px;">
                     <span style="font-size: 16px; font-weight: 700; color: #000;">Create</span>
+
                 </div>
             </div>
+            </a>
 
             <!-- Profile Icon -->
             <div style="cursor: pointer;">

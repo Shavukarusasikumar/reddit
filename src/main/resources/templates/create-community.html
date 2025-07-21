@@ -7,13 +7,17 @@
         body {
             font-family: 'Segoe UI', sans-serif;
             background-color: #f7f7f7;
-            padding: 40px;
         }
+        .header-nav {
+            margin-bottom: 30px !important;
+        }
+
 
         .form-container {
             background-color: white;
             max-width: 600px;
             margin: auto;
+            margin-top: 30px !important;
             padding: 30px;
             border-radius: 10px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
@@ -101,6 +105,8 @@
     </style>
 </head>
 <body>
+<div class="header-nav" th:replace="fragments/header :: header"></div>
+
 <div class="form-container">
     <h2>Create a Community</h2>
     <form th:action="@{/create-community}" method="post" enctype="multipart/form-data">

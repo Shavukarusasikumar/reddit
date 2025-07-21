@@ -74,10 +74,14 @@ public class UserController {
 
 	@GetMapping("/user")
 	public String getUserProfilePage(Model model){
-		User user = new User();//TODO :current user is null so just checking
+		User user = userService.getCurrentUser();
+
+		/*User user = new User();//TODO :current user is null so just checking
 		user.setId(1L);
 		user.setUsername("Sanjeet Ji");
 		user.setProfilePicture("https://i.pravatar.cc/100?img=5%22");
+		user.setBio("User's Bio");*/
+
 		model.addAttribute("user", user);
 
 		return "fragments/user-profile-middle";
