@@ -80,7 +80,9 @@ public class PostController {
     }
 
     @GetMapping("/posts")
-    public String getAllPosts(@RequestParam(defaultValue = "0", required = false) int pageNumber, @RequestParam(defaultValue = "10", required = false) int pageSize, @RequestParam(defaultValue = "createdAt", required = false) String sortBy, Model model) {
+    public String getAllPosts(@RequestParam(defaultValue = "0", required = false) int pageNumber,
+                              @RequestParam(defaultValue = "10", required = false) int pageSize,
+                              @RequestParam(defaultValue = "createdAt", required = false) String sortBy, Model model) {
         long start = System.currentTimeMillis();
         Page<PostWithVotesDTO> posts = postService.getAllPost(pageNumber, pageSize, sortBy);
 
@@ -104,6 +106,7 @@ public class PostController {
 
         return "home";
     }
+
     @GetMapping("/posts/scroll")
     public String getMorePosts(@RequestParam(defaultValue = "0") int pageNumber, @RequestParam(defaultValue = "10") int pageSize, @RequestParam(defaultValue = "createdAt") String sortBy, Model model) {
 

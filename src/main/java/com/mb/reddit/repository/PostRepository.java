@@ -40,6 +40,28 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Page<PostWithVotesDTO> findAllPublicPublishedPosts(Pageable pageable);
 
 
+    @Query("""
+    SELECT new com.mb.reddit.dto.PostWithVotesDTO(
+        p.id,
+        p.title,
+        p.content,
+        p.mediaUrl,
+        p.community.name,
+        p.community.iconUrl,
+        p.createdAt,
+        COALESCE(SUM(CASE WHEN v.isLike = true THEN 1 ELSE 0 END), 0),
+        COALESCE(SUM(CASE WHEN v.isLike = false THEN 1 ELSE 0 END), 0),
+        COUNT(c)
+    )
+            FROM Post p
+            LEFT JOIN p.postVotes v
+            LEFT JOIN p.comments c
+            GROUP BY p.id, p.title, p.content, p.mediaUrl, p.community.name, p.community.iconUrl, p.createdAt
+            ORDER BY COALESCE(SUM(CASE WHEN v.isLike = true THEN 1 ELSE 0 END), 0) DESC, p.createdAt DESC
+        """)
+    Page<PostWithVotesDTO> findPopularPosts(Pageable pageable);
+
+
     @Query("SELECT DISTINCT p from Post p Where p.isPublished = true AND p.author.id = :userId")
     Page<Post> getPostsByUserId(@Param("userId") Long userId, Pageable pageable);
 
