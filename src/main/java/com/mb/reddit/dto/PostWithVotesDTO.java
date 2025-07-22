@@ -18,7 +18,7 @@ public class PostWithVotesDTO {
     private String content;
     private String mediaUrl;
     private String communityName;
-    private int voteCount;
+    private Long voteCount;
     private LocalDateTime createdAt;
     private String showTime;
     private Long commentCount;
@@ -26,15 +26,15 @@ public class PostWithVotesDTO {
     private String communityIconUrl;
 
     public PostWithVotesDTO(Long id, String title, String content, String mediaUrl,
-                            String communityName, String communityIconUrl,
-                            LocalDateTime createdAt, Long upVotes, Long downVotes, Long commentCount) {
+                            String communityName, String communityIconUrl, LocalDateTime createdAt,
+                            Long upVotes, Long downVotes, Long commentCount) {
         this.id = id;
         this.title = title;
         this.content = content;
         this.mediaUrl = mediaUrl;
         this.communityName = communityName;
         this.communityIconUrl = communityIconUrl;
-        this.voteCount = (int) (upVotes - downVotes);
+        this.voteCount = (upVotes - downVotes);
         this.createdAt = createdAt;
         this.showTime = com.mb.reddit.utils.TimeAgoUtils.getTimeAgo(createdAt);
         this.commentCount = commentCount != null ? commentCount : 0L;

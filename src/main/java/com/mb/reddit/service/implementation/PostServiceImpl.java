@@ -49,42 +49,61 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Page<PostWithVotesDTO> getAllPost(int pageNumber, int pageSize, String sortBy,
-                                             boolean rising, boolean top, boolean isNew,
-                                             boolean popular) {
+    public Page<PostWithVotesDTO> getAllPost(int pageNumber, int pageSize, String sortBy, boolean rising, boolean top, boolean isNew, boolean popular) {
+
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
         LocalDateTime timeThreshold = LocalDateTime.now().minusHours(96);
 
         Page<PostWithVotesDTO> page;
-        if (isNew) {
+        if(isNew) {
             page = postRepository.findNewPosts(pageable);
-        } else if (top) {
+        }
+        else if(top) {
             page = postRepository.findTopPosts(pageable);
-        } else if (rising) {
+        }
+        else if(rising) {
             page = postRepository.findRisingPosts(timeThreshold, pageable);
-        } else if (popular) {
+        }
+        else if(popular) {
             page = postRepository.findPopularPosts(pageable);
-        } else {
+        }
+        else {
             page = postRepository.findNewPosts(pageable);
         }
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getName())) {
+        if(authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getName())) {
             return page;
         }
 
         String username = authentication.getName();
         User user = userRepository.findUserByUsername(username);
-        if (user == null) return page;
+        if(user == null) {
+            return page;
+        }
 
-        List<Long> postIds = page.getContent().stream().map(PostWithVotesDTO::getId).toList();
-        if (postIds.isEmpty()) return page;
+        List<PostWithVotesDTO> postList = page.getContent();
+        List<Long> postIds = new ArrayList<>();
+        for(PostWithVotesDTO post : postList) {
+            System.out.println(post.getId() + " " + post.getVoteCount());
+            postIds.add(post.getId());
+        }
+
+        if(postIds.isEmpty()) {
+            return page;
+        }
 
         List<PostVote> userVotes = postVoteRepository.findByUserIdAndPostIds(user.getId(), postIds);
-        Map<Long, Boolean> voteMap = userVotes.stream()
-                .collect(Collectors.toMap(vote -> vote.getPost().getId(), PostVote::getIsLike));
 
-        page.getContent().forEach(post -> post.setIsLiked(voteMap.get(post.getId())));
+        Map<Long, Boolean> voteMap = new HashMap<>();
+        for(PostVote vote : userVotes) {
+            voteMap.put(vote.getPost().getId(), vote.getIsLike());
+        }
+
+        for(PostWithVotesDTO post : postList) {
+            Boolean isLiked = voteMap.get(post.getId());
+            post.setIsLiked(isLiked);
+        }
 
         return page;
     }
@@ -107,23 +126,24 @@ public class PostServiceImpl implements PostService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = userRepository.findUserByUsername(authentication.getName());
 
-        if(media != null) {
+        if (media != null && !media.isEmpty()) {
             try {
                 String mediaUrl = cloudinaryService.uploadFile(media);
                 post.setMediaUrl(mediaUrl);
-                post.setCreatedAt(LocalDateTime.now());
-                post.setIsPublished(true);
-            } catch(IOException exception) {
+            } catch (IOException exception) {
                 throw new RuntimeException("Failed to upload media", exception);
             }
         }
+
+        post.setCreatedAt(LocalDateTime.now());
+        post.setIsPublished(true);
 
         Community community = communityRepository.findById(communityId).orElseThrow(() -> new RuntimeException("Community not found " + communityId));
 
         post.setAuthor(currentUser);
         post.setCreatedAt(LocalDateTime.now());
+        post.setUpdatedAt(LocalDateTime.now());
         post.setCommunity(community);
-
         return postRepository.save(post);
     }
 
