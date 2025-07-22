@@ -78,7 +78,6 @@ public class PostServiceImpl implements PostService {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         Long userId = userDetails.getId();
         if (userId == null) {
-            System.out.println("Total time (user not found): " + (System.currentTimeMillis() - start) + " ms");
             return page;
         }
 
@@ -93,7 +92,7 @@ public class PostServiceImpl implements PostService {
             return page;
         }
 
-        List<PostVote> userVotes = postVoteRepository.findByUserIdAndPostIds(user.getId(), postIds);
+        List<PostVote> userVotes = postVoteRepository.findByUserIdAndPostIds(userId, postIds);
         Map<Long, Boolean> voteMap = userVotes.stream()
                 .collect(Collectors.toMap(vote -> vote.getPost().getId(), PostVote::getIsLike));
 
