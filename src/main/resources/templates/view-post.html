@@ -10,7 +10,7 @@
             background-color: #dae0e6;
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             margin: 0;
-            padding: 20px 0;
+
         }
 
         .post-container {
@@ -82,18 +82,6 @@
             display: flex;
             align-items: center;
             gap: 4px;
-        }
-
-        .menu-dots {
-            cursor: pointer;
-            color: #878a8c;
-            padding: 8px;
-            border-radius: 4px;
-            transition: background-color 0.2s;
-        }
-
-        .menu-dots:hover {
-            background-color: #f6f7f8;
         }
 
         .post-title {
@@ -524,6 +512,9 @@
     </style>
 </head>
 <body>
+<div th:replace="fragments/header :: header(${notificationCount})"></div>
+<div style="margin-bottom: 20px;"></div>
+
 <div class="post-container">
     <!-- Post Header -->
     <div class="post-header-bar">
@@ -538,13 +529,6 @@
                     <span th:text="${#temporals.format(post.createdAt, 'MMM d, yyyy')}">Created date</span>
                 </div>
             </div>
-        </div>
-        <div class="menu-dots">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                <circle cx="10" cy="4" r="1.5"/>
-                <circle cx="10" cy="10" r="1.5"/>
-                <circle cx="10" cy="16" r="1.5"/>
-            </svg>
         </div>
     </div>
 
@@ -571,6 +555,7 @@
                 Save Post
             </button>
         </div>
+
     </div>
 
     <!-- Post Content (if exists) -->

@@ -191,7 +191,7 @@ public class PostController {
         model.addAttribute("postVoteCount", postVoteCount);
         model.addAttribute("commentCount", commentCount);
         model.addAttribute("currentUserVote", currentUserVote);
-
+        model.addAttribute("notificationCount", 0);
         return "view-post";
     }
 

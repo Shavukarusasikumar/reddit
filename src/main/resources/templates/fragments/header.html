@@ -11,6 +11,7 @@
                 <img src="/images/reddit-icon.png" alt="Reddit Logo" style="height: 30px; margin-right: 6px;">
             </a>
         </div>
+
         <!-- Middle: Search Bar -->
         <div style="flex: 1; max-width: 600px; margin: 0 40px; position: relative;">
             <img src="/images/search-icon.png" alt="Search"
@@ -32,16 +33,14 @@
 
             <!-- Create Button -->
             <a href="/new-post" style="text-decoration: none;">
-            <div style="cursor: pointer;">
-                <div style="display: flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 24px; transition: background-color 0.2s;"
-                     onmouseover="this.style.backgroundColor='#f6f7f8'"
-                     onmouseout="this.style.backgroundColor='transparent'">
-
-                    <img src="/images/add-post-icon.webp" alt="Create" style="height: 30px; width: 30px;">
-                    <span style="font-size: 16px; font-weight: 700; color: #000;">Create</span>
-
+                <div style="cursor: pointer;">
+                    <div style="display: flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 24px; transition: background-color 0.2s;"
+                         onmouseover="this.style.backgroundColor='#f6f7f8'"
+                         onmouseout="this.style.backgroundColor='transparent'">
+                        <img src="/images/add-post-icon.webp" alt="Create" style="height: 30px; width: 30px;">
+                        <span style="font-size: 16px; font-weight: 700; color: #000;">Create</span>
+                    </div>
                 </div>
-            </div>
             </a>
 
             <!-- Notification Bell -->
@@ -50,11 +49,16 @@
                 <span th:if="${notificationCount != null and notificationCount > 0}"
                       th:text="${notificationCount}"
                       style="position: absolute; top: -6px; right: -10px;
-                 background: red; color: white;
-                 font-size: 12px; padding: 2px 6px;
-                 border-radius: 50%; min-width: 18px;
-                 text-align: center;">
+                             background: red; color: white;
+                             font-size: 12px; padding: 2px 6px;
+                             border-radius: 50%; min-width: 18px;
+                             text-align: center;">
                 </span>
+            </div>
+
+            <!-- Chat Icon -->
+            <div style="cursor: pointer;">
+                <a href="/user/chat" style="text-decoration: none; font-size: 20px;" title="Chat">💬</a>
             </div>
 
             <!-- Profile Icon -->
@@ -64,7 +68,6 @@
             </div>
 
         </div>
-
 
     </div>
 </div>
