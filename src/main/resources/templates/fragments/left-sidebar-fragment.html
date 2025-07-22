@@ -76,51 +76,17 @@
             padding-top: 0;
         }
 
-        .dropdown-section {
+        .section-header {
+            padding: 8px 12px;
+            font-weight: 700;
+            font-size: 16px;
+            color: #878a8c;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
             margin-bottom: 8px;
         }
 
-        .dropdown-header {
-            padding: 8px 12px;
-            font-weight: 700;
-            font-size: 11px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            color: #878a8c;
-            border-radius: 6px;
-            transition: background-color 0.2s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.8px;
-            user-select: none;
-        }
-
-        .dropdown-header:hover {
-            background-color: #f6f7f8;
-        }
-
-        .dropdown-header i {
-            font-size: 10px;
-            transition: transform 0.2s ease;
-            color: #878a8c;
-        }
-
-        .dropdown-header.open i {
-            transform: rotate(180deg);
-        }
-
-        .dropdown-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease-out;
-        }
-
-        .dropdown-content.show {
-            max-height: 500px; /* Increased for better accommodation */
-        }
-
-        .dropdown-inner {
+        .section-content {
             padding: 4px 0 8px 0;
         }
 
@@ -187,13 +153,6 @@
             font-size: 14px;
         }
 
-        .empty-state {
-            color: #878a8c;
-            font-size: 12px;
-            padding: 8px 12px;
-            font-style: italic;
-        }
-
         /* Custom scrollbar for the sidebar */
         .sidebar::-webkit-scrollbar {
             width: 6px;
@@ -229,7 +188,6 @@
         }
 
         /* Prevent text selection on interactive elements */
-        .dropdown-header,
         .sidebar-link,
         .community-item {
             -webkit-user-select: none;
@@ -250,16 +208,14 @@
         /* Focus states for accessibility */
         .sidebar-link:focus,
         .community-link:focus,
-        .create-community-btn:focus,
-        .dropdown-header:focus {
+        .create-community-btn:focus {
             outline: 2px solid #0079d3;
             outline-offset: 2px;
         }
 
         /* Active state for better feedback */
         .sidebar-link:active,
-        .community-item:active,
-        .dropdown-header:active {
+        .community-item:active {
             transform: scale(0.98);
         }
     </style>
@@ -286,121 +242,42 @@
 
             <!-- Recent Section -->
             <div class="sidebar-section">
-                <div class="dropdown-section">
-                    <div class="dropdown-header open" onclick="toggleDropdown('recentDropdown', this)" tabindex="0"
-                         onkeypress="if(event.key==='Enter'||event.key===' ') toggleDropdown('recentDropdown', this)">
-                        <span>Recent</span>
-                        <i class="fas fa-chevron-down"></i>
+                <div class="section-header">
+                    <span>Recent</span>
+                </div>
+                <div class="section-content">
+                    <div th:each="comm : ${recentCommunities}" class="community-item">
+                        <img th:src="${comm.iconUrl}" alt="community icon"
+                             onerror="this.onerror=null;this.src='https://via.placeholder.com/20x20/ff4500/ffffff?text=r';">
+                        <a th:href="@{/community/r/{id}(id=${comm.id})}"
+                           class="community-link"
+                           th:text="'r/' + ${comm.name}"
+                           th:title="'r/' + ${comm.name}"></a>
                     </div>
-                    <div class="dropdown-content show" id="recentDropdown">
-                        <div class="dropdown-inner">
-                            <div th:each="comm : ${recentCommunities}" class="community-item">
-                                <img th:src="${comm.iconUrl}" alt="community icon"
-                                     onerror="this.onerror=null;this.src='https://via.placeholder.com/20x20/ff4500/ffffff?text=r';">
-                                <a th:href="@{/community/r/{id}(id=${comm.id})}"
-                                   class="community-link"
-                                   th:text="'r/' + ${comm.name}"
-                                   th:title="'r/' + ${comm.name}"></a>
-                            </div>
-                            <div th:if="${#lists.isEmpty(recentCommunities)}" class="empty-state">
-                                <span>No recent communities</span>
-                            </div>
-                        </div>
-                    </div>
-
                 </div>
             </div>
 
             <!-- Communities Section -->
             <div class="sidebar-section">
-                <div class="dropdown-section">
-                    <div class="dropdown-header open" onclick="toggleDropdown('communitiesDropdown', this)" tabindex="0"
-                         onkeypress="if(event.key==='Enter'||event.key===' ') toggleDropdown('communitiesDropdown', this)">
-                        <span>Communities</span>
-                        <i class="fas fa-chevron-down"></i>
-                    </div>
-                    <div class="dropdown-content show" id="communitiesDropdown">
-                        <div class="dropdown-inner">
-                            <a href="/create-community" class="create-community-btn">
-                                <i class="fas fa-plus"></i>
-                                <span>Create Community</span>
-                            </a>
-                            <div th:each="comm : ${communities}" class="community-item">
-                                <img th:src="${comm.iconUrl}" alt="community icon"
-                                     onerror="this.onerror=null;this.src='https://via.placeholder.com/20x20/ff4500/ffffff?text=r';">
-                                <a th:href="@{/community/r/{id}(id=${comm.id})}"
-                                   class="community-link"
-                                   th:text="'r/' + ${comm.name}"
-                                   th:title="'r/' + ${comm.name}"></a>
-                            </div>
-                            <div th:if="${#lists.isEmpty(communities)}" class="empty-state">
-                                <span>No communities found</span>
-                            </div>
-                        </div>
+                <div class="section-header">
+                    <span>Communities</span>
+                </div>
+                <div class="section-content">
+                    <a href="/create-community" class="create-community-btn">
+                        <i class="fas fa-plus"></i>
+                        <span>Create Community</span>
+                    </a>
+                    <div th:each="comm : ${communities}" class="community-item">
+                        <img th:src="${comm.iconUrl}" alt="community icon"
+                             onerror="this.onerror=null;this.src='https://via.placeholder.com/20x20/ff4500/ffffff?text=r';">
+                        <a th:href="@{/community/r/{id}(id=${comm.id})}"
+                           class="community-link"
+                           th:text="'r/' + ${comm.name}"
+                           th:title="'r/' + ${comm.name}"></a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <script th:inline="javascript">
-        /*<![CDATA[*/
-        function toggleDropdown(id, headerElement) {
-            const el = document.getElementById(id);
-            const header = headerElement;
-
-            if (el && header) {
-                const isShowing = el.classList.contains("show");
-
-
-
-                // Toggle current dropdown
-                el.classList.toggle("show");
-                header.classList.toggle("open");
-
-                // Store state in localStorage for persistence (optional)
-                try {
-                    const state = el.classList.contains("show");
-                    localStorage.setItem(`sidebar_${id}`, state.toString());
-                } catch (e) {
-                    // localStorage not available or full
-                }
-            }
-        }
-
-        // Initialize dropdown states
-        document.addEventListener('DOMContentLoaded', function() {
-            // Restore dropdown states from localStorage (optional)
-            try {
-                const dropdowns = ['recentDropdown', 'communitiesDropdown', 'resourcesDropdown'];
-                dropdowns.forEach(dropdownId => {
-                    const stored = localStorage.getItem(`sidebar_${dropdownId}`);
-                    if (stored === 'true') {
-                        const dropdown = document.getElementById(dropdownId);
-                        const header = document.querySelector(`[onclick*="${dropdownId}"]`);
-                        if (dropdown && header) {
-                            dropdown.classList.add('show');
-                            header.classList.add('open');
-                        }
-                    }
-                });
-            } catch (e) {
-                // localStorage not available
-            }
-
-            // Default: Open communities dropdown
-            // toggleDropdown('communitiesDropdown', document.querySelector('[onclick*="communitiesDropdown"]'));
-        });
-
-        // Handle keyboard navigation
-        document.addEventListener('keydown', function(e) {
-            if (e.target.classList.contains('dropdown-header')) {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    e.target.click();
-                }
-            }
-        });
-        /*]]>*/
-    </script>
 </th:block>
