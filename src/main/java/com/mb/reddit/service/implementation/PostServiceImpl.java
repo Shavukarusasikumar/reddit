@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -50,71 +49,45 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Page<PostWithVotesDTO> getAllPost(int pageNumber, int pageSize, String sortBy) {
-
+    public Page<PostWithVotesDTO> getAllPost(int pageNumber, int pageSize, String sortBy,
+                                             boolean rising, boolean top, boolean isNew,
+                                             boolean popular) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        LocalDateTime timeThreshold = LocalDateTime.now().minusHours(96);
 
-        Page<PostWithVotesDTO> postsPage = postRepository.findPopularPosts(pageable);
-
-        User user = userService.getLoggedInUser();
-
-        List<Long> postIds = new ArrayList<>();
-
-        for(PostWithVotesDTO post : postsPage) {
-            postIds.add(post.getId());
+        Page<PostWithVotesDTO> page;
+        if (isNew) {
+            page = postRepository.findNewPosts(pageable);
+        } else if (top) {
+            page = postRepository.findTopPosts(pageable);
+        } else if (rising) {
+            page = postRepository.findRisingPosts(timeThreshold, pageable);
+        } else if (popular) {
+            page = postRepository.findPopularPosts(pageable);
+        } else {
+            page = postRepository.findNewPosts(pageable);
         }
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getName())) {
+            return page;
+        }
+
+        String username = authentication.getName();
+        User user = userRepository.findUserByUsername(username);
+        if (user == null) return page;
+
+        List<Long> postIds = page.getContent().stream().map(PostWithVotesDTO::getId).toList();
+        if (postIds.isEmpty()) return page;
 
         List<PostVote> userVotes = postVoteRepository.findByUserIdAndPostIds(user.getId(), postIds);
+        Map<Long, Boolean> voteMap = userVotes.stream()
+                .collect(Collectors.toMap(vote -> vote.getPost().getId(), PostVote::getIsLike));
 
-        Map<Long, Boolean> voteMap = new HashMap<>();
+        page.getContent().forEach(post -> post.setIsLiked(voteMap.get(post.getId())));
 
-        for(PostVote userVote : userVotes) {
-            voteMap.put(userVote.getId(), userVote.getIsLike());
-        }
-
-        for(PostWithVotesDTO post : postsPage.getContent()) {
-            post.setIsLiked(voteMap.get(post.getId()));
-        }
-
-        return postsPage;
+        return page;
     }
-
-//    @Override
-//    public Page<PostWithVotesDTO> getAllPost(int pageNumber, int pageSize, String sortBy, boolean rising, boolean top, boolean isNew) {
-//        Pageable pageable = PageRequest.of(pageNumber, pageSize);
-//        LocalDateTime timeThreshold = LocalDateTime.now().minusHours(96);
-//
-//        Page<PostWithVotesDTO> page;
-//        if (isNew) {
-//            page = postRepository.findNewPosts(pageable);
-//        } else if (top) {
-//            page = postRepository.findTopPosts(pageable);
-//        } else if (rising) {
-//            page = postRepository.findRisingPosts(timeThreshold, pageable);
-//        } else {
-//            page = postRepository.findNewPosts(pageable);
-//        }
-//
-//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-//        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getName())) {
-//            return page;
-//        }
-//
-//        String username = authentication.getName();
-//        User user = userRepository.findUserByUsername(username);
-//        if (user == null) return page;
-//
-//        List<Long> postIds = page.getContent().stream().map(PostWithVotesDTO::getId).toList();
-//        if (postIds.isEmpty()) return page;
-//
-//        List<PostVote> userVotes = postVoteRepository.findByUserIdAndPostIds(user.getId(), postIds);
-//        Map<Long, Boolean> voteMap = userVotes.stream()
-//                .collect(Collectors.toMap(vote -> vote.getPost().getId(), PostVote::getIsLike));
-//
-//        page.getContent().forEach(post -> post.setIsLiked(voteMap.get(post.getId())));
-//
-//        return page;
-//    }
 
 
     @Override
