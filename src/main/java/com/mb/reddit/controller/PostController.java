@@ -86,9 +86,10 @@ public class PostController {
     }
 
     @GetMapping("/posts")
-    public String getAllPosts(@RequestParam(defaultValue = "0", required = false) int pageNumber, @RequestParam(defaultValue = "10", required = false) int pageSize, @RequestParam(defaultValue = "createdAt", required = false) String sortBy, @RequestParam(defaultValue = "false", required = false) boolean rising, @RequestParam(defaultValue = "false", required = false) boolean top, @RequestParam(defaultValue = "false") boolean isNew, @RequestParam(defaultValue = "false") boolean popular, Model model) {
+    public String getAllPosts(@RequestParam(defaultValue = "0", required = false) int pageNumber, @RequestParam(defaultValue = "10", required = false) int pageSize, @RequestParam(defaultValue = "createdAt", required = false) String sortBy, @RequestParam(defaultValue = "false", required = false) boolean rising, @RequestParam(defaultValue = "false", required = false) boolean top, @RequestParam(defaultValue = "false") boolean isNew, @RequestParam(defaultValue = "false") boolean popular, @RequestParam(required = false) String keyword, Model model) {
+
         long start = System.currentTimeMillis();
-        Page<PostWithVotesDTO> posts = postService.getAllPost(pageNumber, pageSize, sortBy, rising, top, isNew, popular);
+        Page<PostWithVotesDTO> posts = postService.getAllPost(pageNumber, pageSize, sortBy, rising, top, isNew, popular, keyword);
 
         long dbTime = System.currentTimeMillis();
         System.out.println("Controller : DB fetch time: " + (dbTime - start) + " ms");
@@ -118,21 +119,19 @@ public class PostController {
         model.addAttribute("isNew", isNew);
         model.addAttribute("popular", popular);
 
+        if (keyword != null && !keyword.isBlank()) {
+            model.addAttribute("keyword", keyword);
+        } else {
+            model.addAttribute("keyword", "");
+        }
+
         return "home";
     }
 
     @GetMapping("/posts/scroll")
-    public String getMorePosts(
-            @RequestParam(defaultValue = "0") int pageNumber,
-            @RequestParam(defaultValue = "10") int pageSize,
-            @RequestParam(defaultValue = "createdAt") String sortBy,
-            @RequestParam(defaultValue = "false", required = false) boolean rising,
-            @RequestParam(defaultValue = "false", required = false) boolean top,
-            @RequestParam(defaultValue = "false") boolean isNew,
-            @RequestParam(defaultValue = "false") boolean popular,
-            Model model) {
+    public String getMorePosts(@RequestParam(defaultValue = "0") int pageNumber, @RequestParam(defaultValue = "10") int pageSize, @RequestParam(defaultValue = "createdAt") String sortBy, @RequestParam(defaultValue = "false", required = false) boolean rising, @RequestParam(defaultValue = "false", required = false) boolean top, @RequestParam(defaultValue = "false") boolean isNew, @RequestParam(defaultValue = "false") boolean popular, @RequestParam(required = false) String keyword, @RequestParam(required = false) String category, Model model) {
 
-        Page<PostWithVotesDTO> posts = postService.getAllPost(pageNumber, pageSize, sortBy, rising, top, isNew, popular);
+        Page<PostWithVotesDTO> posts = postService.getAllPost(pageNumber, pageSize, sortBy, rising, top, isNew, popular, keyword);
 
         model.addAttribute("posts", posts.getContent());
         model.addAttribute("hasNext", posts.hasNext());
@@ -141,7 +140,6 @@ public class PostController {
         model.addAttribute("isNew", isNew);
         model.addAttribute("popular", popular);
 
-        // return the lightweight fragment
         return "home";
     }
 

@@ -50,27 +50,29 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Page<PostWithVotesDTO> getAllPost(int pageNumber, int pageSize, String sortBy,
-                                             boolean rising, boolean top, boolean isNew,
-                                             boolean popular) {
+    public Page<PostWithVotesDTO> getAllPost(int pageNumber, int pageSize, String sortBy, boolean rising, boolean top, boolean isNew, boolean popular, String keyword) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
         LocalDateTime timeThreshold = LocalDateTime.now().minusHours(96);
 
         Page<PostWithVotesDTO> page;
-        if (isNew) {
-            page = postRepository.findNewPosts(pageable);
-        } else if (top) {
+        if(keyword != null && !keyword.isEmpty()) {
+            page = postRepository.searchPostsByKeyword(keyword, pageable);
+        }
+        else if(top) {
             page = postRepository.findTopPosts(pageable);
-        } else if (rising) {
+        }
+        else if(rising) {
             page = postRepository.findRisingPosts(timeThreshold, pageable);
-        } else if (popular) {
+        }
+        else if(popular) {
             page = postRepository.findPopularPosts(pageable);
-        } else {
+        }
+        else {
             page = postRepository.findNewPosts(pageable);
         }
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getName())) {
+        if(authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getName())) {
             return page;
         }
 
@@ -93,8 +95,6 @@ public class PostServiceImpl implements PostService {
         }
 
         List<PostVote> userVotes = postVoteRepository.findByUserIdAndPostIds(userId, postIds);
-        Map<Long, Boolean> voteMap = userVotes.stream()
-                .collect(Collectors.toMap(vote -> vote.getPost().getId(), PostVote::getIsLike));
 
         Map<Long, Boolean> voteMap = new HashMap<>();
         for(PostVote vote : userVotes) {
