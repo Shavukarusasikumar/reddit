@@ -4,6 +4,7 @@ import com.mb.reddit.entity.Comment;
 import com.mb.reddit.entity.User;
 import com.mb.reddit.service.CommentService;
 import com.mb.reddit.service.implementation.UserServiceImpl;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -66,35 +67,52 @@ public class CommentController {
         return "comments";
     }
 
-//    @PostMapping("/posts/{postId}/comments")
-//    public String createComment(
-//            @PathVariable Long postId,
-//            @RequestParam String content,
-//            @RequestParam(required = false) Long parentCommentId,
-//            Authentication authentication) {
-//        User user = userServiceImpl.getLoggedInUser();
-//
-//        if (user == null) {
-//            return "redirect:/login";
-//        }
-//
-//        Comment comment = new Comment();
-//        comment.setContent(content);
-//        commentService.createComment(comment, postId, parentCommentId);
-//
-//        return "redirect:/posts/" + postId;
-//    }
+    @PostMapping("/posts/{postId}/comments")
+    @ResponseBody
+    public String createComment(
+            @PathVariable Long postId,
+            @RequestParam String content,
+            @RequestParam(required = false) Long parentCommentId,
+            HttpServletRequest request) {
 
-    @PostMapping("/add-comment/{postId}/")
-    public void createComment(@PathVariable Long postId, @RequestParam String content,
-                              @RequestParam(required = false) Long parentCommentId, Authentication authentication) {
+        User user = userServiceImpl.getLoggedInUser();
 
-        if(authentication == null || !authentication.isAuthenticated()) {
-            return;
+        if (user == null) {
+            return "redirect:/login";
         }
 
         Comment comment = new Comment();
         comment.setContent(content);
         commentService.createComment(comment, postId, parentCommentId);
+
+        // Check if it's an AJAX request
+        String ajaxHeader = request.getHeader("X-Requested-With");
+        if ("XMLHttpRequest".equals(ajaxHeader) ||
+                "application/json".equals(request.getHeader("Accept")) ||
+                request.getHeader("Content-Type") != null &&
+                        request.getHeader("Content-Type").contains("application/x-www-form-urlencoded")) {
+            return "success"; // Return simple response for AJAX
+        }
+
+        return "redirect:/posts/" + postId;
+    }
+//    @PostMapping("/add-comment/{postId}/")
+//    public void createComment(@PathVariable Long postId, @RequestParam String content,
+//                              @RequestParam(required = false) Long parentCommentId, Authentication authentication) {
+//
+//        if(authentication == null || !authentication.isAuthenticated()) {
+//            return;
+//        }
+//
+//        Comment comment = new Comment();
+//        comment.setContent(content);
+//        commentService.createComment(comment, postId, parentCommentId);
+//    }
+
+    @GetMapping("/api/comments/{commentId}/vote-count")
+    @ResponseBody
+    public String getCommentVoteCount(@PathVariable Long commentId) {
+        int voteCount = commentService.getVoteCountForComment(commentId);
+        return String.valueOf(voteCount);
     }
 }

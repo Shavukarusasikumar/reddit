@@ -425,6 +425,24 @@
             height: 2px;
             background-color: #edeff1;
         }
+        .toast-notification {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #333;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 4px;
+            font-size: 14px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .toast-notification.show {
+            opacity: 1;
+        }
 
         .reply-form {
             transition: all 0.3s ease;
@@ -435,13 +453,6 @@
 
         .reply-form:not(.hidden) {
             max-height: 200px;
-        }
-
-        /* Vote button styles */
-        .vote-button-form {
-            display: inline-block;
-            margin: 0;
-            padding: 0;
         }
 
         .comment-vote-button {
@@ -489,6 +500,8 @@
             display: none;
         }
 
+
+
         /* Responsive design */
         @media (max-width: 768px) {
             .comment-container {
@@ -514,11 +527,7 @@
 <div class="post-container">
     <!-- Post Header -->
     <div class="post-header-bar">
-        <div class="back-arrow">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M12.71 5.29a1 1 0 00-1.42 0l-5 5a1 1 0 000 1.42l5 5a1 1 0 001.42-1.42L8.41 11H17a1 1 0 000-2H8.41l4.3-4.29a1 1 0 000-1.42z"/>
-            </svg>
-        </div>
+
         <div class="user-info">
             <div class="user-avatar" th:text="${post.community != null ? post.community.name.substring(0,1).toUpperCase() : (post.author != null ? post.author.username.substring(0,1).toUpperCase() : 'U')}">U</div>
             <div class="user-details">
@@ -540,7 +549,29 @@
     </div>
 
     <!-- Post Title -->
-    <h1 class="post-title" th:text="${post.title}">Post Title</h1>
+    <!-- Post Title -->
+    <div class="flex justify-between items-center">
+        <h1 class="post-title" th:text="${post.title}">Post Title</h1>
+        <div class="flex space-x-2">
+            <!-- Join/Leave Community Button -->
+            <button th:if="${isAuthenticated}"
+                    th:classappend="${isJoined} ? 'bg-gray-200 hover:bg-gray-300' : 'bg-blue-500 hover:bg-blue-600 text-white'"
+                    class="px-3 py-1 rounded text-sm font-medium transition-colors"
+                    th:onclick="${isJoined} ? 'leaveCommunity(' + ${post.community.id} + ')' : 'joinCommunity(' + ${post.community.id} + ')'"
+                    th:text="${isJoined} ? 'Leave Community' : 'Join Community'">
+                Join Community
+            </button>
+
+            <!-- Save/Unsave Post Button -->
+            <button th:if="${isAuthenticated}"
+                    th:classappend="${isSaved} ? 'bg-gray-200 hover:bg-gray-300' : 'bg-blue-500 hover:bg-blue-600 text-white'"
+                    class="px-3 py-1 rounded text-sm font-medium transition-colors"
+                    th:onclick="${isSaved} ? 'unsavePost(' + ${post.id} + ')' : 'savePost(' + ${post.id} + ')'"
+                    th:text="${isSaved} ? 'Unsave Post' : 'Save Post'">
+                Save Post
+            </button>
+        </div>
+    </div>
 
     <!-- Post Content (if exists) -->
     <div class="post-content" th:if="${post.content != null and !post.content.isEmpty()}" th:text="${post.content}"></div>
@@ -568,7 +599,7 @@
 
     <!-- Post Actions -->
     <div class="post-actions">
-        <div class="vote-container">
+        <div class="vote-container" th:data-post-id="${post.id}" th:data-vote-state="${currentUserVote == true ? 1 : (currentUserVote == false ? -1 : 0)}">
             <!-- Upvote Button -->
             <button type="button" class="vote-button upvote-btn"
                     th:classappend="${currentUserVote == true} ? 'active-upvote'">
@@ -597,7 +628,7 @@
             <span th:text="${commentCount}">0</span>
         </div>
 
-        <div class="action-button share-button">
+        <div class="action-button share-button" th:data-post-url="@{${'/posts/' + post.id}}">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="white">
                 <path d="M12 9c-.8 0-1.5.3-2 .8L6.2 8.5c0-.2.1-.3.1-.5s0-.3-.1-.5L10 6.2c.5.5 1.2.8 2 .8 1.7 0 3-1.3 3-3s-1.3-3-3-3-3 1.3-3 3c0 .2 0 .3.1.5L6.2 5.8C5.7 5.3 5 5 4 5c-1.7 0-3 1.3-3 3s1.3 3 3 3c1 0 1.7-.3 2.2-.8L10 11.5c0 .2-.1.3-.1.5 0 1.7 1.3 3 3 3s3-1.3 3-3-1.3-3-3-3z"/>
             </svg>
@@ -642,28 +673,27 @@
                     <div class="comment-actions">
                         <div class="comment-vote">
                             <!-- Upvote Button -->
-                            <form th:action="@{/comments/{commentId}/upvote(commentId=${comment.id})}" method="post" class="vote-button-form">
-                                <button type="submit" class="comment-vote-button"
-                                        th:classappend="${commentVotes.get(comment.id) > 0} ? 'active-upvote'">
-                                    <svg width="12" height="12" viewBox="0 0 12 12"
-                                         th:fill="${commentVotes.get(comment.id) > 0} ? '#ff4500' : 'currentColor'">
-                                        <path d="M6 1l3 3H7v5H5V4H3l3-3z"/>
-                                    </svg>
-                                </button>
-                            </form>
+                            <!-- For top-level comments -->
+                            <button type="button" class="comment-vote-button upvote-comment-btn"
+                                    th:data-comment-id="${comment.id}"
+                                    th:classappend="${commentVotes.get(comment.id) != null and commentVotes.get(comment.id) > 0} ? 'active-upvote'">
+                                <svg width="12" height="12" viewBox="0 0 12 12"
+                                     th:fill="${commentVotes.get(comment.id) != null and commentVotes.get(comment.id) > 0} ? '#ff4500' : 'currentColor'">
+                                    <path d="M6 1l3 3H7v5H5V4H3l3-3z"/>
+                                </svg>
+                            </button>
 
-                            <span class="comment-vote-count" th:text="${commentVotes.get(comment.id)}">0</span>
+                            <span class="comment-vote-count" th:text="${commentVotes.get(comment.id) != null ? commentVotes.get(comment.id) : 0}">0</span>
 
                             <!-- Downvote Button -->
-                            <form th:action="@{/comments/{commentId}/downvote(commentId=${comment.id})}" method="post" class="vote-button-form">
-                                <button type="submit" class="comment-vote-button"
-                                        th:classappend="${commentVotes.get(comment.id) < 0} ? 'active-downvote'">
-                                    <svg width="12" height="12" viewBox="0 0 12 12"
-                                         th:fill="${commentVotes.get(comment.id) < 0} ? '#7193ff' : 'currentColor'">
-                                        <path d="M6 11L3 8h2V3h2v5h2l-3 3z"/>
-                                    </svg>
-                                </button>
-                            </form>
+                            <button type="button" class="comment-vote-button downvote-comment-btn"
+                                    th:data-comment-id="${comment.id}"
+                                    th:classappend="${commentVotes.get(comment.id) < 0} ? 'active-downvote'">
+                                <svg width="12" height="12" viewBox="0 0 12 12"
+                                     th:fill="${commentVotes.get(comment.id) < 0} ? '#7193ff' : 'currentColor'">
+                                    <path d="M6 11L3 8h2V3h2v5h2l-3 3z"/>
+                                </svg>
+                            </button>
                         </div>
                         <div class="comment-action reply-button">Reply</div>
                         <!--<div class="comment-action">Share</div>
@@ -704,28 +734,26 @@
                             <div class="comment-actions">
                                 <div class="comment-vote">
                                     <!-- Upvote Button -->
-                                    <form th:action="@{/comments/{commentId}/upvote(commentId=${reply.id})}" method="post" class="vote-button-form">
-                                        <button type="submit" class="comment-vote-button"
-                                                th:classappend="${commentVotes.get(reply.id) > 0} ? 'active-upvote'">
-                                            <svg width="12" height="12" viewBox="0 0 12 12"
-                                                 th:fill="${commentVotes.get(reply.id) > 0} ? '#ff4500' : 'currentColor'">
-                                                <path d="M6 1l3 3H7v5H5V4H3l3-3z"/>
-                                            </svg>
-                                        </button>
-                                    </form>
+                                    <button type="button" class="comment-vote-button upvote-comment-btn"
+                                            th:data-comment-id="${reply.id}"
+                                            th:classappend="${commentVotes.get(reply.id) != null and commentVotes.get(reply.id) > 0} ? 'active-upvote'">
+                                        <svg width="12" height="12" viewBox="0 0 12 12"
+                                             th:fill="${commentVotes.get(reply.id) != null and commentVotes.get(reply.id) > 0} ? '#ff4500' : 'currentColor'">
+                                            <path d="M6 1l3 3H7v5H5V4H3l3-3z"/>
+                                        </svg>
+                                    </button>
 
-                                    <span class="comment-vote-count" th:text="${commentVotes.get(reply.id)}">0</span>
+                                    <span class="comment-vote-count" th:text="${commentVotes.get(reply.id) != null ? commentVotes.get(reply.id) : 0}">0</span>
 
                                     <!-- Downvote Button -->
-                                    <form th:action="@{/comments/{commentId}/downvote(commentId=${reply.id})}" method="post" class="vote-button-form">
-                                        <button type="submit" class="comment-vote-button"
-                                                th:classappend="${commentVotes.get(reply.id) < 0} ? 'active-downvote'">
-                                            <svg width="12" height="12" viewBox="0 0 12 12"
-                                                 th:fill="${commentVotes.get(reply.id) < 0} ? '#7193ff' : 'currentColor'">
-                                                <path d="M6 11L3 8h2V3h2v5h2l-3 3z"/>
-                                            </svg>
-                                        </button>
-                                    </form>
+                                    <button type="button" class="comment-vote-button downvote-comment-btn"
+                                            th:data-comment-id="${reply.id}"
+                                            th:classappend="${commentVotes.get(reply.id) < 0} ? 'active-downvote'">
+                                        <svg width="12" height="12" viewBox="0 0 12 12"
+                                             th:fill="${commentVotes.get(reply.id) < 0} ? '#7193ff' : 'currentColor'">
+                                            <path d="M6 11L3 8h2V3h2v5h2l-3 3z"/>
+                                        </svg>
+                                    </button>
                                 </div>
                                 <div class="comment-action reply-button">Reply</div>
 <!--                                <div class="comment-action">Share</div>-->
@@ -764,26 +792,184 @@
 </div>
 
 <script>
+    // Replace the existing script section with this enhanced version
     document.addEventListener('DOMContentLoaded', function() {
-        // Handle reply button clicks
+        // Handle comment form submission with AJAX
+        // Handle comment form submission with AJAX
+        const commentForm = document.querySelector('.comment-input form');
+        if (commentForm) {
+            commentForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+
+                const submitButton = this.querySelector('button[type="submit"]');
+                const originalText = submitButton.textContent;
+
+                // Disable button and show loading state
+                submitButton.disabled = true;
+                submitButton.textContent = 'Adding...';
+
+                const formData = new FormData(this);
+                const postId = window.location.pathname.split('/')[2];
+
+                try {
+                    const response = await fetch(`/posts/${postId}/comments`, {
+                        method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        // Clear the input
+                        this.querySelector('input[name="content"]').value = '';
+                        // Reload the page immediately
+                        window.location.reload();
+                    } else {
+                        console.error('Failed to submit comment');
+                        alert('Failed to submit comment. Please try again.');
+                    }
+                } catch (error) {
+                    console.error('Error submitting comment:', error);
+                    alert('Error submitting comment. Please try again.');
+                } finally {
+                    // Re-enable button
+                    submitButton.disabled = false;
+                    submitButton.textContent = originalText;
+                }
+            });
+        }
+
+// Handle reply form submissions with AJAX
+        document.addEventListener('submit', async function(e) {
+            if (e.target.closest('.reply-form')) {
+                e.preventDefault();
+
+                const form = e.target;
+                const submitButton = form.querySelector('button[type="submit"]');
+                const originalText = submitButton.textContent;
+
+                // Disable button and show loading state
+                submitButton.disabled = true;
+                submitButton.textContent = 'Replying...';
+
+                const formData = new FormData(form);
+                const postId = window.location.pathname.split('/')[2];
+
+                try {
+                    const response = await fetch(`/posts/${postId}/comments`, {
+                        method: 'POST',
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        // Reload the page immediately
+                        window.location.reload();
+                    } else {
+                        console.error('Failed to submit reply');
+                        alert('Failed to submit reply. Please try again.');
+                    }
+                } catch (error) {
+                    console.error('Error submitting reply:', error);
+                    alert('Error submitting reply. Please try again.');
+                } finally {
+                    // Re-enable button
+                    submitButton.disabled = false;
+                    submitButton.textContent = originalText;
+                }
+            }
+        });
+        // Handle comment voting with AJAX
+        document.addEventListener('submit', async function(e) {
+            if (e.target.closest('.comment-vote')) {
+                e.preventDefault();
+
+                const form = e.target;
+                const action = form.getAttribute('action');
+                const isUpvote = action.includes('upvote');
+                const commentId = action.match(/comments\/(\d+)\//)[1];
+                const voteCountElement = form.closest('.comment-vote').querySelector('.comment-vote-count');
+
+                // Update UI immediately
+                let currentCount = parseInt(voteCountElement.textContent);
+                const button = form.querySelector('button');
+                const isCurrentlyActive = button.classList.contains(isUpvote ? 'active-upvote' : 'active-downvote');
+
+                if (isCurrentlyActive) {
+                    // Remove vote
+                    currentCount += isUpvote ? -1 : 1;
+                    updateVoteButtonStates(form, isUpvote, false);
+                } else {
+                    // Add vote (and potentially remove opposite vote)
+                    const oppositeButton = form.closest('.comment-vote').querySelector(
+                        `form[action*="${isUpvote ? 'downvote' : 'upvote'}"] button`
+                    );
+                    const oppositeActive = oppositeButton.classList.contains(isUpvote ? 'active-downvote' : 'active-upvote');
+
+                    currentCount += isUpvote ? (oppositeActive ? 2 : 1) : (oppositeActive ? -2 : -1);
+                    updateVoteButtonStates(form, isUpvote, true);
+                }
+
+                voteCountElement.textContent = currentCount;
+
+                // Then send to server
+                try {
+                    const response = await fetch(action, { method: 'POST' });
+                    if (!response.ok) {
+                        // Revert on failure
+                        window.location.reload();
+                    }
+                } catch (error) {
+                    console.error('Error submitting vote:', error);
+                    window.location.reload();
+                }
+            }
+        });
+        function updateVoteButtonStates(clickedForm, isUpvote, isActive) {
+            const commentVoteContainer = clickedForm.closest('.comment-vote');
+            const upvoteBtn = commentVoteContainer.querySelector('form[action*="upvote"] button');
+            const downvoteBtn = commentVoteContainer.querySelector('form[action*="downvote"] button');
+            const upvoteSvg = upvoteBtn.querySelector('svg');
+            const downvoteSvg = downvoteBtn.querySelector('svg');
+
+            if (isUpvote) {
+                if (isActive) {
+                    upvoteBtn.classList.add('active-upvote');
+                    upvoteSvg.setAttribute('fill', '#ff4500');
+                    downvoteBtn.classList.remove('active-downvote');
+                    downvoteSvg.setAttribute('fill', 'currentColor');
+                } else {
+                    upvoteBtn.classList.remove('active-upvote');
+                    upvoteSvg.setAttribute('fill', 'currentColor');
+                }
+            } else {
+                if (isActive) {
+                    downvoteBtn.classList.add('active-downvote');
+                    downvoteSvg.setAttribute('fill', '#7193ff');
+                    upvoteBtn.classList.remove('active-upvote');
+                    upvoteSvg.setAttribute('fill', 'currentColor');
+                } else {
+                    downvoteBtn.classList.remove('active-downvote');
+                    downvoteSvg.setAttribute('fill', 'currentColor');
+                }
+            }
+        }
+        // Rest of your existing reply button handling code...
         document.querySelectorAll('.reply-button').forEach(button => {
             button.addEventListener('click', function(e) {
                 e.preventDefault();
-
-                // Find the closest comment container
                 const commentContainer = this.closest('.comment');
-
-                // Find the reply form within this comment
                 const replyForm = commentContainer.querySelector('.reply-form');
 
-                // Hide all other reply forms
                 document.querySelectorAll('.reply-form').forEach(form => {
                     if (form !== replyForm) {
                         form.classList.add('hidden');
                     }
                 });
 
-                // Toggle this reply form
                 if (replyForm) {
                     replyForm.classList.toggle('hidden');
                     if (!replyForm.classList.contains('hidden')) {
@@ -793,7 +979,6 @@
             });
         });
 
-        // Handle cancel buttons
         document.querySelectorAll('.cancel-reply').forEach(button => {
             button.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -802,79 +987,252 @@
         });
     });
 
-        document.addEventListener('DOMContentLoaded', function() {
-        // Handle voting
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle post voting
         const voteContainers = document.querySelectorAll('.vote-container');
 
         voteContainers.forEach(container => {
-        const upvoteBtn = container.querySelector('.upvote-btn');
-        const downvoteBtn = container.querySelector('.downvote-btn');
-        const voteCountSpan = container.querySelector('.vote-count');
-        const postId = container.getAttribute('data-post-id');
-        let voteCount = parseInt(voteCountSpan.textContent);
+            const upvoteBtn = container.querySelector('.upvote-btn');
+            const downvoteBtn = container.querySelector('.downvote-btn');
+            const voteCountSpan = container.querySelector('.vote-count');
+            const postId = container.getAttribute('data-post-id');
+            let voteCount = parseInt(voteCountSpan.textContent);
+            let currentVote = parseInt(container.getAttribute('data-vote-state')) || 0;
 
-        // Initialize vote state from data attribute
-        let currentVote = parseInt(container.getAttribute('data-vote-state')) || 0;
+            upvoteBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
 
-        upvoteBtn.addEventListener('click', async () => {
-        if (currentVote === 1) {
-        // Remove upvote
-        upvoteBtn.classList.remove('active-upvote');
-        voteCount -= 1;
-        currentVote = 0;
-        await sendVote(`/votes/remove/${postId}`, 'DELETE');
-    } else {
-        // Add upvote
-        upvoteBtn.classList.add('active-upvote');
-        downvoteBtn.classList.remove('active-downvote');
-        voteCount += (currentVote === -1 ? 2 : 1);
-        currentVote = 1;
-        await sendVote(`/votes/upvote/${postId}`);
-    }
-        voteCountSpan.textContent = voteCount;
-    });
+                if (currentVote === 1) {
+                    // Remove upvote - update UI first
+                    upvoteBtn.classList.remove('active-upvote');
+                    upvoteBtn.querySelector('svg').setAttribute('fill', 'currentColor');
+                    voteCount -= 1;
+                    currentVote = 0;
+                    voteCountSpan.textContent = voteCount;
 
-        downvoteBtn.addEventListener('click', async () => {
-        if (currentVote === -1) {
-        // Remove downvote
-        downvoteBtn.classList.remove('active-downvote');
-        voteCount += 1;
-        currentVote = 0;
-        await sendVote(`/votes/remove/${postId}`, 'DELETE');
-    } else {
-        // Add downvote
-        downvoteBtn.classList.add('active-downvote');
-        upvoteBtn.classList.remove('active-upvote');
-        voteCount -= (currentVote === 1 ? 2 : 1);
-        currentVote = -1;
-        await sendVote(`/votes/downvote/${postId}`);
-    }
-        voteCountSpan.textContent = voteCount;
-    });
-    });
+                    sendVote(`/votes/remove/${postId}`, 'DELETE').catch(() => window.location.reload());
+                } else {
+                    // Add upvote - update UI first
+                    upvoteBtn.classList.add('active-upvote');
+                    upvoteBtn.querySelector('svg').setAttribute('fill', '#ff4500');
+                    downvoteBtn.classList.remove('active-downvote');
+                    downvoteBtn.querySelector('svg').setAttribute('fill', 'currentColor');
+                    voteCount += (currentVote === -1 ? 2 : 1);
+                    currentVote = 1;
+                    voteCountSpan.textContent = voteCount;
 
+                    sendVote(`/votes/upvote/${postId}`, 'POST').catch(() => window.location.reload());
+                }
+            });
+
+            downvoteBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                if (currentVote === -1) {
+                    // Remove downvote - update UI first
+                    downvoteBtn.classList.remove('active-downvote');
+                    downvoteBtn.querySelector('svg').setAttribute('fill', 'currentColor');
+                    voteCount += 1;
+                    currentVote = 0;
+                    voteCountSpan.textContent = voteCount;
+
+                    sendVote(`/votes/remove/${postId}`, 'DELETE').catch(() => window.location.reload());
+                } else {
+                    // Add downvote - update UI first
+                    downvoteBtn.classList.add('active-downvote');
+                    downvoteBtn.querySelector('svg').setAttribute('fill', '#7193ff');
+                    upvoteBtn.classList.remove('active-upvote');
+                    upvoteBtn.querySelector('svg').setAttribute('fill', 'currentColor');
+                    voteCount -= (currentVote === 1 ? 2 : 1);
+                    currentVote = -1;
+                    voteCountSpan.textContent = voteCount;
+
+                    sendVote(`/votes/downvote/${postId}`, 'POST').catch(() => window.location.reload());
+                }
+            });
+        });
+
+        document.addEventListener('click', async function(e) {
+            if (e.target.closest('.comment-vote-button')) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const button = e.target.closest('.comment-vote-button');
+                const commentId = button.getAttribute('data-comment-id');
+                const isUpvote = button.classList.contains('upvote-comment-btn');
+                const voteContainer = button.closest('.comment-vote');
+                const voteCountElement = voteContainer.querySelector('.comment-vote-count');
+                const upvoteBtn = voteContainer.querySelector('.upvote-comment-btn');
+                const downvoteBtn = voteContainer.querySelector('.downvote-comment-btn');
+
+                let currentCount = parseInt(voteCountElement.textContent);
+                const isCurrentlyActive = button.classList.contains(isUpvote ? 'active-upvote' : 'active-downvote');
+
+                if (isCurrentlyActive) {
+                    // Remove vote - update UI first
+                    button.classList.remove(isUpvote ? 'active-upvote' : 'active-downvote');
+                    button.querySelector('svg').setAttribute('fill', 'currentColor');
+                    currentCount += isUpvote ? -1 : 1;
+                    voteCountElement.textContent = currentCount;
+
+                    sendVote(`/comments/${commentId}/${isUpvote ? 'upvote' : 'downvote'}`, 'POST')
+                        .catch(() => window.location.reload());
+                } else {
+                    // Add vote - update UI first
+                    const oppositeBtn = isUpvote ? downvoteBtn : upvoteBtn;
+                    const oppositeActive = oppositeBtn.classList.contains(isUpvote ? 'active-downvote' : 'active-upvote');
+
+                    if (oppositeActive) {
+                        oppositeBtn.classList.remove(isUpvote ? 'active-downvote' : 'active-upvote');
+                        oppositeBtn.querySelector('svg').setAttribute('fill', 'currentColor');
+                        currentCount += isUpvote ? 2 : -2;
+                    } else {
+                        currentCount += isUpvote ? 1 : -1;
+                    }
+
+                    button.classList.add(isUpvote ? 'active-upvote' : 'active-downvote');
+                    button.querySelector('svg').setAttribute('fill', isUpvote ? '#ff4500' : '#7193ff');
+                    voteCountElement.textContent = currentCount;
+
+                    sendVote(`/comments/${commentId}/${isUpvote ? 'upvote' : 'downvote'}`, 'POST')
+                        .catch(() => window.location.reload());
+                }
+            }
+        });
+
+// Add error handling function
+            function revertVoteUI() {
+                // Revert changes if server request fails
+                window.location.reload();
+            }
         async function sendVote(url, method = 'POST') {
+            try {
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        // Add CSRF token if you're using Spring Security
+                        // 'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]').getAttribute('content')
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Vote failed: ${response.status}`);
+                }
+
+                const result = await response.text();
+                console.log('Vote result:', result);
+            } catch (error) {
+                console.error('Error voting:', error);
+                // You might want to revert the UI changes here if the vote failed
+                // and show an error message to the user
+            }
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Handle share button click
+        document.querySelector('.share-button').addEventListener('click', function() {
+            const relativePath = this.getAttribute('data-post-url');
+            const fullUrl = window.location.origin + relativePath;
+
+            // Copy URL to clipboard
+            navigator.clipboard.writeText(fullUrl).then(() => {
+                // Show toast notification
+                const toast = document.getElementById('toast');
+                toast.classList.add('show');
+
+                // Hide after 3 seconds
+                setTimeout(() => {
+                    toast.classList.remove('show');
+                }, 3000);
+            }).catch(err => {
+                console.error('Failed to copy URL: ', err);
+                alert('Failed to copy URL. Please try again.');
+            });
+        });
+    });
+
+    // Add these inside the DOMContentLoaded event listener
+    async function joinCommunity(communityId) {
         try {
-        const response = await fetch(url, {
-        method: method,
-        headers: {
-        'Content-Type': 'application/json',
-        // Add CSRF token if needed
-        // 'X-CSRF-TOKEN': document.querySelector('meta[name="_csrf"]').content
+            const response = await fetch(`/user/join-community/${communityId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                alert('Failed to join community');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error joining community');
+        }
     }
-    });
 
-        if (!response.ok) {
-        throw new Error('Vote failed');
-    }
-    } catch (error) {
-        console.error('Error:', error);
-        // You might want to revert the UI changes here if the vote failed
-    }
+    async function leaveCommunity(communityId) {
+        try {
+            const response = await fetch(`/user/leave-community/${communityId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                alert('Failed to leave community');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error leaving community');
+        }
     }
 
-        // ... (keep your existing reply button handling code) ...
-    });
+    async function savePost(postId) {
+        try {
+            const response = await fetch(`/save/${postId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                alert('Failed to save post');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error saving post');
+        }
+    }
+
+    async function unsavePost(postId) {
+        // You'll need to implement an endpoint for unsaving posts
+        try {
+            const response = await fetch(`/unsave/${postId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                alert('Failed to unsave post');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error unsaving post');
+        }
+    }
 </script>
+<div id="toast" class="toast-notification">Post URL copied to clipboard!</div>
 </body>
 </html>

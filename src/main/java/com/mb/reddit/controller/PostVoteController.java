@@ -16,31 +16,34 @@ public class PostVoteController {
 
     @PostMapping("/upvote/{postId}")
     @ResponseBody
-    public void upvote(@PathVariable Long postId) {
+    public ResponseEntity<String> upvotePost(@PathVariable Long postId) {
         try {
             postVoteService.addVoteByPostId(postId, true);
-        } catch(Exception e) {
-            e.printStackTrace();
+            return ResponseEntity.ok("Upvoted successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Failed to upvote");
         }
     }
 
     @PostMapping("/downvote/{postId}")
     @ResponseBody
-    public void downvote(@PathVariable Long postId) {
+    public ResponseEntity<String> downvotePost(@PathVariable Long postId) {
         try {
             postVoteService.addVoteByPostId(postId, false);
-        } catch(Exception e) {
-            e.printStackTrace();
+            return ResponseEntity.ok("Downvoted successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Failed to downvote");
         }
     }
 
     @DeleteMapping("/remove/{postId}")
     @ResponseBody
-    public void removeVote(@PathVariable Long postId) {
+    public ResponseEntity<String> removeVote(@PathVariable Long postId) {
         try {
             postVoteService.removeVoteByPostId(postId);
-        } catch(Exception e) {
-            e.printStackTrace();
+            return ResponseEntity.ok("Vote removed successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Failed to remove vote");
         }
     }
 }

@@ -291,4 +291,36 @@ public class UserServiceImpl implements UserService {
         user.setBio(bio != null ? bio : "");
         return userRepository.save(user);
     }
+
+    @Override
+    public void addPostToUserSavedPosts(Long postId, Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found"));
+
+        if (!user.getSavedPosts().contains(post)) {
+            user.getSavedPosts().add(post);
+            userRepository.save(user);
+        }
+    }
+
+    @Override
+    public void removePostFromUserSavedPosts(Long postId, Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found"));
+
+        user.getSavedPosts().remove(post);
+        userRepository.save(user);
+    }
+
+    @Override
+    public boolean isPostSavedByUser(Long postId, Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return user.getSavedPosts().stream()
+                .anyMatch(p -> p.getId().equals(postId));
+    }
 }

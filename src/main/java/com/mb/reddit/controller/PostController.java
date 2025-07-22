@@ -11,18 +11,16 @@ import com.mb.reddit.service.FlairService;
 import com.mb.reddit.service.PostService;
 
 import com.mb.reddit.service.PostVoteService;
+import com.mb.reddit.service.implementation.UserServiceImpl;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import com.mb.reddit.service.UserService;
 import org.springframework.security.core.Authentication;
 import org.springframework.ui.Model;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import java.util.HashMap;
 import java.util.List;
@@ -41,15 +39,20 @@ public class PostController {
     private final UserService userService;
     private final CommunityService communityService;
     public final FlairService flairService;
+    public final UserServiceImpl userServiceImpl;
 
 
-    public PostController(PostService postService, UserService userService, CommunityService communityService, FlairService flairService, CommentService commentService, PostVoteService postVoteService) {
+    public PostController(PostService postService, UserService userService,
+                          CommunityService communityService, FlairService flairService,
+                          CommentService commentService, PostVoteService postVoteService,
+                          UserServiceImpl userServiceImpl) {
         this.postService = postService;
         this.commentService = commentService;
         this.postVoteService = postVoteService;
         this.userService = userService;
         this.communityService = communityService;
         this.flairService = flairService;
+        this.userServiceImpl = userServiceImpl;
     }
 
     @GetMapping("/new-post")
@@ -161,7 +164,14 @@ public class PostController {
                 isJoined = userService.hasUserJoinedCommunity(community);
             }
         }
-
+        boolean isSaved = false;
+        if (isAuthenticated) {
+            User currentUser = userServiceImpl.getLoggedInUser();
+            if (currentUser != null) {
+                isSaved = userService.isPostSavedByUser(postId, currentUser.getId());
+            }
+        }
+        model.addAttribute("isSaved", isSaved);
         model.addAttribute("community", community);
         model.addAttribute("owner", owner);
         model.addAttribute("isJoined", isJoined);
@@ -227,7 +237,34 @@ public class PostController {
     }
 
     @PostMapping("/save/{postId}")
-    public void savePost(@PathVariable("postId") Long postId){
-        userService.addPostToUserSavedPosts(postId);
+    @ResponseBody
+    public ResponseEntity<String> savePost(@PathVariable("postId") Long postId, Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(401).body("Authentication required");
+        }
+
+        try {
+            User currentUser = userService.getCurrentUser();
+            userService.addPostToUserSavedPosts(postId, currentUser.getId());
+            return ResponseEntity.ok("Post saved successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error saving post: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/unsave/{postId}")
+    @ResponseBody
+    public ResponseEntity<String> unsavePost(@PathVariable("postId") Long postId, Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return ResponseEntity.status(401).body("Authentication required");
+        }
+
+        try {
+            User currentUser = userService.getCurrentUser();
+            userService.removePostFromUserSavedPosts(postId, currentUser.getId());
+            return ResponseEntity.ok("Post unsaved successfully");
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error unsaving post: " + e.getMessage());
+        }
     }
 }

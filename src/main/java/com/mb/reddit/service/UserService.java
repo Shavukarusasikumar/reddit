@@ -36,4 +36,7 @@ public interface UserService {
     boolean isUsernameTaken(String username);
     boolean isEmailRegistered(String email);
     User registerUser(String username, String email, String password, String bio);
+    void addPostToUserSavedPosts(Long postId, Long userId);
+    void removePostFromUserSavedPosts(Long postId, Long userId);
+    boolean isPostSavedByUser(Long postId, Long userId);
 }
