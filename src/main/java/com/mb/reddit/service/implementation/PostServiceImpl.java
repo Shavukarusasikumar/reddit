@@ -8,10 +8,7 @@ import com.mb.reddit.service.PostService;
 import com.mb.reddit.utils.TimeAgoUtils;
 import jakarta.transaction.Transactional;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -23,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -80,6 +78,44 @@ public class PostServiceImpl implements PostService {
 
         return postsPage;
     }
+
+//    @Override
+//    public Page<PostWithVotesDTO> getAllPost(int pageNumber, int pageSize, String sortBy, boolean rising, boolean top, boolean isNew) {
+//        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+//        LocalDateTime timeThreshold = LocalDateTime.now().minusHours(96);
+//
+//        Page<PostWithVotesDTO> page;
+//        if (isNew) {
+//            page = postRepository.findNewPosts(pageable);
+//        } else if (top) {
+//            page = postRepository.findTopPosts(pageable);
+//        } else if (rising) {
+//            page = postRepository.findRisingPosts(timeThreshold, pageable);
+//        } else {
+//            page = postRepository.findNewPosts(pageable);
+//        }
+//
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getName())) {
+//            return page;
+//        }
+//
+//        String username = authentication.getName();
+//        User user = userRepository.findUserByUsername(username);
+//        if (user == null) return page;
+//
+//        List<Long> postIds = page.getContent().stream().map(PostWithVotesDTO::getId).toList();
+//        if (postIds.isEmpty()) return page;
+//
+//        List<PostVote> userVotes = postVoteRepository.findByUserIdAndPostIds(user.getId(), postIds);
+//        Map<Long, Boolean> voteMap = userVotes.stream()
+//                .collect(Collectors.toMap(vote -> vote.getPost().getId(), PostVote::getIsLike));
+//
+//        page.getContent().forEach(post -> post.setIsLiked(voteMap.get(post.getId())));
+//
+//        return page;
+//    }
+
 
     @Override
     public List<Comment> getCommentsByPostId(Long postId) {

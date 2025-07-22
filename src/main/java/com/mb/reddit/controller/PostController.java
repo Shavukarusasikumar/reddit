@@ -106,19 +106,66 @@ public class PostController {
 
         return "home";
     }
+//    @GetMapping("/posts")
+//    public String getAllPosts(
+//            @RequestParam(defaultValue = "0", required = false) int pageNumber,
+//            @RequestParam(defaultValue = "10", required = false) int pageSize,
+//            @RequestParam(defaultValue = "createdAt", required = false) String sortBy,
+//            @RequestParam(defaultValue = "false", required = false) boolean rising,
+//            @RequestParam(defaultValue = "false", required = false) boolean top,
+//            @RequestParam(defaultValue = "false") boolean isNew,
+//            Model model) {
+//
+//        Page<PostWithVotesDTO> posts = postService.getAllPost(pageNumber, pageSize, sortBy, rising, top, isNew);
+//        List<Community> joinedCommunities = communityService.findUserJoinedCommunities();
+//        List<Community> recentCommunities = joinedCommunities.stream().limit(5).toList();
+//
+//        model.addAttribute("posts", posts.getContent());
+//        model.addAttribute("recentPosts", posts.getContent().stream().limit(10).toList());
+//        model.addAttribute("communities", joinedCommunities);
+//        model.addAttribute("recentCommunities", recentCommunities);
+//        model.addAttribute("hasNext", posts.hasNext());
+//        model.addAttribute("isRising", rising);
+//        model.addAttribute("isTop", top);
+//        model.addAttribute("isNew", isNew);
+//
+//        return "home";
+//    }
+
+
+//    @GetMapping("/posts/scroll")
+//    public String getMorePosts(@RequestParam(defaultValue = "0") int pageNumber, @RequestParam(defaultValue = "10") int pageSize, @RequestParam(defaultValue = "createdAt") String sortBy, Model model) {
+//
+//        Page<PostWithVotesDTO> posts = postService.getAllPost(pageNumber, pageSize, sortBy);
+//        // IMPORTANT: send only the list, not the Page
+//        model.addAttribute("posts", posts.getContent());
+//        model.addAttribute("hasNext", posts.hasNext());
+//
+//        // return the lightweight fragment
+//        return "home";
+//    }
 
     @GetMapping("/posts/scroll")
-    public String getMorePosts(@RequestParam(defaultValue = "0") int pageNumber, @RequestParam(defaultValue = "10") int pageSize, @RequestParam(defaultValue = "createdAt") String sortBy, Model model) {
+    public String getMorePosts(
+            @RequestParam(defaultValue = "0") int pageNumber,
+            @RequestParam(defaultValue = "10") int pageSize,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "false") boolean rising,
+            @RequestParam(defaultValue = "false", required = false) boolean top,
+            @RequestParam(defaultValue = "false") boolean isNew,
+            Model model) {
 
+//        Page<PostWithVotesDTO> posts = postService.getAllPost(pageNumber, pageSize, sortBy, rising, top, isNew);
         Page<PostWithVotesDTO> posts = postService.getAllPost(pageNumber, pageSize, sortBy);
-        // IMPORTANT: send only the list, not the Page
+
         model.addAttribute("posts", posts.getContent());
         model.addAttribute("hasNext", posts.hasNext());
+        model.addAttribute("isRising", rising);
+        model.addAttribute("isTop", top);
+        model.addAttribute("isNew", isNew);
 
-        // return the lightweight fragment
         return "home";
     }
-
 
     @GetMapping("/posts/{postId}")
     public String getPostById(@PathVariable Long postId, Model model, Authentication authentication) {

@@ -300,9 +300,9 @@
         <!-- Sort Tabs (like Reddit) -->
         <div class="sort-tabs">
             <a href="#" class="sort-tab active"><i class="fas fa-fire"></i> Hot</a>
-            <a href="#" class="sort-tab"><i class="fas fa-arrow-up"></i> New</a>
-            <a href="#" class="sort-tab"><i class="fas fa-chart-line"></i> Top</a>
-            <a href="#" class="sort-tab"><i class="fas fa-arrow-trend-up"></i> Rising</a>
+            <a href="/posts?new=true" class="sort-tab"><i class="fas fa-arrow-up"></i> New</a>
+            <a href="/posts?top=true" class="sort-tab"><i class="fas fa-chart-line"></i> Top</a>
+            <a href="/posts?rising=true" class="sort-tab"><i class="fas fa-arrow-trend-up"></i> Rising</a>
         </div>
 
         <!-- Posts Section -->
@@ -619,48 +619,51 @@
     }
 
     /* Fixed Infinite Scroll */
-function loadMorePosts() {
-    loading = true;
-    const loadingEl = document.getElementById('loading');
-    if (loadingEl) loadingEl.style.display = 'block';
+    function loadMorePosts() {
+        loading = true;
+        const loadingEl = document.getElementById('loading');
+        if (loadingEl) loadingEl.style.display = 'block';
 
-    // Request NEXT page (currentPage + 1)
-    fetch(`/posts/scroll?pageNumber=${currentPage + 1}&pageSize=${PAGE_SIZE}&sortBy=createdAt`)
-        .then(response => {
-            if (!response.ok) throw new Error('Network error');
-            return response.text();
-        })
-        .then(html => {
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = html;
+        // Get current URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const rising = urlParams.get('rising') === 'true';
 
-            const newPosts = tempDiv.querySelectorAll('.post-container');
-            const postList = document.getElementById('post-list');
+        // Request NEXT page with the same parameters
+        fetch(`/posts/scroll?pageNumber=${currentPage + 1}&pageSize=${PAGE_SIZE}&sortBy=createdAt&rising=${rising}`)
+            .then(response => {
+                if (!response.ok) throw new Error('Network error');
+                return response.text();
+            })
+            .then(html => {
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = html;
 
-            // Append new posts
-            newPosts.forEach(post => postList.appendChild(post));
+                const newPosts = tempDiv.querySelectorAll('.post-container');
+                const postList = document.getElementById('post-list');
 
-            // Update state
-            hasNext = newPosts.length === PAGE_SIZE;
-            currentPage++;  // Only increment AFTER successful load
+                // Append new posts
+                newPosts.forEach(post => postList.appendChild(post));
 
-            // Update trigger index for next batch
-            nextTriggerIndex += PAGE_SIZE;
+                // Update state
+                hasNext = newPosts.length === PAGE_SIZE;
+                currentPage++;  // Only increment AFTER successful load
 
-            // Initialize voting for new posts
-            initVoteState(postList);
-        })
-        .catch(err => {
-            console.error('Error loading posts:', err);
-            // Reset trigger index to retry
-            nextTriggerIndex -= PAGE_SIZE;
-        })
-        .finally(() => {
-            loading = false;
-            if (loadingEl) loadingEl.style.display = 'none';
-        });
-}
+                // Update trigger index for next batch
+                nextTriggerIndex += PAGE_SIZE;
 
+                // Initialize voting for new posts
+                initVoteState(postList);
+            })
+            .catch(err => {
+                console.error('Error loading posts:', err);
+                // Reset trigger index to retry
+                nextTriggerIndex -= PAGE_SIZE;
+            })
+            .finally(() => {
+                loading = false;
+                if (loadingEl) loadingEl.style.display = 'none';
+            });
+    }
     /* ---------------
        VOTING
        --------------- */

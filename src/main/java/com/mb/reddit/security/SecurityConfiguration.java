@@ -30,13 +30,13 @@ public class SecurityConfiguration {
                 .formLogin(form -> form
                         .loginPage("/user/login")
                         .loginProcessingUrl("/login")
-                        .defaultSuccessUrl("/", true)
+                        .defaultSuccessUrl("/posts", true)
                         .failureUrl("/user/login?error=true")
                         .permitAll()
                 )
                 .oauth2Login(oauth2 -> oauth2
                         .loginPage("/user/login")
-                        .defaultSuccessUrl("/", true)
+                        .defaultSuccessUrl("/posts", true)
                         .failureUrl("/user/login?error=true")
                 )
                 .logout(logout -> logout

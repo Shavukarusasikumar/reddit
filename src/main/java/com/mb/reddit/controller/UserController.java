@@ -78,7 +78,7 @@ public class UserController {
 		);
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 
-		return "redirect:/";
+		return "redirect:/user/login";
 	}
 
 

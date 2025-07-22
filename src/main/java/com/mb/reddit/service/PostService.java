@@ -16,7 +16,9 @@ public interface PostService {
     Post updatePost(Post post);
     void deletePost(Long postId);
 
+//    Page<PostWithVotesDTO> getAllPost(int pageNumber, int pageSize, String sortBy, boolean rising, boolean top, boolean isNew);
     Page<PostWithVotesDTO> getAllPost(int pageNumber, int pageSize, String sortBy);
+
     Page<Post> getPostsByCommunityId(Long communityId, int pageNumber, int pageSize);
 
     List<Comment> getCommentsByPostId(Long postId);
