@@ -4,378 +4,170 @@
 <head>
     <meta charset="UTF-8"/>
     <title>Reddit Clone - Home</title>
-    <!-- Global / reset CSS -->
-    <link rel="stylesheet" th:href="@{/css/base.css}"/>
-    <link rel="stylesheet" th:href="@{/css/layout.css}"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 
     <style>
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
+        html, body {
             margin: 0;
-            background: #dae0e6;
-            font-family: 'IBM Plex Sans', Arial, sans-serif;
-            overflow-x: hidden;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
         }
 
-/* Add this to your existing <style> tag in home.html */
-
-/* Fixed height for post containers */
-.post-container {
-    min-height: 120px;
-    max-height: 600px; /* Prevents posts from getting too tall */
-}
-
-/* Control post content height */
-.post-text {
-    max-height: 300px;
-    overflow: hidden;
-    position: relative;
-}
-
-/* Add "Read more" gradient for long text posts */
-.post-text::after {
-    content: "";
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 40px;
-    background: linear-gradient(transparent, white);
-    pointer-events: none;
-}
-
-/* Limit post title height */
-.post-title {
-    max-height: 66px; /* About 3 lines */
-    overflow: hidden;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    line-height: 22px;
-}
-
-/* Fixed image dimensions */
-.post-image {
-    max-width: 100%;
-    max-height: 400px;
-    width: auto;
-    height: auto;
-    object-fit: cover;
-    border-radius: 4px;
-}
-
-/* Ensure consistent spacing */
-.post-content-area {
-    min-height: 80px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
-
-/* Keep post actions at bottom */
-.post-actions {
-    margin-top: auto;
-    padding-top: 8px;
-}
-
-        /* Fixed header - exactly like Reddit */
-        .header-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 1000;
-            background: white;
-            border-bottom: 1px solid #ddd;
-            height: 48px; /* Reddit's exact header height */
-        }
-
-        /* Main content container - Reddit's exact layout */
-        .home-wrapper {
-            margin-top: 48px;
+        .page-layout-container {
+            height: 100vh;
             display: flex;
-            justify-content: center;
-            min-height: calc(100vh - 48px);
-            padding: 20px 24px;
-            gap: 24px;
-            max-width: 1248px; /* Reddit's max container width */
-            margin-left: auto;
-            margin-right: auto;
+            flex-direction: column;
         }
 
-        /* Left sidebar - exact Reddit dimensions */
-        .home-left {
-            width: 312px; /* Reddit's exact left sidebar width */
-            position: sticky;
-            top: 68px; /* header height + padding */
-            height: fit-content;
-            flex-shrink: 0;
+        .page-layout {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1.5fr 4fr 2fr;
+            gap: 50px;
+            padding: 16px 180px 16px 16px;
+            box-sizing: border-box;
+            overflow: hidden;
+            align-items: start;
         }
 
-        /* Main content area - exact Reddit dimensions */
-        .home-main {
-            width: 640px; /* Reddit's exact main content width */
-            flex-shrink: 0;
-        }
-
-        /* Right sidebar - exact Reddit dimensions */
+        .home-left,
         .home-right {
-            width: 312px; /* Reddit's exact right sidebar width */
             position: sticky;
-            top: 68px;
+            top: 80px;
+            align-self: start;
             height: fit-content;
-            flex-shrink: 0;
         }
 
-        /* Loading indicator styling */
-        #loading {
-            text-align: center;
-            padding: 20px;
-            margin: 16px 0;
-            background: white;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-            display: none;
+        .home-main-scroll-wrapper {
+            height: 100%;
+            overflow-y: auto;
+            padding-right: 12px;
         }
 
-        #loading p {
-            margin: 0;
-            color: #878a8c;
-            font-size: 14px;
+        .home-main {
+            background-color: #ffffff;
+            padding: 16px;
+            border-radius: 8px;
+            border: none;
         }
 
-        /* Reddit's exact responsive breakpoints */
-        @media (max-width: 1200px) {
-            .home-wrapper {
-                max-width: 984px;
-                padding: 20px 16px;
-                gap: 24px;
+        @media (max-width: 1024px) {
+            .page-layout {
+                grid-template-columns: 1fr;
+                padding: 16px;
             }
 
+            .home-left,
             .home-right {
-                display: none;
+                position: static;
             }
 
-            .home-main {
-                width: 640px; /* Keep main content fixed width */
+            .home-main-scroll-wrapper {
+                overflow-y: visible;
             }
         }
 
         .copy-toast {
             position: fixed;
-            bottom: 32px;
-            right: 32px;
-            padding: 8px 16px;
-            background: #333;
-            color: #fff;
-            font-size: 14px;
-            border-radius: 4px;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.18s ease;
-            z-index: 1000;
-        }
-        .copy-toast.show {
-            opacity: 1;
-        }
-
-
-        @media (max-width: 960px) {
-            .home-wrapper {
-                padding: 0;
-                gap: 0;
-                max-width: 100%;
-            }
-
-            .home-left {
-                display: none;
-            }
-
-            .home-main {
-                width: 100%;
-                padding: 0 16px;
-            }
-        }
-
-        /* Custom scrollbar for sidebars */
-        .home-left::-webkit-scrollbar,
-        .home-right::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        .home-left::-webkit-scrollbar-track,
-        .home-right::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        .home-left::-webkit-scrollbar-thumb,
-        .home-right::-webkit-scrollbar-thumb {
-            background: #c7c7c7;
-            border-radius: 2px;
-        }
-
-        /* Override sidebar container styles to match Reddit exactly */
-        .left-sidebar-container {
-            font-family: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            font-size: 14px;
-            background-color: transparent;
-            height: 100%;
-        }
-
-        .sidebar {
-            width: 100%;
-            background-color: #ffffff;
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-            margin-bottom: 16px;
-        }
-
-        .post-sidebar {
-            width: 100%;
-            padding: 12px;
-            background-color: #ffffff;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-            font-family: 'IBM Plex Sans', Arial, sans-serif;
-            font-size: 14px;
-            margin-bottom: 16px;
-        }
-
-        /* Sort tabs container - Reddit style */
-        .sort-tabs {
-            background: white;
-            border: 1px solid #ccc;
-            border-radius: 4px 4px 0 0;
-            padding: 8px 12px;
-            margin-bottom: 0;
-            display: flex;
-            gap: 8px;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .sort-tab {
-            color: #878a8c;
-            text-decoration: none;
-            padding: 4px 8px;
-            border-radius: 2px;
-            transition: background-color 0.2s;
-        }
-
-        .sort-tab:hover {
-            background-color: #f6f7f8;
-        }
-
-        .sort-tab.active {
-            color: #0079d3;
-            background-color: #f6f7f8;
-        }
-        .dot-separator {
-            color: #787c7e;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #0079d3;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 6px;
             font-weight: bold;
+            display: none;
+            z-index: 999;
+        }
+
+        .copy-toast.show {
+            display: block;
         }
     </style>
 </head>
 <body>
-<!-- Fixed Header -->
 <div class="header-container">
     <div th:replace="fragments/header :: header"></div>
 </div>
 
-<!-- Main Layout Container -->
-<div class="home-wrapper">
-<!--    &lt;!&ndash; Left Sidebar (Sticky) &ndash;&gt;-->
-    <aside class="home-left"
-           th:replace="fragments/left-sidebar-fragment :: leftSidebar(${communities}, ${recentCommunities})"></aside>
+<div class="page-layout-container">
+    <div class="page-layout">
+        <aside class="home-left"
+               th:replace="fragments/left-sidebar-fragment :: leftSidebar(${communities}, ${recentCommunities})"></aside>
 
-<!--    &lt;!&ndash; Main Content Area &ndash;&gt;-->
-    <main class="home-main">
-        <!-- Sort Tabs (like Reddit) -->
-        <div class="sort-tabs">
-            <a href="#" class="sort-tab active"><i class="fas fa-fire"></i> Hot</a>
-            <a href="/posts?new=true" class="sort-tab"><i class="fas fa-arrow-up"></i> New</a>
-            <a href="/posts?top=true" class="sort-tab"><i class="fas fa-chart-line"></i> Top</a>
-            <a href="/posts?rising=true" class="sort-tab"><i class="fas fa-arrow-trend-up"></i> Rising</a>
-        </div>
+        <main class="home-main-scroll-wrapper">
+            <div class="home-main">
+                <div id="post-list">
+                    <div th:each="post : ${posts}" class="post-container">
+                        <div class="post-content-area">
+                            <div class="post-header">
+                                <div class="post-header-left">
+                                    <img class="community-icon"
+                                         th:src="${post.communityIconUrl}"
+                                         alt="Community Icon"
+                                         onerror="this.onerror=null;this.src='https://via.placeholder.com/20x20/ff4500/ffffff?text=r';" />
+                                    <a th:href="@{|r/${post.communityName}|}"
+                                       th:text="|r/${post.communityName}|"
+                                       class="community-link"></a>
+                                    <span class="post-time" th:text="' • ' + ${post.showTime}"></span>
+                                </div>
+                            </div>
 
-        <!-- Posts Section -->
-        <div id="post-list">
-            <div th:each="post : ${posts}" class="post-container">
-                <div class="post-content-area">
-                    <div class="post-header">
-                        <div class="post-header-left">
-                            <img class="community-icon"
-                                 th:src="${post.communityIconUrl}"
-                                 alt="Community Icon"
-                                 onerror="this.onerror=null;this.src='https://via.placeholder.com/20x20/ff4500/ffffff?text=r';" />
-                            <a th:href="@{|/r/${post.communityName}|}"
-                               th:text="|r/${post.communityName}|"
-                               class="community-link"></a>
-                            <span class="post-time" th:text="' • ' + ${post.showTime}"></span>
-                        </div>
+                            <a th:href="@{/posts/{id}(id=${post.id})}" class="post-link">
+                                <div class="post-title" th:text="${post.title}">Post title</div>
+                            </a>
+                            <div th:if="${post.mediaUrl != null}" class="post-media">
+                                <img class="post-image" th:src="${post.mediaUrl}" alt="Post image">
+                            </div>
 
-                    </div>
+                            <div class="post-text"
+                                 th:if="${post.mediaUrl == null and post.content != null}"
+                                 th:text="${post.content}">
+                            </div>
 
-                    <a th:href="@{/posts/{id}(id=${post.id})}" class="post-link">
-                        <div class="post-title" th:text="${post.title}">Post title</div>
-                    </a>
-                    <div th:if="${post.mediaUrl != null}" class="post-media">
-                        <img class="post-image" th:src="${post.mediaUrl}" alt="Post image">
-                    </div>
+                            <div class="post-actions"
+                                 th:data-post-id="${post.id}">
+                                <div class="action-button likes-count"
+                                     th:data-vote-state="${post.isLiked == null ? 0 : (post.isLiked ? 1 : -1)}">
+                                    <i class="fa-solid fa-arrow-up upvote-btn"
+                                       th:classappend="${post.isLiked} == true ? ' active' : ''"></i>
+                                    <span class="vote-count" th:text="${post.voteCount}">0</span>
+                                    <i class="fa-solid fa-arrow-down downvote-btn"
+                                       th:classappend="${post.isLiked} == false ? ' active' : ''"></i>
+                                </div>
 
-                    <div class="post-text"
-                         th:if="${post.mediaUrl == null and post.content != null}"
-                         th:text="${post.content}">
-                    </div>
+                                <span class="dot-separator">•</span>
 
-                    <!-- Actions: Votes inline + comments, share, save -->
-                    <div class="post-actions"
-                         th:data-post-id="${post.id}">
-                        <div class="action-button likes-count"
-                             th:data-vote-state="${post.isLiked == null ? 0 : (post.isLiked ? 1 : -1)}">
-                            <i class="fa-solid fa-arrow-up upvote-btn"
-                               th:classappend="${post.isLiked} == true ? ' active' : ''"></i>
-                            <span class="vote-count" th:text="${post.voteCount}">0</span>
-                            <i class="fa-solid fa-arrow-down downvote-btn"
-                               th:classappend="${post.isLiked} == false ? ' active' : ''"></i>
-                        </div>
+                                <a th:href="@{/posts/{id}(id=${post.id})}" class="action-button comment-btn">
+                                    <i class="fa-regular fa-comment"></i>
+                                    <span th:text="${post.commentCount} + ' Comments'">0 Comments</span>
+                                </a>
 
-                        <span class="dot-separator">•</span>
+                                <span class="dot-separator">•</span>
 
-                        <a th:href="@{/posts/{id}(id=${post.id})}" class="action-button comment-btn">
-                            <i class="fa-regular fa-comment"></i>
-                            <span th:text="${post.commentCount} + ' Comments'">0 Comments</span>
-                        </a>
-
-                        <span class="dot-separator">•</span>
-
-                        <div class="action-button share-btn">
-                            <i class="fa-solid fa-share"></i>
-                            <span>Share</span>
+                                <div class="action-button share-btn">
+                                    <i class="fa-solid fa-share"></i>
+                                    <span>Share</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
+
+                <div id="copy-toast" class="copy-toast" role="status" aria-live="polite">Link Copied!</div>
+
+                <div id="loading">
+                    <p><i class="fas fa-spinner fa-spin"></i> Loading more posts...</p>
+                </div>
             </div>
-        </div>
+        </main>
 
-        <div id="copy-toast" class="copy-toast" role="status" aria-live="polite">Link Copied!</div>
-
-        <!-- Loading Indicator -->
-        <div id="loading">
-            <p><i class="fas fa-spinner fa-spin"></i> Loading more posts...</p>
-        </div>
-    </main>
-
-<!--    &lt;!&ndash; Right Sidebar (Sticky) &ndash;&gt;-->
-    <aside class="home-right"
-           th:replace="fragments/right-sidebar-fragment :: rightSidebar(${recentPosts})"></aside>
+        <!--    &lt;!&ndash; Right Sidebar (Sticky) &ndash;&gt;-->
+        <aside class="home-right"
+               th:replace="fragments/right-sidebar-fragment :: rightSidebar(${recentPosts})"></aside>
+    </div>
 </div>
 
 <!-- Reddit-style Post Styling -->
@@ -384,20 +176,17 @@
         display: flex;
         background-color: white;
         margin-bottom: 10px;
-        border: 1px solid #ccc;
         border-radius: 4px;
         overflow: hidden;
         transition: border-color 0.2s;
-    }
-
-    .post-container:hover {
-        border-color: #898989;
+         border-bottom: 1px solid #edeff1;
+        padding-bottom: 10px;
     }
 
     /* Removed .post-votes sidebar since voting is now inline */
 
     .vote-count {
-        font-size: 12px;
+        font-size: 20px;
         font-weight: bold;
         color: #1c1c1c;
         margin: 0 4px;
@@ -427,7 +216,7 @@
         text-decoration: none;
         color: #1c1c1c;
         font-weight: bold;
-        font-size: 12px;
+        font-size: 16px;
     }
 
     .community-link:hover {
@@ -446,8 +235,8 @@
     }
 
     .post-title {
-        font-size: 18px;
-        font-weight: 500;
+        font-size: 20px;
+        font-weight: 800;
         line-height: 22px;
         color: #1c1c1c;
         margin-bottom: 8px;
@@ -464,8 +253,8 @@
 
     .post-image {
         max-width: 100%;
-        height: auto;
-        border-radius: 4px;
+        max-height: 500px;
+        border-radius: 20px;
     }
 
     .post-text {
@@ -479,7 +268,7 @@
         display: flex;
         align-items: center;
         gap: 6px; /* spacing between buttons */
-        font-size: 12px;
+        font-size: 20px;
         color: #787c7e;
         margin-top: 8px;
         flex-wrap: wrap; /* Wrap if screen is small */
@@ -503,7 +292,7 @@
     }
 
     .action-button i {
-        font-size: 16px;
+        font-size: 20px;
     }
 
     /* -------- Added Styles for Inline Voting -------- */
@@ -596,6 +385,10 @@
 
     window.addEventListener('scroll', handleScroll);
 
+
+const scrollContainer = document.querySelector('.home-main-scroll-wrapper');
+scrollContainer.addEventListener('scroll', handleScroll);
+
     /* Improved Scroll Handler */
     function handleScroll() {
         if (loading || !hasNext) return;
@@ -608,6 +401,7 @@
 
         // Trigger when post enters viewport
         if (top < window.innerHeight && bottom > 0) {
+        console.log("Trigger post in viewport, loading more...");
             loadMorePosts();
         }
     }
@@ -619,51 +413,48 @@
     }
 
     /* Fixed Infinite Scroll */
-    function loadMorePosts() {
-        loading = true;
-        const loadingEl = document.getElementById('loading');
-        if (loadingEl) loadingEl.style.display = 'block';
+function loadMorePosts() {
+    loading = true;
+    const loadingEl = document.getElementById('loading');
+    if (loadingEl) loadingEl.style.display = 'block';
 
-        // Get current URL parameters
-        const urlParams = new URLSearchParams(window.location.search);
-        const rising = urlParams.get('rising') === 'true';
+    // Request NEXT page (currentPage + 1)
+    fetch(`/posts/scroll?pageNumber=${currentPage + 1}&pageSize=${PAGE_SIZE}&sortBy=createdAt`)
+        .then(response => {
+            if (!response.ok) throw new Error('Network error');
+            return response.text();
+        })
+        .then(html => {
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = html;
 
-        // Request NEXT page with the same parameters
-        fetch(`/posts/scroll?pageNumber=${currentPage + 1}&pageSize=${PAGE_SIZE}&sortBy=createdAt&rising=${rising}`)
-            .then(response => {
-                if (!response.ok) throw new Error('Network error');
-                return response.text();
-            })
-            .then(html => {
-                const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = html;
+            const newPosts = tempDiv.querySelectorAll('.post-container');
+            const postList = document.getElementById('post-list');
 
-                const newPosts = tempDiv.querySelectorAll('.post-container');
-                const postList = document.getElementById('post-list');
+            // Append new posts
+            newPosts.forEach(post => postList.appendChild(post));
 
-                // Append new posts
-                newPosts.forEach(post => postList.appendChild(post));
+            // Update state
+            hasNext = newPosts.length === PAGE_SIZE;
+            currentPage++;  // Only increment AFTER successful load
 
-                // Update state
-                hasNext = newPosts.length === PAGE_SIZE;
-                currentPage++;  // Only increment AFTER successful load
+            // Update trigger index for next batch
+            nextTriggerIndex += PAGE_SIZE;
 
-                // Update trigger index for next batch
-                nextTriggerIndex += PAGE_SIZE;
+            // Initialize voting for new posts
+            initVoteState(postList);
+        })
+        .catch(err => {
+            console.error('Error loading posts:', err);
+            // Reset trigger index to retry
+            nextTriggerIndex -= PAGE_SIZE;
+        })
+        .finally(() => {
+            loading = false;
+            if (loadingEl) loadingEl.style.display = 'none';
+        });
+}
 
-                // Initialize voting for new posts
-                initVoteState(postList);
-            })
-            .catch(err => {
-                console.error('Error loading posts:', err);
-                // Reset trigger index to retry
-                nextTriggerIndex -= PAGE_SIZE;
-            })
-            .finally(() => {
-                loading = false;
-                if (loadingEl) loadingEl.style.display = 'none';
-            });
-    }
     /* ---------------
        VOTING
        --------------- */

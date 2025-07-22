@@ -30,7 +30,7 @@
             align-items: center;
             gap: 12px;
             padding: 10px 12px;
-            font-size: 14px;
+            font-size: 20px;
             color: #1c1c1c;
             text-decoration: none;
             border-radius: 6px;
@@ -57,7 +57,7 @@
         }
 
         .sidebar-link i {
-            font-size: 18px;
+            font-size: 22px;
             color: inherit;
             width: 20px;
             text-align: center;
@@ -267,21 +267,21 @@
     <div class="left-sidebar-container">
         <div class="sidebar">
             <!-- Top Navigation -->
-            <a href="/" class="sidebar-link active">
+            <a href="/posts" class="sidebar-link active">
                 <i class="fas fa-home"></i>
                 <span>Home</span>
             </a>
-            <a href="/posts?popular=true"  class="sidebar-link">
+            <a href="/posts?popular=true" class="sidebar-link">
                 <i class="fas fa-fire"></i>
                 <span>Popular</span>
             </a>
-            <a href="/explore" class="sidebar-link">
+            <a href="/posts?top=true" class="sidebar-link">
                 <i class="fas fa-compass"></i>
-                <span>Explore</span>
+                <span>Top</span>
             </a>
-            <a href="/all" class="sidebar-link">
+            <a href="/posts?rising=true" class="sidebar-link">
                 <i class="fas fa-globe"></i>
-                <span>All</span>
+                <span>Rising</span>
             </a>
 
             <!-- Recent Section -->
@@ -352,13 +352,7 @@
             if (el && header) {
                 const isShowing = el.classList.contains("show");
 
-                // Close all other dropdowns first (optional - for accordion behavior)
-                // document.querySelectorAll('.dropdown-content.show').forEach(dropdown => {
-                //     if (dropdown !== el) {
-                //         dropdown.classList.remove('show');
-                //         dropdown.previousElementSibling.classList.remove('open');
-                //     }
-                // });
+
 
                 // Toggle current dropdown
                 el.classList.toggle("show");

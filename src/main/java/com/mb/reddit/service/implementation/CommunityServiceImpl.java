@@ -95,6 +95,11 @@ public class CommunityServiceImpl implements CommunityService {
     }
 
     @Override
+    public Community getCommunityByName(String communityName) {
+        return communityRepository.findCommunityByName(communityName);
+    }
+
+    @Override
     public List<Community> getAllCommunities() {
         return communityRepository.findAll();
     }

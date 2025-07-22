@@ -87,4 +87,21 @@ public class CommunityController {
 
         return "community-profile";
     }
+
+    @GetMapping("/r/{communityName}")
+    public String getCommunity(@PathVariable String communityName, Model model,
+                                   @AuthenticationPrincipal User currentUser) {
+        Community community = communityService.getCommunityByName(communityName);
+        model.addAttribute("community", community);
+
+        boolean isCreator = currentUser != null &&
+                community.getCreator().getId().equals(currentUser.getId());
+        model.addAttribute("isCreator", isCreator);
+
+        boolean hasJoined = currentUser != null &&
+                community.getMembers().contains(currentUser);
+        model.addAttribute("hasJoined", hasJoined);
+
+        return "community-profile";
+    }
 }

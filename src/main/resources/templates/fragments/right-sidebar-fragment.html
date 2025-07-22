@@ -5,7 +5,7 @@
         .right-sidebar-container {
             font-family: 'Noto Sans', sans-serif;
             font-size: 16px;
-            background-color: transparent;
+            background-color: #f0f8ff; /* Very light blue */
             height: 100%;
         }
 
@@ -13,14 +13,43 @@
             width: 100%;
             padding: 1.5rem;
             margin-top: 0;
-            background-color: #ffffff;
+            background-color: #f8fbff; /* Light blue tint */
             border-radius: 8px;
             height: 100%;
-            overflow-y: auto;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
             font-family: Arial, sans-serif;
             box-sizing: border-box;
             max-height: calc(100vh - 76px);
+
+            /* Hide scrollbar by default */
+            scrollbar-width: none; /* Firefox */
+            overflow-y: hidden;
+        }
+
+        /* Chrome/Safari: hide scrollbar */
+        .post-sidebar::-webkit-scrollbar {
+            width: 0;
+            background: transparent;
+        }
+
+        /* Show scrollbar on hover */
+        .post-sidebar:hover {
+            scrollbar-width: thin; /* Firefox */
+            scrollbar-color: #c1c1c1 transparent;
+            overflow-y: auto;
+        }
+
+        .post-sidebar:hover::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .post-sidebar:hover::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+
+        .post-sidebar:hover::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
         }
 
         .sidebar-heading {
@@ -56,7 +85,7 @@
 
         .post-content {
             flex: 1;
-            min-width: 0; /* Prevent flex item from overflowing */
+            min-width: 0;
         }
 
         .post-header {
@@ -125,25 +154,6 @@
             border-radius: 6px;
         }
 
-        /* Custom scrollbar for the right sidebar */
-        .post-sidebar::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        .post-sidebar::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        .post-sidebar::-webkit-scrollbar-thumb {
-            background: #c1c1c1;
-            border-radius: 3px;
-        }
-
-        .post-sidebar::-webkit-scrollbar-thumb:hover {
-            background: #a8a8a8;
-        }
-
-        /* Empty state styling */
         .empty-state {
             text-align: center;
             padding: 2rem 1rem;
@@ -157,7 +167,6 @@
             color: #c1c1c1;
         }
 
-        /* Ensure proper spacing */
         .post-sidebar > *:last-child {
             margin-bottom: 0;
         }
@@ -173,7 +182,6 @@
                      th:onclick="|window.location.href='/posts/${post.id}'|">
                     <div class="post-content">
                         <div class="post-header">
-                            <!-- If you have an icon for community, add iconUrl in DTO, else remove this -->
                             <img th:src="${post.communityIconUrl}" alt="Community Icon"
                                  class="community-icon"
                                  onerror="this.onerror=null;this.src='https://via.placeholder.com/24x24/ff4500/ffffff?text=r';">
@@ -192,7 +200,6 @@
                              onerror="this.onerror=null;this.src='https://via.placeholder.com/70x70/f6f7f8/c1c1c1?text=IMG'">
                     </div>
                 </div>
-
             </div>
 
             <div th:if="${posts == null or #lists.isEmpty(posts)}" class="empty-state">

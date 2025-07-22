@@ -24,6 +24,8 @@ public interface CommunityService {
 
     Community getCommunityById(Long communityId);
 
+    Community getCommunityByName(String communityName);
+
     List<Community> getAllCommunities();
 
     List<Community> findCommunitiesUserCanPost();
