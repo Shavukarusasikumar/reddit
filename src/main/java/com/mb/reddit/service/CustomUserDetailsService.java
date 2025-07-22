@@ -1,5 +1,6 @@
 package com.mb.reddit.service;
 
+import com.mb.reddit.entity.CustomUserDetails;
 import com.mb.reddit.entity.User;
 import com.mb.reddit.repository.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -22,10 +23,6 @@ public class CustomUserDetailsService implements UserDetailsService {
 	public UserDetails loadUserByUsername(String username) {
 		User user = userRepository.findUserByUsername(username);
 
-		return new org.springframework.security.core.userdetails.User(
-				user.getUsername(),
-				user.getPassword(),
-				Collections.emptyList()
-		);
+		return new CustomUserDetails(user);
 	}
 }

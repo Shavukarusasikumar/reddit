@@ -1,13 +1,12 @@
 package com.mb.reddit.controller;
 
-import com.mb.reddit.entity.Comment;
-import com.mb.reddit.entity.Notification;
-import com.mb.reddit.entity.Post;
-import com.mb.reddit.entity.User;
+import com.mb.reddit.entity.*;
 import com.mb.reddit.service.CommentService;
 import com.mb.reddit.service.NotificationService;
-import com.mb.reddit.service.implementation.UserServiceImpl;
+
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -22,13 +21,11 @@ import java.util.List;
 public class CommentController {
 
     private final CommentService commentService;
-    private final UserServiceImpl userServiceImpl;
+
     private final NotificationService notificationService;
 
-    public CommentController(CommentService commentService, UserServiceImpl userServiceImpl,
-                             NotificationService notificationService) {
+    public CommentController(CommentService commentService, NotificationService notificationService) {
         this.commentService = commentService;
-        this.userServiceImpl = userServiceImpl;
         this.notificationService = notificationService;
     }
 
@@ -80,11 +77,14 @@ public class CommentController {
             @PathVariable Long postId,
             @RequestParam String content,
             @RequestParam(required = false) Long parentCommentId,
-            HttpServletRequest request, Authentication authentication) {
-
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return "redirect:/user/login?redirect=/posts/" + postId;
+            HttpServletRequest request) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()
+                || authentication.getPrincipal() instanceof String) {
+            return "redirect:/user/login";
         }
+
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 
         Comment comment = new Comment();
         comment.setContent(content);
@@ -92,10 +92,10 @@ public class CommentController {
         Comment savedComment = commentService.createComment(comment, postId, parentCommentId);
         Post post = savedComment.getPost();
 
-        if(!post.getAuthor().getUsername().equals(authentication.getName())){
+        if(!post.getAuthor().getUsername().equals(userDetails.getUsername())) {
             Notification notification = new Notification();
             notification.setRecipient(post.getAuthor());
-            notification.setMessage(authentication.getName() + " commented on your post.");
+            notification.setMessage(userDetails.getUsername() + " commented on your post.");
             notification.setType("COMMENT");
             notification.setRead(false);
             notification.setTimestamp(LocalDateTime.now());

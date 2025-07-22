@@ -26,7 +26,9 @@ public interface PostVoteRepository extends JpaRepository<PostVote, Long> {
     @Query("SELECT COUNT(pv) FROM PostVote pv WHERE pv.post.id = :postId AND pv.isLike = :isLike")
     Integer countByPostIdAndIsLike(@Param("postId") Long postId, @Param("isLike") Boolean isLike);
 
-    Optional<PostVote> findByUserAndPost(User user, Post post);
+    @Query("SELECT pv FROM PostVote pv WHERE pv.user.id = :userId AND pv.post.id = :postId")
+    Optional<PostVote> findByUserIdAndPostId(@Param("userId") Long userId, @Param("postId") Long postId);
+
 
     @Query("SELECT p FROM PostVote p WHERE p.user.id = :userId AND p.post.id IN :postIds")
     List<PostVote> findByUserIdAndPostIds(@Param("userId") Long userId, @Param("postIds") List<Long> postIds);

@@ -2,11 +2,13 @@ package com.mb.reddit.service.implementation;
 
 import com.mb.reddit.entity.Comment;
 import com.mb.reddit.entity.CommentVote;
+import com.mb.reddit.entity.CustomUserDetails;
 import com.mb.reddit.entity.User;
 import com.mb.reddit.repository.CommentRepository;
 import com.mb.reddit.repository.CommentVoteRepository;
 import com.mb.reddit.repository.UserRepository;
 import com.mb.reddit.service.CommentVoteService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -34,22 +36,22 @@ public class CommentVoteServiceImpl implements CommentVoteService {
 	}
 
 	@Override
-	@Transactional
-	public void addUpVoteByCommentId(Long commentId, User user) {
-		handleVote(commentId, true, user);
+	public void addUpVoteByCommentId(Long commentId, Long userId) {
+		handleVote(commentId, true, userId);
 	}
 
 	@Override
 	@Transactional
-	public void addDownVoteByCommentId(Long commentId, User user) {
-		handleVote(commentId, false, user);
+	public void addDownVoteByCommentId(Long commentId, Long userId) {
+		handleVote(commentId, false, userId);
 	}
 
-	private void handleVote(Long commentId, boolean isUpvote, User user) {
+	private void handleVote(Long commentId, boolean isUpvote, Long userId) {
 		Comment comment = commentRepository.findById(commentId)
 				.orElseThrow(() -> new RuntimeException("Comment not found"));
 
-		Optional<CommentVote> existingVote = commentVoteRepository.findByUserIdAndCommentId(user.getId(), commentId);
+		Optional<CommentVote> existingVote = commentVoteRepository.findByUserIdAndCommentId(userId, commentId);
+        User user = userServiceImpl.getCurrentUser();
 
 		if (existingVote.isPresent()) {
 			CommentVote vote = existingVote.get();
@@ -76,20 +78,21 @@ public class CommentVoteServiceImpl implements CommentVoteService {
 
 	@Override
 	@Transactional
-	public void removeVoteByCommentId(Long commentId, User user) {
-		commentVoteRepository.findByUserIdAndCommentId(user.getId(), commentId)
+	public void removeVoteByCommentId(Long commentId, Long userId) {
+		commentVoteRepository.findByUserIdAndCommentId(userId, commentId)
 				.ifPresent(commentVoteRepository::delete);
 	}
 
 	@Override
 	public Boolean getVoteStatusByCommentId(Long commentId) {
-		User user = userServiceImpl.getLoggedInUser();
-
-		if (user == null) {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication == null || !authentication.isAuthenticated() ||
+				authentication.getPrincipal() instanceof String) {
 			return false;
 		}
+		CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 
-		return commentVoteRepository.findByUserIdAndCommentId(user.getId(), commentId)
+		return commentVoteRepository.findByUserIdAndCommentId(userDetails.getId(), commentId)
 				.map(CommentVote::getIsLike)
 				.orElse(null);
 	}
@@ -102,13 +105,15 @@ public class CommentVoteServiceImpl implements CommentVoteService {
 	}
 
 	@Override
-	public Boolean getVoteStatusByCommentIdAndUsername(Long commentId, String username) {
-		if (username == null) return null;
+	public Boolean getVoteStatusByCommentIdAndCurrentUser(Long commentId) {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication == null || !authentication.isAuthenticated() ||
+				authentication.getPrincipal() instanceof String) {
+			return null;
+		}
+		CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 
-		User user = userRepository.findUserByUsername(username);
-		if (user == null) return null;
-
-		return commentVoteRepository.findByUserIdAndCommentId(user.getId(), commentId)
+		return commentVoteRepository.findByUserIdAndCommentId(userDetails.getId(), commentId)
 				.map(CommentVote::getIsLike)
 				.orElse(null);
 	}

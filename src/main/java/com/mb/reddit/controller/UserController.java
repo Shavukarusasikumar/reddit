@@ -116,15 +116,12 @@ public class UserController {
 
 	@GetMapping("/user")
 	public String getUserProfilePage(Model model){
-		//User user = userService.getCurrentUser();
+		User user = userService.getCurrentUser();
+     if(user == null){
+                return "redirect:/user/login";
+        }
 
-		User user = new User();//TODO :current user is null so just checking
-		user.setId(1L);
-		user.setUsername("Sanjeet Ji");
-		user.setProfilePicture("https://i.pravatar.cc/100?img=5%22");
-		user.setBio("User's Bio");
-
-        int notificationCount = notificationService.getNotificationCount();
+        Integer notificationCount = notificationService.getNotificationCount();
         model.addAttribute("notificationCount", notificationCount);
 
 		model.addAttribute("user", user);

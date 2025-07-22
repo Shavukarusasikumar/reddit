@@ -11,7 +11,6 @@ import java.util.List;
 
 public interface UserService {
 
-
     void addPostToUserSavedPosts(Long postId);
     void adduserToCommunityByCommunityId(Long communityId);
     void removeUserFromCommunityByCommunityId(Long communityId);

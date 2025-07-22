@@ -3,10 +3,10 @@ package com.mb.reddit.service;
 import com.mb.reddit.entity.User;
 
 public interface CommentVoteService {
-	void addUpVoteByCommentId(Long commentId, User user);
-	void addDownVoteByCommentId(Long commentId, User user);
-	void removeVoteByCommentId(Long commentId, User user);
+	void addUpVoteByCommentId(Long commentId, Long userId);
+	void addDownVoteByCommentId(Long commentId, Long userId);
+	void removeVoteByCommentId(Long commentId, Long userId);
 	Boolean getVoteStatusByCommentId(Long commentId);
 	Long getPostIdForComment(Long commentId);
-	Boolean getVoteStatusByCommentIdAndUsername(Long commentId, String username);
+	Boolean getVoteStatusByCommentIdAndCurrentUser(Long commentId);
 }

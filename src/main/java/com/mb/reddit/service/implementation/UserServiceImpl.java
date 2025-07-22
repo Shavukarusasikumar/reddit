@@ -1,9 +1,6 @@
 package com.mb.reddit.service.implementation;
 
-import com.mb.reddit.entity.Comment;
-import com.mb.reddit.entity.Community;
-import com.mb.reddit.entity.Post;
-import com.mb.reddit.entity.User;
+import com.mb.reddit.entity.*;
 import com.mb.reddit.repository.CommunityRepository;
 import com.mb.reddit.repository.PostRepository;
 import com.mb.reddit.repository.UserRepository;
@@ -231,8 +228,14 @@ public class UserServiceImpl implements UserService {
 
     public User getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()
+                || authentication.getPrincipal() instanceof String) {
+            return null;
+        }
 
-        return userRepository.findUserByUsername(authentication.getName());
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        return userRepository.findById(userDetails.getId())
+                .orElseThrow(() -> new RuntimeException("No User Found With Id: " + userDetails.getId()));
     }
 
 
@@ -252,8 +255,8 @@ public class UserServiceImpl implements UserService {
 
     public User getLoggedInUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication == null || !authentication.isAuthenticated()) {
+        if (authentication == null || !authentication.isAuthenticated() ||
+                authentication.getPrincipal() instanceof String) {
             return null;
         }
 

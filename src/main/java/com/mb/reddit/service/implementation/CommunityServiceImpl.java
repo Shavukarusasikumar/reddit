@@ -1,11 +1,13 @@
 package com.mb.reddit.service.implementation;
 
 import com.mb.reddit.entity.Community;
+import com.mb.reddit.entity.CustomUserDetails;
 import com.mb.reddit.entity.User;
 import com.mb.reddit.repository.CommunityRepository;
 import com.mb.reddit.repository.UserRepository;
 import com.mb.reddit.service.CommunityService;
-import com.mb.reddit.service.UserService;
+
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -106,19 +108,30 @@ public class CommunityServiceImpl implements CommunityService {
 
     @Override
     public List<Community> findUserJoinedCommunities() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated() ||
+                authentication.getPrincipal() instanceof String) {
+            return new ArrayList<>();
+        }
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Long userId = userDetails.getId();
 
-        User user = userService.getLoggedInUser();
 
-        return communityRepository.findUserCommunities(user.getUsername());
+        return communityRepository.findUserCommunities(userId);
     }
 
     @Override
     public List<Community> findCommunitiesUserCanPost() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String username = auth.getName();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated() ||
+                authentication.getPrincipal() instanceof String) {
+            return new ArrayList<>();
+        }
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Long userId = userDetails.getId();
 
         List<Community> result = new ArrayList<>(communityRepository.findPublicCommunities());
-        result.addAll(communityRepository.findUserCommunities(username));
+        result.addAll(communityRepository.findUserCommunities(userId));
 
         return result.stream().distinct().toList();
     }

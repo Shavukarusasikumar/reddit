@@ -23,14 +23,14 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     @Query("SELECT n FROM Notification n WHERE n.recipient = :recipient AND n.post = :post AND n.type = :type")
     Notification findTopByRecipientAndPostAndType(User author, Post post, String type);
 
-    @Query("SELECT COUNT(n) FROM Notification n WHERE n.recipient = :user AND n.read = false")
-    int countUnreadNotifications(User user);
+    @Query("SELECT COUNT(n) FROM Notification n WHERE n.recipient.id = :userId AND n.read = false")
+    int countUnreadNotificationsByUserId(@Param("userId") Long userId);
 
-    @Query("SELECT n FROM Notification n WHERE n.recipient = :currentUser")
-    Page<Notification> getAllNotificationsByUser(@Param("currentUser") User currentUser, Pageable pageable);
+    @Query("SELECT n FROM Notification n WHERE n.recipient.id = :userId")
+    Page<Notification> getAllNotificationsByUser(@Param("userId") Long userId, Pageable pageable);
 
     @Modifying
-    @Query("UPDATE Notification n SET n.read = true WHERE n.recipient = :currentUser AND n.read = false")
-    void markAllAsReadForUser(@Param("currentUser") User currentUser);
+    @Query("UPDATE Notification n SET n.read = true WHERE n.recipient = :userId AND n.read = false")
+    void markAllAsReadForUser(@Param("userId") Long userId);
 }
 

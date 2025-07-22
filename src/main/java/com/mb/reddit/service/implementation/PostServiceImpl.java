@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -49,36 +50,35 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Page<PostWithVotesDTO> getAllPost(int pageNumber, int pageSize, String sortBy, boolean rising, boolean top, boolean isNew, boolean popular) {
-
+    public Page<PostWithVotesDTO> getAllPost(int pageNumber, int pageSize, String sortBy,
+                                             boolean rising, boolean top, boolean isNew,
+                                             boolean popular) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
         LocalDateTime timeThreshold = LocalDateTime.now().minusHours(96);
 
         Page<PostWithVotesDTO> page;
-        if(isNew) {
+        if (isNew) {
             page = postRepository.findNewPosts(pageable);
-        }
-        else if(top) {
+        } else if (top) {
             page = postRepository.findTopPosts(pageable);
-        }
-        else if(rising) {
+        } else if (rising) {
             page = postRepository.findRisingPosts(timeThreshold, pageable);
-        }
-        else if(popular) {
+        } else if (popular) {
             page = postRepository.findPopularPosts(pageable);
-        }
-        else {
+        } else {
             page = postRepository.findNewPosts(pageable);
         }
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if(authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getName())) {
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getName())) {
             return page;
         }
 
-        String username = authentication.getName();
-        User user = userRepository.findUserByUsername(username);
-        if(user == null) {
+
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Long userId = userDetails.getId();
+        if (userId == null) {
+            System.out.println("Total time (user not found): " + (System.currentTimeMillis() - start) + " ms");
             return page;
         }
 
@@ -94,6 +94,8 @@ public class PostServiceImpl implements PostService {
         }
 
         List<PostVote> userVotes = postVoteRepository.findByUserIdAndPostIds(user.getId(), postIds);
+        Map<Long, Boolean> voteMap = userVotes.stream()
+                .collect(Collectors.toMap(vote -> vote.getPost().getId(), PostVote::getIsLike));
 
         Map<Long, Boolean> voteMap = new HashMap<>();
         for(PostVote vote : userVotes) {
@@ -126,11 +128,13 @@ public class PostServiceImpl implements PostService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = userRepository.findUserByUsername(authentication.getName());
 
-        if (media != null && !media.isEmpty()) {
+        if(media != null) {
             try {
                 String mediaUrl = cloudinaryService.uploadFile(media);
                 post.setMediaUrl(mediaUrl);
-            } catch (IOException exception) {
+                post.setCreatedAt(LocalDateTime.now());
+                post.setIsPublished(true);
+            } catch(IOException exception) {
                 throw new RuntimeException("Failed to upload media", exception);
             }
         }
@@ -144,6 +148,7 @@ public class PostServiceImpl implements PostService {
         post.setCreatedAt(LocalDateTime.now());
         post.setUpdatedAt(LocalDateTime.now());
         post.setCommunity(community);
+
         return postRepository.save(post);
     }
 

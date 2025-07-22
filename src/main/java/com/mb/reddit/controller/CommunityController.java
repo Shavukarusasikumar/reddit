@@ -7,7 +7,9 @@ import com.mb.reddit.service.CommunityService;
 import com.mb.reddit.service.TopicService;
 
 import com.mb.reddit.service.UserService;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +25,8 @@ public class CommunityController {
     private final TopicService topicService;
     private final UserService userService;
 
-    public CommunityController(CommunityService communityService , TopicService topicService, UserService userService) {
+    public CommunityController(CommunityService communityService , TopicService topicService,
+                               UserService userService) {
         this.communityService = communityService;
         this.topicService = topicService;
         this.userService = userService;
@@ -72,8 +75,9 @@ public class CommunityController {
     }
 
     @GetMapping("/community/r/{communityId}")
-    public String getCommunityView(@PathVariable Long communityId, Model model,
-                                   @AuthenticationPrincipal User currentUser) {
+    public String getCommunityView(@PathVariable Long communityId, Model model) {
+        User currentUser = userService.getCurrentUser();
+
         Community community = communityService.getCommunityById(communityId);
         model.addAttribute("community", community);
 

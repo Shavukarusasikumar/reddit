@@ -10,6 +10,7 @@ import com.mb.reddit.repository.PostRepository;
 import com.mb.reddit.repository.UserRepository;
 import com.mb.reddit.service.CommentService;
 import org.hibernate.Hibernate;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -25,16 +26,13 @@ public class CommentServiceImpl implements CommentService {
 
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
-    private final UserRepository userRepository;
     private final CommentVoteRepository commentVoteRepository;
     private final UserServiceImpl userServiceImpl;
 
     public CommentServiceImpl(CommentRepository commentRepository, PostRepository postRepository,
-                              UserRepository userRepository, CommentVoteRepository commentVoteRepository,
-                              UserServiceImpl userServiceImpl) {
+                              CommentVoteRepository commentVoteRepository, UserServiceImpl userServiceImpl) {
         this.commentRepository = commentRepository;
         this.postRepository = postRepository;
-        this.userRepository = userRepository;
         this.commentVoteRepository = commentVoteRepository;
         this.userServiceImpl = userServiceImpl;
     }
@@ -45,7 +43,7 @@ public class CommentServiceImpl implements CommentService {
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
 
-        User user = userServiceImpl.getLoggedInUser();
+        User user = userServiceImpl.getCurrentUser();
 
         comment.setPost(post);
         comment.setUser(user);
@@ -71,6 +69,7 @@ public class CommentServiceImpl implements CommentService {
         }
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
         String username = authentication.getName();
 
         if (!username.equals(optionalComment.get().getUser().getUsername())) {

@@ -1,14 +1,12 @@
 package com.mb.reddit.service.implementation;
 
-import com.mb.reddit.entity.Notification;
-import com.mb.reddit.entity.Post;
-import com.mb.reddit.entity.PostVote;
-import com.mb.reddit.entity.User;
+import com.mb.reddit.entity.*;
 import com.mb.reddit.repository.NotificationRepository;
 import com.mb.reddit.repository.PostRepository;
 import com.mb.reddit.repository.PostVoteRepository;
 import com.mb.reddit.repository.UserRepository;
 import com.mb.reddit.service.PostVoteService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -25,9 +23,11 @@ public class PostVoteServiceImpl implements PostVoteService {
     private final UserServiceImpl userServiceImpl;
     private final NotificationRepository notificationRepository;
 
-    public PostVoteServiceImpl(PostVoteRepository postVoteRepository, PostRepository postRepository,
-                               UserRepository userRepository, UserServiceImpl userServiceImpl,
-                               NotificationRepository notificationRepository) {
+    public PostVoteServiceImpl(PostVoteRepository postVoteRepository,
+                               PostRepository postRepository,
+                               UserRepository userRepository,
+                               NotificationRepository notificationRepository,
+                               UserServiceImpl userServiceImpl) {
         this.postVoteRepository = postVoteRepository;
         this.postRepository = postRepository;
         this.userRepository = userRepository;
@@ -38,20 +38,25 @@ public class PostVoteServiceImpl implements PostVoteService {
     @Override
     @Transactional
     public void addVoteByPostId(Long postId, Boolean isLike) {
+        System.out.println("----------------------------Starting Vote Process for Post: " + postId + " IsLike: " + isLike + "-------------------------------------");
+
         Post post = postRepository.findById(postId).orElseThrow(() -> new RuntimeException("Post not found " + postId));
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
-        User currentUser = userRepository.findUserByUsername("shruti_dev"); //TODO Change it to username
+        User currentUser = userServiceImpl.getLoggedInUser();
 
         PostVote postVote = postVoteRepository.getPostVoteByUserIdAndPostId(currentUser.getId(),
                 postId).orElse(new PostVote());
+
+        System.out.println("----------------------------Found existing vote: " + (postVote.getId() != null) + "-------------------------------------");
 
         postVote.setPost(post);
         postVote.setUser(currentUser);
         postVote.setIsLike(isLike);
         postVote.setLikedAt(LocalDateTime.now());
         postVoteRepository.save(postVote);
+        System.out.println("----------------------------Vote Saved Successfully ---------------------------------------------");
 
         if(postVote.getIsLike()){
             String type = "UPVOTE";
@@ -73,36 +78,34 @@ public class PostVoteServiceImpl implements PostVoteService {
     @Override
     @Transactional
     public void removeVoteByPostId(Long postId) {
-        User currentUser = userServiceImpl.getLoggedInUser();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated() ||
+                authentication.getPrincipal() instanceof String) {
+        }else{
+            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+            Long userId = userDetails.getId();
 
-        if (currentUser == null) {
-            return;
+            postVoteRepository.findByUserIdAndPostId(userId, postId)
+                    .ifPresent(vote -> {
+                        postVoteRepository.delete(vote);
+                        System.out.println("----------------------------Vote Removed ---------------------------------------------");
+                    });
         }
-
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new RuntimeException("Post not found"));
-
-        postVoteRepository.findByUserAndPost(currentUser, post)
-                .ifPresent(vote -> {
-                    postVoteRepository.delete(vote);
-                    System.out.println("----------------------------Vote Removed ---------------------------------------------");
-                });
     }
 
     @Override
     public Boolean getVoteStatusByPostId(Long postId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated()) {
+
+        if(authentication == null || !authentication.isAuthenticated() ||
+                authentication.getPrincipal() instanceof String) {
             return null;
         }
 
-        String username = authentication.getName();
-        User currentUser = userRepository.findUserByUsername(username);
-        User user = userRepository.findUserByUsername(username);
-        Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new RuntimeException("Post not found"));
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Long userId = userDetails.getId();
 
-        return postVoteRepository.findByUserAndPost(currentUser, post)
+        return postVoteRepository.findByUserIdAndPostId(userId, postId)
                 .map(PostVote::getIsLike)
                 .orElse(null);
     }

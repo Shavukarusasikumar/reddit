@@ -1,7 +1,7 @@
 package com.mb.reddit.service.implementation;
 
+import com.mb.reddit.entity.CustomUserDetails;
 import com.mb.reddit.entity.Notification;
-import com.mb.reddit.entity.User;
 import com.mb.reddit.repository.NotificationRepository;
 import com.mb.reddit.service.NotificationService;
 import com.mb.reddit.service.UserService;
@@ -10,6 +10,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -29,27 +31,36 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public int getNotificationCount() {
-        User user = userService.getUserById(2L);
-       // User user = userService.getCurrentUser(); TODO : uncomment this and make above commented
-        if(user == null){
-            return 0;
+    public Integer getNotificationCount() {
+        long getUserTimeStart = System.currentTimeMillis();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated() ||
+                authentication.getPrincipal() instanceof String) {
+            return null;
         }
-        int notificationCount = notificationRepository.countUnreadNotifications(user);
+
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Long userId = userDetails.getId();
+        long getUserTimeStop = System.currentTimeMillis();
+
+        System.out.println("Fetch User Time : " + (getUserTimeStop - getUserTimeStart ) + " ms" );
+
+        int notificationCount = notificationRepository.countUnreadNotificationsByUserId(userId);
         return notificationCount;
     }
 
     @Override
-    public Page<Notification> getAllNotifications(int pageNumber, int pageSize, User currentUser) {
+    public Page<Notification> getAllNotifications(int pageNumber, int pageSize, Long userId) {
         Sort sort = Sort.by("timestamp").descending();
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
 
-        return notificationRepository.getAllNotificationsByUser(currentUser, pageable);
+        return notificationRepository.getAllNotificationsByUser(userId, pageable);
     }
 
     @Override
     @Transactional
-    public void markAllAsReadForUser(User currentUser) {
-        notificationRepository.markAllAsReadForUser(currentUser);
+    public void markAllAsReadForUser(Long userId) {
+        notificationRepository.markAllAsReadForUser(userId);
     }
 }

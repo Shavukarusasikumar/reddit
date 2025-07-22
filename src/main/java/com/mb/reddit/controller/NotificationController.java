@@ -1,10 +1,13 @@
 package com.mb.reddit.controller;
 
+import com.mb.reddit.entity.CustomUserDetails;
 import com.mb.reddit.entity.Notification;
 import com.mb.reddit.entity.User;
 import com.mb.reddit.service.NotificationService;
 import com.mb.reddit.service.UserService;
 import org.springframework.data.domain.Page;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,16 +28,20 @@ public class NotificationController {
     public String getAllNotifications(@RequestParam(defaultValue = "0") int pageNumber,
                                       @RequestParam(defaultValue = "20") int pageSize,
                                       Model model){
-        User currentUser = userService.getUserById(2L);
-
-
-       // User currentUser = userService.getCurrentUser();
-        if(currentUser == null){
-            return "redirect:/login";
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated() ||
+                authentication.getPrincipal() instanceof String) {
+            return "redirect:/user/login";
         }
+        long getUserTimeStart = System.currentTimeMillis();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Long userId = userDetails.getId();
+        long getUserTimeStop = System.currentTimeMillis();
+        System.out.println("Fetch User Time : " + (getUserTimeStop - getUserTimeStart ) + " ms" );
 
-        Page<Notification> notifications = notificationService.getAllNotifications(pageNumber, pageSize, currentUser);
-        notificationService.markAllAsReadForUser(currentUser);
+
+        Page<Notification> notifications = notificationService.getAllNotifications(pageNumber, pageSize, userId);
+        notificationService.markAllAsReadForUser(userId);
 
         model.addAttribute("notifications", notifications);
         model.addAttribute("totalPages", notifications.getTotalPages());

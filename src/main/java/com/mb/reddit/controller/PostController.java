@@ -1,10 +1,7 @@
 package com.mb.reddit.controller;
 
 import com.mb.reddit.dto.PostWithVotesDTO;
-import com.mb.reddit.entity.Comment;
-import com.mb.reddit.entity.Community;
-import com.mb.reddit.entity.Flair;
-import com.mb.reddit.entity.Post;
+import com.mb.reddit.entity.*;
 import com.mb.reddit.service.*;
 import com.mb.reddit.entity.User;
 import com.mb.reddit.service.CommunityService;
@@ -16,6 +13,7 @@ import com.mb.reddit.service.implementation.UserServiceImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.Authentication;
+import com.mb.reddit.service.UserService;
 import org.springframework.ui.Model;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
@@ -43,7 +41,6 @@ public class PostController {
     public final NotificationService notificationService;
     public final UserServiceImpl userServiceImpl;
 
-
     public PostController(PostService postService, UserService userService,
                           CommunityService communityService, FlairService flairService,
                           CommentService commentService, PostVoteService postVoteService,
@@ -54,8 +51,8 @@ public class PostController {
         this.userService = userService;
         this.communityService = communityService;
         this.flairService = flairService;
-        this.notificationService = notificationService;
         this.userServiceImpl = userServiceImpl;
+        this.notificationService = notificationService;
     }
 
     @GetMapping("/new-post")
@@ -104,8 +101,10 @@ public class PostController {
         List<Community> recentCommunities = joinedCommunities.stream().limit(5).toList();
 
         List<PostWithVotesDTO> latest10Posts = posts.getContent();
-
-        int notificationCount = notificationService.getNotificationCount();
+        long startNotification = System.currentTimeMillis();
+            Integer notificationCount = notificationService.getNotificationCount();
+        long stopNotification = System.currentTimeMillis();
+            System.out.println("notification count time: " + (stopNotification - startNotification));
 
         model.addAttribute("notificationCount", notificationCount);
 
@@ -142,6 +141,7 @@ public class PostController {
         model.addAttribute("isNew", isNew);
         model.addAttribute("popular", popular);
 
+        // return the lightweight fragment
         return "home";
     }
 
@@ -165,20 +165,22 @@ public class PostController {
             commentVotes.put(comment.getId(), voteCount);
         }
 
-        boolean isAuthenticated = authentication != null && authentication.isAuthenticated();
+        boolean isAuthenticated = authentication != null && authentication.isAuthenticated()
+                && !(authentication.getPrincipal() instanceof String);
+
         model.addAttribute("isAuthenticated", isAuthenticated);
         boolean isJoined = false;
         if (isAuthenticated) {
-            User currentUser = userService.getCurrentUser();
-            if (currentUser != null) {
+            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+            if (owner.getUsername().equals(userDetails.getUsername())) {
                 isJoined = userService.hasUserJoinedCommunity(community);
             }
         }
         boolean isSaved = false;
         if (isAuthenticated) {
-            User currentUser = userServiceImpl.getLoggedInUser();
-            if (currentUser != null) {
-                isSaved = userService.isPostSavedByUser(postId, currentUser.getId());
+            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+            if (userDetails != null) {
+                isSaved = userService.isPostSavedByUser(postId, userDetails.getId());
             }
         }
         model.addAttribute("isSaved", isSaved);
@@ -249,13 +251,14 @@ public class PostController {
     @PostMapping("/save/{postId}")
     @ResponseBody
     public ResponseEntity<String> savePost(@PathVariable("postId") Long postId, Authentication authentication) {
-        if (authentication == null || !authentication.isAuthenticated()) {
+        if (authentication == null || !authentication.isAuthenticated() ||
+                authentication.getPrincipal() instanceof String) {
             return ResponseEntity.status(401).body("Authentication required");
         }
 
         try {
-            User currentUser = userService.getCurrentUser();
-            userService.addPostToUserSavedPosts(postId, currentUser.getId());
+            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+            userService.addPostToUserSavedPosts(postId, userDetails.getId());
             return ResponseEntity.ok("Post saved successfully");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error saving post: " + e.getMessage());
@@ -265,13 +268,14 @@ public class PostController {
     @PostMapping("/unsave/{postId}")
     @ResponseBody
     public ResponseEntity<String> unsavePost(@PathVariable("postId") Long postId, Authentication authentication) {
-        if (authentication == null || !authentication.isAuthenticated()) {
+        if (authentication == null || !authentication.isAuthenticated() ||
+                authentication.getPrincipal() instanceof String) {
             return ResponseEntity.status(401).body("Authentication required");
         }
 
         try {
-            User currentUser = userService.getCurrentUser();
-            userService.removePostFromUserSavedPosts(postId, currentUser.getId());
+            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+            userService.removePostFromUserSavedPosts(postId, userDetails.getId());
             return ResponseEntity.ok("Post unsaved successfully");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error unsaving post: " + e.getMessage());
