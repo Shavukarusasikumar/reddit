@@ -24,14 +24,17 @@ public interface PostRepository extends JpaRepository<Post, Long> {
         p.content, 
         p.mediaUrl, 
         p.community.name, 
+        p.community.iconUrl,
         p.createdAt,
         SUM(CASE WHEN v.isLike = true THEN 1 ELSE 0 END),
-        SUM(CASE WHEN v.isLike = false THEN 1 ELSE 0 END)
-            )
+        SUM(CASE WHEN v.isLike = false THEN 1 ELSE 0 END),
+        COUNT(c)
+    )
             FROM Post p
             LEFT JOIN p.postVotes v
+            LEFT JOIN p.comments c
             WHERE p.isPublished = true AND p.community.isPrivate = false
-            GROUP BY p.id, p.title, p.content, p.mediaUrl, p.community.name, p.createdAt
+            GROUP BY p.id, p.title, p.content, p.mediaUrl, p.community.name, p.community.iconUrl, p.createdAt
             ORDER BY p.createdAt DESC
         """)
     Page<PostWithVotesDTO> findAllPublicPublishedPosts(Pageable pageable);

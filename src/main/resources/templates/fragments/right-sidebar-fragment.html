@@ -173,16 +173,17 @@
                      th:onclick="|window.location.href='/posts/${post.id}'|">
                     <div class="post-content">
                         <div class="post-header">
-                            <img th:src="${post.community.iconUrl}" alt="Community Icon"
+                            <!-- If you have an icon for community, add iconUrl in DTO, else remove this -->
+                            <img th:src="${post.communityIconUrl}" alt="Community Icon"
                                  class="community-icon"
                                  onerror="this.onerror=null;this.src='https://via.placeholder.com/24x24/ff4500/ffffff?text=r';">
                             <span class="community-name"
-                                  th:text="'r/' + ${post.community.name}">Community</span>
+                                  th:text="|r/${post.communityName}|">Community</span>
                         </div>
                         <div class="post-title" th:text="${post.title}">Post Title</div>
                         <div class="post-meta">
-                            <span th:text="${#lists.size(post.postVotes)} + ' upvotes'"></span> ·
-                            <span th:text="${#lists.size(post.comments)} + ' comments'"></span>
+                            <span th:text="${post.voteCount} + ' upvotes'"></span> ·
+                            <span th:text="${post.commentCount} + ' comments'"></span>
                         </div>
                     </div>
 
@@ -191,6 +192,7 @@
                              onerror="this.onerror=null;this.src='https://via.placeholder.com/70x70/f6f7f8/c1c1c1?text=IMG'">
                     </div>
                 </div>
+
             </div>
 
             <div th:if="${posts == null or #lists.isEmpty(posts)}" class="empty-state">

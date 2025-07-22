@@ -16,7 +16,6 @@ import com.mb.reddit.service.implementation.UserServiceImpl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import com.mb.reddit.service.UserService;
-import org.springframework.security.core.Authentication;
 import org.springframework.ui.Model;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
@@ -27,10 +26,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
 
 @Controller
 public class PostController {

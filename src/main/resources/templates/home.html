@@ -291,11 +291,11 @@
 
 <!-- Main Layout Container -->
 <div class="home-wrapper">
-    <!-- Left Sidebar (Sticky) -->
+<!--    &lt;!&ndash; Left Sidebar (Sticky) &ndash;&gt;-->
     <aside class="home-left"
            th:replace="fragments/left-sidebar-fragment :: leftSidebar(${communities}, ${recentCommunities})"></aside>
 
-    <!-- Main Content Area -->
+<!--    &lt;!&ndash; Main Content Area &ndash;&gt;-->
     <main class="home-main">
         <!-- Sort Tabs (like Reddit) -->
         <div class="sort-tabs">
@@ -311,11 +311,16 @@
                 <div class="post-content-area">
                     <div class="post-header">
                         <div class="post-header-left">
-                            <a th:href="@{'/r/' + ${post.community.name}}"
-                               th:text="'r/' + ${post.community.name}"
+                            <img class="community-icon"
+                                 th:src="${post.communityIconUrl}"
+                                 alt="Community Icon"
+                                 onerror="this.onerror=null;this.src='https://via.placeholder.com/20x20/ff4500/ffffff?text=r';" />
+                            <a th:href="@{|/r/${post.communityName}|}"
+                               th:text="|r/${post.communityName}|"
                                class="community-link"></a>
                             <span class="post-time" th:text="' • ' + ${post.showTime}"></span>
                         </div>
+
                     </div>
 
                     <a th:href="@{/posts/{id}(id=${post.id})}" class="post-link">
@@ -346,7 +351,7 @@
 
                         <a th:href="@{/posts/{id}(id=${post.id})}" class="action-button comment-btn">
                             <i class="fa-regular fa-comment"></i>
-                            <span th:text="${post.comments.size()} + ' Comments'">0 Comments</span>
+                            <span th:text="${post.commentCount} + ' Comments'">0 Comments</span>
                         </a>
 
                         <span class="dot-separator">•</span>
@@ -368,7 +373,7 @@
         </div>
     </main>
 
-    <!-- Right Sidebar (Sticky) -->
+<!--    &lt;!&ndash; Right Sidebar (Sticky) &ndash;&gt;-->
     <aside class="home-right"
            th:replace="fragments/right-sidebar-fragment :: rightSidebar(${recentPosts})"></aside>
 </div>

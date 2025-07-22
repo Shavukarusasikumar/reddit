@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
-import com.mb.reddit.utils.TimeAgoUtils;
 
 @NoArgsConstructor
 @Getter
@@ -20,17 +19,23 @@ public class PostWithVotesDTO {
     private int voteCount;
     private LocalDateTime createdAt;
     private String showTime;
+    private Long commentCount;
+    private Boolean isLiked;
+    private String communityIconUrl;
 
     public PostWithVotesDTO(Long id, String title, String content, String mediaUrl,
-                            String communityName, LocalDateTime createdAt,
-                            Long upVotes, Long downVotes) {
+                            String communityName, String communityIconUrl,
+                            LocalDateTime createdAt, Long upVotes, Long downVotes, Long commentCount) {
         this.id = id;
         this.title = title;
         this.content = content;
         this.mediaUrl = mediaUrl;
         this.communityName = communityName;
+        this.communityIconUrl = communityIconUrl;
         this.voteCount = (int) (upVotes - downVotes);
         this.createdAt = createdAt;
         this.showTime = com.mb.reddit.utils.TimeAgoUtils.getTimeAgo(createdAt);
+        this.commentCount = commentCount != null ? commentCount : 0L;
+        this.isLiked = null;
     }
 }

@@ -20,7 +20,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class PostServiceImpl implements PostService {
@@ -52,13 +54,56 @@ public class PostServiceImpl implements PostService {
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
 
         long start = System.currentTimeMillis();
-        Page<PostWithVotesDTO> postsPage = postRepository.findAllPublicPublishedPosts(pageable);
-        long dbTime = System.currentTimeMillis();
 
-        System.out.println("Service: DB fetch time: " + (dbTime - start) + " ms");
+        // Step 1: Fetch posts
+        Page<PostWithVotesDTO> postsPage = postRepository.findAllPublicPublishedPosts(pageable);
+        long postsFetchedTime = System.currentTimeMillis();
+        System.out.println("DB Fetch (Posts) time: " + (postsFetchedTime - start) + " ms");
+
+        // Step 2: Check Authentication
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getName())) {
+            System.out.println("Total time (without user vote check): " + (System.currentTimeMillis() - start) + " ms");
+            return postsPage;
+        }
+
+        String username = authentication.getName();
+        User user = userRepository.findUserByUsername(username);
+        if (user == null) {
+            System.out.println("Total time (user not found): " + (System.currentTimeMillis() - start) + " ms");
+            return postsPage;
+        }
+
+        // Step 3: Extract Post IDs
+        List<Long> postIds = postsPage.getContent().stream().map(PostWithVotesDTO::getId).toList();
+        if (postIds.isEmpty()) {
+            System.out.println("Total time (no posts): " + (System.currentTimeMillis() - start) + " ms");
+            return postsPage;
+        }
+
+        // Step 4: Fetch user votes for these posts
+        long votesStart = System.currentTimeMillis();
+        List<PostVote> userVotes = postVoteRepository.findByUserIdAndPostIds(user.getId(), postIds);
+        long votesFetchedTime = System.currentTimeMillis();
+        System.out.println("DB Fetch (User Votes) time: " + (votesFetchedTime - votesStart) + " ms");
+
+        // Step 5: Create map of postId -> isLiked
+        long mapStart = System.currentTimeMillis();
+        Map<Long, Boolean> voteMap = userVotes.stream()
+                .collect(Collectors.toMap(vote -> vote.getPost().getId(), PostVote::getIsLike));
+        long mapEnd = System.currentTimeMillis();
+        System.out.println("Mapping user votes to posts time: " + (mapEnd - mapStart) + " ms");
+
+        // Step 6: Update DTOs
+        long dtoUpdateStart = System.currentTimeMillis();
+        postsPage.getContent().forEach(post -> post.setIsLiked(voteMap.get(post.getId())));
+        long dtoUpdateEnd = System.currentTimeMillis();
+        System.out.println("Updating DTOs with isLiked time: " + (dtoUpdateEnd - dtoUpdateStart) + " ms");
+
+        System.out.println("Total time: " + (System.currentTimeMillis() - start) + " ms");
+
         return postsPage;
     }
-
 
     @Override
     public List<Comment> getCommentsByPostId(Long postId) {
@@ -126,7 +171,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public Page<Post> getPostsByUserId(Long userId, int pageNumber, int size) {
         Pageable pageable = PageRequest.of(pageNumber, size);
-        Page<Post> postsPage =  postRepository.getPostsByUserId(userId, pageable);
+        Page<Post> postsPage = postRepository.getPostsByUserId(userId, pageable);
         postsPage.forEach(post -> {
             String showTime = TimeAgoUtils.getTimeAgo(post.getCreatedAt());
             post.setShowTime(showTime);
@@ -139,7 +184,7 @@ public class PostServiceImpl implements PostService {
     public Page<Post> getUpvotedPostsByUserId(Long userId, int pageNumber, int size) {
         Pageable pageable = PageRequest.of(pageNumber, size);
         Boolean isLike = true;
-        Page<Post> postsPage = postRepository.getVotedPostByUserId(userId, isLike ,pageable);
+        Page<Post> postsPage = postRepository.getVotedPostByUserId(userId, isLike, pageable);
 
         postsPage.forEach(post -> {
             String showTime = TimeAgoUtils.getTimeAgo(post.getCreatedAt());
@@ -154,7 +199,7 @@ public class PostServiceImpl implements PostService {
         Pageable pageable = PageRequest.of(page, size);
         Boolean isLike = false;
 
-        Page<Post> postsPage = postRepository.getVotedPostByUserId(userId, isLike ,pageable);
+        Page<Post> postsPage = postRepository.getVotedPostByUserId(userId, isLike, pageable);
 
         postsPage.forEach(post -> {
             String showTime = TimeAgoUtils.getTimeAgo(post.getCreatedAt());
@@ -168,7 +213,7 @@ public class PostServiceImpl implements PostService {
     public Page<Post> getSavedPostsByUserId(Long userId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
 
-        Page<Post> postsPage = postRepository.getSavedPostsByUserId(userId ,pageable);
+        Page<Post> postsPage = postRepository.getSavedPostsByUserId(userId, pageable);
 
         postsPage.forEach(post -> {
             String showTime = TimeAgoUtils.getTimeAgo(post.getCreatedAt());
