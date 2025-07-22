@@ -105,7 +105,7 @@
     </style>
 </head>
 <body>
-<div class="header-nav" th:replace="fragments/header :: header"></div>
+<div th:replace="fragments/header :: header(${notificationCount})"></div>
 
 <div class="form-container">
     <h2>Create a Community</h2>

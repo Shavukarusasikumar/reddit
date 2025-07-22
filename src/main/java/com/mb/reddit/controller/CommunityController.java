@@ -38,6 +38,7 @@ public class CommunityController {
         List<Topic> allTopics = topicService.getAllTopics();
 
         model.addAttribute("allTopics", allTopics);
+        model.addAttribute("notificationCount",0);
         return "create-community";
     }
 
