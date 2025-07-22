@@ -15,10 +15,16 @@
         <div style="flex: 1; max-width: 600px; margin: 0 40px; position: relative;">
             <img src="/images/search-icon.png" alt="Search"
                  style="position: absolute; top: 50%; left: 12px; transform: translateY(-50%); height: 16px; width: 16px; opacity: 0.6;">
-            <input type="text" placeholder="Search Reddit"
-                   style="width: 100%; padding: 8px 12px 8px 36px;
-                          border-radius: 24px; border: 1px solid #ccc;
-                          background-color: #e9eef1; font-size: 14px;">
+            <form th:action="@{/posts}" method="get" style="flex: 1; max-width: 600px; margin: 0 40px; position: relative;">
+                <img src="/images/search-icon.png" alt="Search"
+                     style="position: absolute; top: 50%; left: 12px; transform: translateY(-50%); height: 16px; width: 16px; opacity: 0.6;">
+                <input type="text" name="keyword" placeholder="Search Reddit"
+                       th:value="${keyword}"
+                       style="width: 100%; padding: 8px 12px 8px 36px;
+                  border-radius: 24px; border: 1px solid #ccc;
+                  background-color: #e9eef1; font-size: 14px;">
+            </form>
+
         </div>
 
         <!-- Right: Create + Profile -->

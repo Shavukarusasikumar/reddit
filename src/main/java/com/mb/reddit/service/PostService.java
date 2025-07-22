@@ -17,7 +17,7 @@ public interface PostService {
     void deletePost(Long postId);
     Page<PostWithVotesDTO> getAllPost(int pageNumber, int pageSize, String sortBy,
                               boolean rising, boolean top, boolean isNew,
-                              boolean popular);
+                              boolean popular, String keyword);
 
     Page<Post> getPostsByCommunityId(Long communityId, int pageNumber, int pageSize);
 
