@@ -79,7 +79,7 @@ public class PostServiceImpl implements PostService {
 
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         Long userId = userDetails.getId();
-        if (userId == null) {
+        if(userId == null) {
             return page;
         }
 
@@ -118,7 +118,13 @@ public class PostServiceImpl implements PostService {
     @Override
     @Transactional
     public void deletePost(Long postId) {
-        postRepository.deleteById(postId);
+        Post post = postRepository.findById(postId).orElseThrow(() -> new RuntimeException("Post not found"));
+
+        for(User user : post.getSavedByUser()) {
+            user.getSavedPosts().remove(post);
+        }
+
+        postRepository.delete(post);
     }
 
     @Transactional
@@ -127,7 +133,7 @@ public class PostServiceImpl implements PostService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = userRepository.findUserByUsername(authentication.getName());
 
-        if(media != null) {
+        if(media != null && !media.isEmpty()) {
             try {
                 String mediaUrl = cloudinaryService.uploadFile(media);
                 post.setMediaUrl(mediaUrl);
@@ -153,20 +159,35 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional
-    public Post updatePost(Post updatedPost) {
+    public Post updatePost(PostWithVotesDTO updatedPost, MultipartFile media, boolean removeMedia) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
 
         Post oldPost = postRepository.findById(updatedPost.getId()).orElseThrow();
 
         if(!username.equals(oldPost.getAuthor().getUsername())) {
-            throw new RuntimeException("UnAuthorized");
+            throw new RuntimeException("Unauthorized");
         }
 
-        updatedPost.setCreatedAt(oldPost.getCreatedAt());
-        updatedPost.setUpdatedAt(LocalDateTime.now());
+        oldPost.setContent(updatedPost.getContent());
+        oldPost.setTitle(updatedPost.getTitle());
 
-        return postRepository.save(updatedPost);
+        // If removeMedia checkbox is checked
+        if(removeMedia) {
+            oldPost.setMediaUrl(null);
+        }
+
+        // If a new file is uploaded
+        if(media != null && !media.isEmpty()) {
+            try {
+                String mediaUrl = cloudinaryService.uploadFile(media);
+                oldPost.setMediaUrl(mediaUrl);
+            } catch(IOException exception) {
+                throw new RuntimeException("Failed to upload media", exception);
+            }
+        }
+
+        return postRepository.save(oldPost);
     }
 
     @Override
@@ -230,6 +251,11 @@ public class PostServiceImpl implements PostService {
         });
 
         return postsPage;
+    }
+
+    @Override
+    public PostWithVotesDTO getPostWithVotesByPostId(Long postId) {
+        return postRepository.getPostWithVotesByPostId(postId);
     }
 
     @Override

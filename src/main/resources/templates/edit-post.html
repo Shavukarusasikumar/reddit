@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Edit Post</title>
+  <style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f8f9fa;
+    }
+    .container {
+        width: 70%;
+        margin: 30px auto;
+        background: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+        margin: 0 0 15px;
+        font-size: 24px;
+        color: #333;
+    }
+    .back-link {
+        text-decoration: none;
+        color: #007bff;
+        float: right;
+        font-size: 14px;
+    }
+    .form-group {
+        margin-bottom: 15px;
+    }
+    label {
+        font-weight: bold;
+        display: block;
+        margin-bottom: 5px;
+        color: #555;
+    }
+    input[type="text"], textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 14px;
+        resize: vertical;
+    }
+    .footer-buttons {
+        margin-top: 20px;
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+    .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+    .btn-primary {
+        background-color: #007bff;
+        color: white;
+    }
+    .btn-secondary {
+        background-color: #6c757d;
+        color: white;
+    }
+    .error-alert {
+        background-color: #f8d7da;
+        color: #721c24;
+        padding: 10px;
+        border: 1px solid #f5c6cb;
+        border-radius: 4px;
+        margin-bottom: 10px;
+    }
+    .current-media img {
+        max-width: 100%;
+        border-radius: 4px;
+        margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>Edit Post <a th:href="@{/}" class="back-link">Back</a></h1>
+
+  <div th:if="${errorMessage}" class="error-alert" th:text="${errorMessage}"></div>
+
+  <form th:action="@{/posts/edit/{postId}(postId=${currentPost.id})}"
+        th:object="${currentPost}" method="post" enctype="multipart/form-data">
+
+    <input type="hidden" th:field="*{id}" /> <!-- Ensure ID is sent -->
+    <input type="hidden" th:if="${_csrf}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+    <div class="form-group">
+      <label for="title">Title</label>
+      <input type="text" id="title" th:field="*{title}" placeholder="Enter title" maxlength="300" />
+    </div>
+
+    <div class="form-group">
+      <label for="content">Content</label>
+      <textarea id="content" th:field="*{content}" rows="5" placeholder="Enter post content"></textarea>
+    </div>
+
+    <div class="form-group current-media" th:if="${currentPost.mediaUrl != null}">
+      <label>Current Media</label>
+      <img th:src="${currentPost.mediaUrl}" alt="Current Media" />
+      <div>
+        <input type="checkbox" name="removeMedia" value="true"> Remove current media
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="file">Upload New Media</label>
+      <input type="file" id="file" name="file" accept="image/*" onchange="previewNewImage(event)">
+      <div id="newMediaPreview" style="margin-top: 10px;"></div>
+    </div>
+
+    <div class="footer-buttons">
+      <button type="button" class="btn btn-secondary" onclick="window.location.href='/'">Cancel</button>
+      <button type="submit" class="btn btn-primary">Update Post</button>
+    </div>
+  </form>
+
+</div>
+
+<script>
+  function previewNewImage(event) {
+    const previewContainer = document.getElementById('newMediaPreview');
+    previewContainer.innerHTML = ''; // Clear previous preview
+
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const img = document.createElement('img');
+        img.src = e.target.result;
+        img.style.maxWidth = '100%';
+        img.style.borderRadius = '4px';
+        previewContainer.appendChild(img);
+      }
+      reader.readAsDataURL(file);
+    }
+  }
+</script>
+
+</body>
+</html>

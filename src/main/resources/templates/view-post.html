@@ -488,6 +488,38 @@
             display: none;
         }
 
+.post-actions {
+    display: inline-flex;
+    gap: 6px;
+    margin-left: 10px;
+}
+
+.btn-action {
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 500;
+    border-radius: 5px;
+    text-decoration: none;
+    transition: background 0.2s ease, color 0.2s ease;
+}
+
+.edit-btn {
+    background: #007bff;
+    color: white;
+}
+
+.edit-btn:hover {
+    background: #0056b3;
+}
+
+.delete-btn {
+    background: #e63946;
+    color: white;
+}
+
+.delete-btn:hover {
+    background: #b91c1c;
+}
 
 
         /* Responsive design */
@@ -518,11 +550,25 @@
 <div class="post-container">
     <!-- Post Header -->
     <div class="post-header-bar">
-
         <div class="user-info">
-            <div class="user-avatar" th:text="${post.community != null ? post.community.name.substring(0,1).toUpperCase() : (post.author != null ? post.author.username.substring(0,1).toUpperCase() : 'U')}">U</div>
+            <div class="user-avatar"
+                 th:text="${post.community != null ? #strings.toUpperCase(#strings.substring(post.community.name,0,1)) : (post.author != null ? #strings.toUpperCase(#strings.substring(post.author.username,0,1)) : 'U')}">
+                U
+            </div>
+
             <div class="user-details">
-                <div class="username" th:text="${post.community != null ? 'r/' + post.community.name : (post.author != null ? post.author.username : 'Anonymous')}">Username</div>
+                <div class="username">
+                    <span th:text="${post.community != null ? 'r/' + post.community.name : (post.author != null ? post.author.username : 'Anonymous')}">Username</span>
+
+                    <!-- Action Buttons -->
+                    <div class="post-actions">
+                        <a th:href="@{/posts/edit/{postId}(postId=${post.id})}" class="btn-action edit-btn">Edit</a>
+                        <form th:action="@{/posts/delete/{postId}(postId=${post.id})}" method="post" class="inline-form">
+                            <button type="submit" class="btn-action delete-btn">Delete</button>
+                        </form>
+                    </div>
+                </div>
+
                 <div class="post-meta">
                     <span th:text="${post.author != null ? post.author.username : 'Anonymous'}">Author</span>
                     <span>•</span>
@@ -532,7 +578,7 @@
         </div>
     </div>
 
-    <!-- Post Title -->
+
     <!-- Post Title -->
     <div class="flex justify-between items-center">
         <h1 class="post-title" th:text="${post.title}">Post Title</h1>
@@ -652,7 +698,8 @@
     <!-- Comment Fragment for Recursive Rendering -->
     <div th:fragment="commentFragment(comment)" class="comment">
         <div class="comment-header">
-            <div class="comment-avatar" th:text="${comment.user != null ? comment.user.username.substring(0,1).toUpperCase() : 'U'}">U</div>
+            <div class="comment-avatar"
+                 th:text="${comment.user != null ? #strings.toUpperCase(#strings.substring(comment.user.username, 0, 1)) : 'U'}">U</div>
             <span class="comment-user" th:text="${comment.user != null ? comment.user.username : 'Anonymous'}">username</span>
             <span class="comment-time">
             <span> • </span>

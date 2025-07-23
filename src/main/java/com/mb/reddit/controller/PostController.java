@@ -41,10 +41,7 @@ public class PostController {
     public final NotificationService notificationService;
     public final UserServiceImpl userServiceImpl;
 
-    public PostController(PostService postService, UserService userService,
-                          CommunityService communityService, FlairService flairService,
-                          CommentService commentService, PostVoteService postVoteService,
-                          NotificationService notificationService, UserServiceImpl userServiceImpl) {
+    public PostController(PostService postService, UserService userService, CommunityService communityService, FlairService flairService, CommentService commentService, PostVoteService postVoteService, NotificationService notificationService, UserServiceImpl userServiceImpl) {
         this.postService = postService;
         this.commentService = commentService;
         this.postVoteService = postVoteService;
@@ -78,8 +75,7 @@ public class PostController {
     }
 
     @PostMapping("/new-post")
-    public String createPost(@ModelAttribute("post") Post post, @RequestParam Long communityId,
-                             @RequestParam(value = "file", required = false) MultipartFile file) {
+    public String createPost(@ModelAttribute("post") Post post, @RequestParam Long communityId, @RequestParam(value = "file", required = false) MultipartFile file) {
         postService.createPost(post, communityId, file);
 
         return "redirect:/home";
@@ -103,9 +99,9 @@ public class PostController {
 
         List<PostWithVotesDTO> latest10Posts = posts.getContent();
         long startNotification = System.currentTimeMillis();
-            Integer notificationCount = notificationService.getNotificationCount();
+        Integer notificationCount = notificationService.getNotificationCount();
         long stopNotification = System.currentTimeMillis();
-            System.out.println("notification count time: " + (stopNotification - startNotification));
+        System.out.println("notification count time: " + (stopNotification - startNotification));
 
         model.addAttribute("notificationCount", notificationCount);
 
@@ -119,9 +115,10 @@ public class PostController {
         model.addAttribute("isNew", isNew);
         model.addAttribute("popular", popular);
 
-        if (keyword != null && !keyword.isBlank()) {
+        if(keyword != null && !keyword.isBlank()) {
             model.addAttribute("keyword", keyword);
-        } else {
+        }
+        else {
             model.addAttribute("keyword", "");
         }
 
@@ -151,7 +148,7 @@ public class PostController {
         int commentCount = topLevelComments.size();
 
         Boolean currentUserVote = null;
-        if (authentication != null && authentication.isAuthenticated()) {
+        if(authentication != null && authentication.isAuthenticated()) {
             currentUserVote = postVoteService.getVoteStatusByPostId(postId);
         }
         Community community = post.getCommunity();
@@ -163,21 +160,20 @@ public class PostController {
             commentVotes.put(comment.getId(), voteCount);
         }
 
-        boolean isAuthenticated = authentication != null && authentication.isAuthenticated()
-                && !(authentication.getPrincipal() instanceof String);
+        boolean isAuthenticated = authentication != null && authentication.isAuthenticated() && !(authentication.getPrincipal() instanceof String);
 
         model.addAttribute("isAuthenticated", isAuthenticated);
         boolean isJoined = false;
-        if (isAuthenticated) {
+        if(isAuthenticated) {
             CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-            if (owner.getUsername().equals(userDetails.getUsername())) {
+            if(owner.getUsername().equals(userDetails.getUsername())) {
                 isJoined = userService.hasUserJoinedCommunity(community);
             }
         }
         boolean isSaved = false;
-        if (isAuthenticated) {
+        if(isAuthenticated) {
             CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-            if (userDetails != null) {
+            if(userDetails != null) {
                 isSaved = userService.isPostSavedByUser(postId, userDetails.getId());
             }
         }
@@ -195,18 +191,34 @@ public class PostController {
         return "view-post";
     }
 
-    @PostMapping("/delete/post/{postId}")
+    @PostMapping("/posts/delete/{postId}")
     public String deletePostById(@PathVariable("postId") Long postId) {
         postService.deletePost(postId);
 
         return "redirect:/";
     }
 
+    @GetMapping("/posts/edit/{postId}")
+    public String editPostForm(@PathVariable(name = "postId") Long postId, Model model) {
+
+        PostWithVotesDTO postWithVotesDTO = postService.getPostWithVotesByPostId(postId);
+
+        model.addAttribute("currentPost", postWithVotesDTO);
+        return "edit-post";
+    }
+
+    @PostMapping("/posts/edit/{postId}")
+    public String editPost(
+            @ModelAttribute("currentPost") PostWithVotesDTO updatedPost,
+            @RequestParam(name = "file", required = false) MultipartFile file,
+            @RequestParam(name = "removeMedia", defaultValue = "false") boolean removeMedia) {
+
+        postService.updatePost(updatedPost, file, removeMedia);
+        return "redirect:/";
+    }
+
     @GetMapping("/user/{userId}/posts")
-    public String getUserPosts(@PathVariable Long userId,
-                               @RequestParam(defaultValue = "0") int page,
-                               @RequestParam(defaultValue = "10") int size,
-                               Model model) {
+    public String getUserPosts(@PathVariable Long userId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, Model model) {
         Page<Post> posts = postService.getPostsByUserId(userId, page, size);
         model.addAttribute("posts", posts);
         model.addAttribute("hasNext", posts.hasNext());
@@ -214,10 +226,7 @@ public class PostController {
     }
 
     @GetMapping("/user/{userId}/upvoted")
-    public String getUserUpVotedPosts(@PathVariable Long userId,
-                               @RequestParam(defaultValue = "0") int page,
-                               @RequestParam(defaultValue = "10") int size,
-                               Model model) {
+    public String getUserUpVotedPosts(@PathVariable Long userId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, Model model) {
         Page<Post> posts = postService.getUpvotedPostsByUserId(userId, page, size);
         model.addAttribute("posts", posts.getContent());
         model.addAttribute("hasNext", posts.hasNext());
@@ -225,10 +234,7 @@ public class PostController {
     }
 
     @GetMapping("/user/{userId}/downvoted")
-    public String getUserDownVotedPosts(@PathVariable Long userId,
-                                      @RequestParam(defaultValue = "0") int page,
-                                      @RequestParam(defaultValue = "10") int size,
-                                      Model model) {
+    public String getUserDownVotedPosts(@PathVariable Long userId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, Model model) {
         Page<Post> posts = postService.getDownVotedPostsByUserId(userId, page, size);
         model.addAttribute("posts", posts);
         model.addAttribute("hasNext", posts.hasNext());
@@ -236,10 +242,7 @@ public class PostController {
     }
 
     @GetMapping("/user/{userId}/saved")
-    public String getUserSavedPosts(@PathVariable Long userId,
-                                    @RequestParam(defaultValue = "0") int page,
-                                    @RequestParam(defaultValue = "10") int size,
-                                    Model model) {
+    public String getUserSavedPosts(@PathVariable Long userId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, Model model) {
         Page<Post> posts = postService.getSavedPostsByUserId(userId, page, size);
         model.addAttribute("posts", posts.getContent());
         model.addAttribute("hasNext", posts.hasNext());
@@ -249,8 +252,7 @@ public class PostController {
     @PostMapping("/save/{postId}")
     @ResponseBody
     public ResponseEntity<String> savePost(@PathVariable("postId") Long postId, Authentication authentication) {
-        if (authentication == null || !authentication.isAuthenticated() ||
-                authentication.getPrincipal() instanceof String) {
+        if(authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal() instanceof String) {
             return ResponseEntity.status(401).body("Authentication required");
         }
 
@@ -258,7 +260,7 @@ public class PostController {
             CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
             userService.addPostToUserSavedPosts(postId, userDetails.getId());
             return ResponseEntity.ok("Post saved successfully");
-        } catch (Exception e) {
+        } catch(Exception e) {
             return ResponseEntity.badRequest().body("Error saving post: " + e.getMessage());
         }
     }
@@ -266,8 +268,7 @@ public class PostController {
     @PostMapping("/unsave/{postId}")
     @ResponseBody
     public ResponseEntity<String> unsavePost(@PathVariable("postId") Long postId, Authentication authentication) {
-        if (authentication == null || !authentication.isAuthenticated() ||
-                authentication.getPrincipal() instanceof String) {
+        if(authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal() instanceof String) {
             return ResponseEntity.status(401).body("Authentication required");
         }
 
@@ -275,7 +276,7 @@ public class PostController {
             CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
             userService.removePostFromUserSavedPosts(postId, userDetails.getId());
             return ResponseEntity.ok("Post unsaved successfully");
-        } catch (Exception e) {
+        } catch(Exception e) {
             return ResponseEntity.badRequest().body("Error unsaving post: " + e.getMessage());
         }
     }

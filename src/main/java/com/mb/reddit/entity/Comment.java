@@ -38,7 +38,7 @@ public class Comment {
 	@OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL)
 	private List<Comment> replies;
 
-	@OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true)
+	@OneToMany(mappedBy = "comment", cascade = CascadeType.ALL)
 	private List<CommentVote> likes;
 }
 

@@ -1,66 +1,69 @@
-package com.mb.reddit.entity;
+    package com.mb.reddit.entity;
 
-import jakarta.persistence.*;
-import lombok.Data;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.w3c.dom.Text;
+    import jakarta.persistence.*;
+    import lombok.Data;
+    import lombok.Getter;
+    import lombok.NoArgsConstructor;
+    import lombok.Setter;
+    import org.w3c.dom.Text;
 
-import java.time.LocalDateTime;
-import java.util.List;
+    import java.time.LocalDateTime;
+    import java.util.List;
 
-@Entity
-@Table(name = "posts")
-@Getter
-@Setter
-@NoArgsConstructor
-public class Post {
+    @Entity
+    @Table(name = "posts")
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public class Post {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private Long id;
+        @Id
+        @GeneratedValue(strategy = GenerationType.IDENTITY)
+        @Column(name = "id")
+        private Long id;
 
-    @Column(name = "title", columnDefinition = "TEXT")
-    private String title;
+        @Column(name = "title", columnDefinition = "TEXT")
+        private String title;
 
-    @Column(name = "content", columnDefinition = "TEXT")
-    private String content;
+        @Column(name = "content", columnDefinition = "TEXT")
+        private String content;
 
-    @Column(name = "media_url", columnDefinition = "TEXT")
-    private String mediaUrl;
+        @Column(name = "media_url", columnDefinition = "TEXT")
+        private String mediaUrl;
 
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
+        @Column(name = "created_at")
+        private LocalDateTime createdAt;
 
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+        @Column(name = "updated_at")
+        private LocalDateTime updatedAt;
 
-    @Column(name = "is_published")
-    private Boolean isPublished;
+        @Column(name = "is_published")
+        private Boolean isPublished;
 
-    @ManyToOne
-    private User author;
+        @ManyToOne
+        private User author;
 
-    @Transient
-    private int voteCount;
+        @Transient
+        private int voteCount;
 
-    @Transient
-    private String showTime;
+        @Transient
+        private String showTime;
 
-    @Transient
-    private Boolean isLiked;
+        @Transient
+        private Boolean isLiked;
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    private Community community;
+        @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+        private Community community;
 
-    @OneToMany(mappedBy = "post")
-    private List<Comment> comments;
+        @OneToMany(mappedBy = "post", cascade = {CascadeType.REMOVE})
+        private List<Comment> comments;
 
-    @OneToMany(mappedBy = "post")
-    private List<PostVote> postVotes;
+        @OneToMany(mappedBy = "post", cascade = {CascadeType.REMOVE})
+        private List<PostVote> postVotes;
 
-    @ManyToMany(mappedBy = "savedPosts", cascade = CascadeType.ALL)
-    private List<User> savedByUser;
-}
+        @ManyToMany(mappedBy = "savedPosts")
+        private List<User> savedByUser;
+
+        @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)
+        private List<Notification> notifications;
+    }

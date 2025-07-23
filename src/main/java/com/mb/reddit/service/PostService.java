@@ -4,6 +4,8 @@ import com.mb.reddit.dto.PostWithVotesDTO;
 import com.mb.reddit.entity.Comment;
 import com.mb.reddit.entity.Post;
 import org.springframework.data.domain.Page;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -12,16 +14,19 @@ import java.util.List;
 public interface PostService {
 
     Post getPostById(Long postId);
-    Post createPost(Post post, Long communityId,MultipartFile media);
-    Post updatePost(Post post);
+
+    Post createPost(Post post, Long communityId, MultipartFile media);
+
+    Post updatePost(PostWithVotesDTO post, MultipartFile media,boolean removeMedia);
+
     void deletePost(Long postId);
-    Page<PostWithVotesDTO> getAllPost(int pageNumber, int pageSize, String sortBy,
-                              boolean rising, boolean top, boolean isNew,
-                              boolean popular, String keyword);
+
+    Page<PostWithVotesDTO> getAllPost(int pageNumber, int pageSize, String sortBy, boolean rising, boolean top, boolean isNew, boolean popular, String keyword);
 
     Page<Post> getPostsByCommunityId(Long communityId, int pageNumber, int pageSize);
 
     List<Comment> getCommentsByPostId(Long postId);
+
     Integer getPostVotesByPostId(Long postId);
 
     Page<Post> getPostsByUserId(Long userId, int page, int size);
@@ -31,4 +36,6 @@ public interface PostService {
     Page<Post> getDownVotedPostsByUserId(Long userId, int page, int size);
 
     Page<Post> getSavedPostsByUserId(Long userId, int page, int size);
+
+    PostWithVotesDTO getPostWithVotesByPostId(@Param("postId") Long postId);
 }
