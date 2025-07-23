@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -511,7 +511,7 @@
                 <span th:text="${post.community != null ? 'r/' + post.community.name : (post.author != null ? post.author.username : 'Anonymous')}">Username</span>
 
                 <!-- Action Buttons -->
-                <div class="post-actions">
+                <div th:if="${isOwner}" class="post-actions">
                     <a th:href="@{/posts/edit/{postId}(postId=${post.id})}" class="btn-action edit-btn">Edit</a>
                     <form th:action="@{/posts/delete/{postId}(postId=${post.id})}" method="post" class="inline-form">
                         <button type="submit" class="btn-action delete-btn">Delete</button>
@@ -572,7 +572,28 @@
 
     <!-- Post Actions -->
     <div class="post-actions">
-        <div class="vote-container" th:data-post-id="${post.id}" th:data-vote-state="${currentUserVote == true ? 1 : (currentUserVote == false ? -1 : 0)}">
+        <div class="vote-container" data-auth="true" sec:authorize="isAuthenticated()" th:data-post-id="${post.id}" th:data-vote-state="${currentUserVote == true ? 1 : (currentUserVote == false ? -1 : 0)}">
+            <!-- Upvote Button -->
+            <button type="button" class="vote-button upvote-btn"
+                    th:classappend="${currentUserVote == true} ? 'active-upvote'">
+                <svg class="upvote-arrow" width="16" height="16" viewBox="0 0 16 16"
+                     th:fill="${currentUserVote == true} ? '#ff4500' : 'currentColor'">
+                    <path d="M8 2l6 6H9v6H7V8H2l6-6z"/>
+                </svg>
+            </button>
+
+            <div class="vote-count" th:text="${postVoteCount}">0</div>
+
+            <!-- Downvote Button -->
+            <button type="button" class="vote-button downvote-btn"
+                    th:classappend="${currentUserVote == false} ? 'active-downvote'">
+                <svg class="downvote-arrow" width="16" height="16" viewBox="0 0 16 16"
+                     th:fill="${currentUserVote == false} ? '#7193ff' : 'currentColor'">
+                    <path d="M8 2l6 6H9v6H7V8H2l6-6z"/>
+                </svg>
+            </button>
+        </div>
+        <div class="vote-container" data-auth="false" sec:authorize="!isAuthenticated()" th:data-post-id="${post.id}" th:data-vote-state="${currentUserVote == true ? 1 : (currentUserVote == false ? -1 : 0)}">
             <!-- Upvote Button -->
             <button type="button" class="vote-button upvote-btn"
                     th:classappend="${currentUserVote == true} ? 'active-upvote'">
@@ -610,7 +631,16 @@
     </div>
 
     <!-- Comment Input -->
-    <div class="comment-input">
+    <div class="comment-input" data-auth="true" sec:authorize="isAuthenticated()">
+        <form th:action="@{/posts/{postId}/comments(postId=${post.id})}" method="post">
+            <input type="text" name="content" placeholder="Join the conversation" required>
+            <input type="hidden" name="parentCommentId" value="">
+            <button type="submit" class="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+                Add Comment
+            </button>
+        </form>
+    </div>
+    <div class="comment-input" data-auth="false" sec:authorize="!isAuthenticated()">
         <form th:action="@{/posts/{postId}/comments(postId=${post.id})}" method="post">
             <input type="text" name="content" placeholder="Join the conversation" required>
             <input type="hidden" name="parentCommentId" value="">
@@ -710,51 +740,110 @@
 </div>
 
 <script>
+
     document.addEventListener('DOMContentLoaded', function() {
-        // Handle comment form submission with AJAX
-        const commentForm = document.querySelector('.comment-input form');
-        if (commentForm) {
-            commentForm.addEventListener('submit', async function(e) {
+    // ------------------------------
+    // Handle comment form submission
+    // ------------------------------
+    const commentInputContainer = document.querySelector('.comment-input');
+    const commentForm = commentInputContainer?.querySelector('form');
+    const isCommentAuth = commentInputContainer?.dataset.auth === 'true';
+
+    if (commentForm) {
+        commentForm.addEventListener('submit', async function(e) {
+            if (!isCommentAuth) {
                 e.preventDefault();
+                window.location.href = '/user/login';
+                return;
+            }
 
-                const submitButton = this.querySelector('button[type="submit"]');
-                const originalText = submitButton.textContent;
+            e.preventDefault();
 
-                // Disable button and show loading state
-                submitButton.disabled = true;
-                submitButton.textContent = 'Adding...';
+            const submitButton = this.querySelector('button[type="submit"]');
+            const originalText = submitButton.textContent;
 
-                const formData = new FormData(this);
-                const postId = window.location.pathname.split('/')[2];
+            submitButton.disabled = true;
+            submitButton.textContent = 'Adding...';
 
-                try {
-                    const response = await fetch(`/posts/${postId}/comments`, {
-                        method: 'POST',
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest'
-                        },
-                        body: formData
-                    });
+            const formData = new FormData(this);
+            const postId = window.location.pathname.split('/')[2];
 
-                    if (response.ok) {
-                        // Clear the input
-                        this.querySelector('input[name="content"]').value = '';
-                        // Reload the page immediately
-                        window.location.reload();
-                    } else {
-                        console.error('Failed to submit comment');
-                        alert('Failed to submit comment. Please try again.');
-                    }
-                } catch (error) {
-                    console.error('Error submitting comment:', error);
-                    alert('Error submitting comment. Please try again.');
-                } finally {
-                    // Re-enable button
-                    submitButton.disabled = false;
-                    submitButton.textContent = originalText;
+            try {
+                const response = await fetch(`/posts/${postId}/comments`, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: formData
+                });
+
+                if (response.ok) {
+                    this.querySelector('input[name="content"]').value = '';
+                    window.location.reload();
+                } else {
+                    alert('Failed to submit comment.');
                 }
-            });
-        }
+            } catch (error) {
+                console.error(error);
+                alert('Error submitting comment.');
+            } finally {
+                submitButton.disabled = false;
+                submitButton.textContent = originalText;
+            }
+        });
+    }
+
+<!--    document.addEventListener('DOMContentLoaded', function() {-->
+<!--        // Handle comment form submission with AJAX-->
+<!--        const commentForm = document.querySelector('.comment-input form');-->
+<!--        const isCommentAuth = commentInputContainer?.dataset.auth === 'true';-->
+<!--        if (commentForm) {-->
+<!--            commentForm.addEventListener('submit', async function(e) {-->
+<!--                if (!isCommentAuth) {-->
+<!--                    e.preventDefault();-->
+<!--                    window.location.href = '/user/login';-->
+<!--                    return;-->
+<!--                }-->
+<!--                e.preventDefault();-->
+
+<!--                const submitButton = this.querySelector('button[type="submit"]');-->
+<!--                const originalText = submitButton.textContent;-->
+
+<!--                // Disable button and show loading state-->
+<!--                submitButton.disabled = true;-->
+<!--                submitButton.textContent = 'Adding...';-->
+
+<!--                const formData = new FormData(this);-->
+<!--                const postId = window.location.pathname.split('/')[2];-->
+
+<!--                try {-->
+<!--                    const response = await fetch(`/posts/${postId}/comments`, {-->
+<!--                        method: 'POST',-->
+<!--                        headers: {-->
+<!--                            'X-Requested-With': 'XMLHttpRequest'-->
+<!--                        },-->
+<!--                        body: formData-->
+<!--                    });-->
+
+<!--                    if (response.ok) {-->
+<!--                        // Clear the input-->
+<!--                        this.querySelector('input[name="content"]').value = '';-->
+<!--                        // Reload the page immediately-->
+<!--                        window.location.reload();-->
+<!--                    } else {-->
+<!--                        console.error('Failed to submit comment');-->
+<!--                        alert('Failed to submit comment. Please try again.');-->
+<!--                    }-->
+<!--                } catch (error) {-->
+<!--                    console.error('Error submitting comment:', error);-->
+<!--                    alert('Error submitting comment. Please try again.');-->
+<!--                } finally {-->
+<!--                    // Re-enable button-->
+<!--                    submitButton.disabled = false;-->
+<!--                    submitButton.textContent = originalText;-->
+<!--                }-->
+<!--            });-->
+<!--        }-->
 
         // Handle reply form submissions with AJAX
         document.addEventListener('submit', async function(e) {
@@ -977,10 +1066,16 @@
             const postId = voteContainer.getAttribute('data-post-id');
             const currentVoteState = parseInt(voteContainer.getAttribute('data-vote-state'));
             const isUpvote = voteButton.classList.contains('upvote-btn');
+            const isVoteAuth = voteContainer.getAttribute('data-auth') === 'true';
 
             // Determine new vote state and endpoint
             let endpoint;
             let newVoteState;
+
+            if (!isVoteAuth) {
+                window.location.href = '/user/login';
+                return;
+            }
 
             if (isUpvote) {
                 if (currentVoteState === 1) {

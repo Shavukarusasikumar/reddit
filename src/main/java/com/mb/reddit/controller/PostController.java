@@ -181,6 +181,10 @@ public class PostController {
                 isSaved = userService.isPostSavedByUser(postId, userDetails.getId());
             }
         }
+
+        boolean isOwner = post.getAuthor().getUsername().equals(authentication.getName());
+
+        model.addAttribute("isOwner", isOwner);
         model.addAttribute("isSaved", isSaved);
         model.addAttribute("community", community);
         model.addAttribute("owner", owner);
