@@ -2,6 +2,7 @@ package com.mb.reddit.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -28,12 +29,19 @@ public class SecurityConfiguration {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll() // ✅ ALLOW all URLs without authentication
+                        .requestMatchers(HttpMethod.GET,"/").permitAll()
+                        .requestMatchers(HttpMethod.GET,"/posts/*").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/community/r/*").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/r/*").permitAll()
+                        .requestMatchers( "/user/login").permitAll()
+                        .requestMatchers("/user/register").permitAll()
+                        .requestMatchers("/images/**").permitAll()
+                        .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
                         .loginPage("/user/login")
                         .loginProcessingUrl("/login")
-                        .defaultSuccessUrl("/posts", true)
+                        .defaultSuccessUrl("/", true)
                         .failureUrl("/user/login?error=true")
                         .permitAll()
                 )

@@ -371,6 +371,15 @@
     }
 </style>
 
+<!-- Add user authentication status from server -->
+<script th:inline="javascript">
+    // Pass authentication status from server to client
+    const isUserLoggedIn = /*[[${#authorization.expression('isAuthenticated()')}]]*/ false;
+
+    // Alternative if you're not using Spring Security expressions:
+    // const isUserLoggedIn = /*[[${user != null}]]*/ false;
+</script>
+
 <!-- JavaScript for infinite scroll and voting -->
 <script>
     /* --------------------------
@@ -419,7 +428,7 @@ function loadMorePosts() {
     if (loadingEl) loadingEl.style.display = 'block';
 
     // Request NEXT page (currentPage + 1)
-    fetch(`/posts/scroll?pageNumber=${currentPage + 1}&pageSize=${PAGE_SIZE}&sortBy=createdAt`)
+    fetch(`/scroll?pageNumber=${currentPage + 1}&pageSize=${PAGE_SIZE}&sortBy=createdAt`)
         .then(response => {
             if (!response.ok) throw new Error('Network error');
             return response.text();
@@ -456,7 +465,7 @@ function loadMorePosts() {
 }
 
     /* ---------------
-       VOTING
+       VOTING WITH AUTHENTICATION CHECK
        --------------- */
     document.addEventListener('DOMContentLoaded', () => {
         const postList = document.getElementById('post-list');
@@ -469,6 +478,13 @@ function loadMorePosts() {
             const target = e.target;
             const likesContainer = target.closest('.likes-count');
             if (!likesContainer) return; // click was elsewhere
+
+            // Check if user is logged in before allowing voting
+            if (!isUserLoggedIn) {
+                // Redirect to login page
+                window.location.href = '/user/login';
+                return;
+            }
 
             const upvoteBtn = likesContainer.querySelector('.upvote-btn');
             const downvoteBtn = likesContainer.querySelector('.downvote-btn');

@@ -83,10 +83,10 @@ public class PostController {
                              @RequestParam(value = "file", required = false) MultipartFile file) {
         postService.createPost(post, communityId, file);
 
-        return "redirect:/home";
+        return "redirect:/";
     }
 
-    @GetMapping("/posts")
+    @GetMapping("/")
     public String getAllPosts(@RequestParam(defaultValue = "0", required = false) int pageNumber, @RequestParam(defaultValue = "10", required = false) int pageSize, @RequestParam(defaultValue = "createdAt", required = false) String sortBy, @RequestParam(defaultValue = "false", required = false) boolean rising, @RequestParam(defaultValue = "false", required = false) boolean top, @RequestParam(defaultValue = "false") boolean isNew, @RequestParam(defaultValue = "false") boolean popular, @RequestParam(required = false) String keyword, Model model) {
 
         long start = System.currentTimeMillis();
@@ -129,7 +129,7 @@ public class PostController {
         return "home";
     }
 
-    @GetMapping("/posts/scroll")
+    @GetMapping("/scroll")
     public String getMorePosts(@RequestParam(defaultValue = "0") int pageNumber, @RequestParam(defaultValue = "10") int pageSize, @RequestParam(defaultValue = "createdAt") String sortBy, @RequestParam(defaultValue = "false", required = false) boolean rising, @RequestParam(defaultValue = "false", required = false) boolean top, @RequestParam(defaultValue = "false") boolean isNew, @RequestParam(defaultValue = "false") boolean popular, @RequestParam(required = false) String keyword, @RequestParam(required = false) String category, Model model) {
 
         Page<PostWithVotesDTO> posts = postService.getAllPost(pageNumber, pageSize, sortBy, rising, top, isNew, popular, keyword);
