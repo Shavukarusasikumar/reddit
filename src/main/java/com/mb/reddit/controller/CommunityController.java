@@ -101,10 +101,14 @@ public class CommunityController {
         boolean isCreator = currentUser != null && community.getCreator().getId().equals(currentUser.getId());
         boolean hasJoined = currentUser != null && community.getMembers().contains(currentUser);
 
+        boolean isAdmin = community.getCreator().equals(currentUser);
+        boolean isMember = currentUser.getJoinedCommunities().contains(community);
+
         Page<Post> postsPage = postService.getPostsByCommunityId(community.getId(), page, size);
 
         model.addAllAttributes(Map.of("community", community, "isCreator", isCreator, "hasJoined", hasJoined, "posts", postsPage.getContent(), "currentPage", postsPage.getNumber(), "totalPages", postsPage.getTotalPages(), "size", size));
-
+        model.addAttribute("isAdmin", isAdmin);
+        model.addAttribute("isMember",isMember);
         return "community-profile";
     }
 

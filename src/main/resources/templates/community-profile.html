@@ -685,7 +685,7 @@
             </div>
 
             <div class="actions">
-                <button class="create-post">Create Post</button>
+                <button th:if="${isMember}" class="create-post">Create Post</button>
 
                 <!-- Show Join/Joined button only if not the creator -->
                 <button
@@ -694,8 +694,9 @@
                         th:text="${hasJoined} ? 'Leave' : 'Join'">
                     Join
                 </button>
+
                 <a th:href="@{'/join-requests/' + ${community.id}}">
-                    <button class="request-button">Join Requests</button>
+                    <button th:if="${isAdmin}" class="request-button">Join Requests</button>
                 </a>
 
             </div>

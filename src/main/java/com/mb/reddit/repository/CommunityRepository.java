@@ -17,6 +17,6 @@ public interface CommunityRepository  extends JpaRepository<Community, Long> {
 
     Community findCommunityByName(String communityName);
 
-    @Query("SELECT DISTINCT c FROM Community c JOIN c.topics t WHERE t.id = :topicId")
+    @Query("SELECT DISTINCT c FROM Community c JOIN c.topics t WHERE t.id = :topicId AND c.isPrivate = false")
     List<Community> findByTopicsId(@Param("topicId") Long topicId);
 }
