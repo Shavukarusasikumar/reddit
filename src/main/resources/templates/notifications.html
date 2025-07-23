@@ -29,6 +29,7 @@
         }
 
         .notification-card {
+            display: block;
             padding: 16px 20px;
             margin-bottom: 16px;
             border-radius: 10px;
@@ -96,9 +97,19 @@
 
     <!-- Notifications List -->
     <div th:each="notification : ${notifications.content}">
-        <a th:href="@{/posts/{id}(id=${notification.post.id})}"
+        <a th:if="${notification.postId != null}"
+           th:href="@{/posts/{id}(id=${notification.postId})}"
            class="notification-card"
            th:classappend="${notification.read} ? ' read' : ' unread'">
+            <div class="message" th:text="${notification.message}">Notification message</div>
+            <div class="timestamp" th:text="${#temporals.format(notification.timestamp, 'dd MMM yyyy HH:mm')}">
+                Timestamp
+            </div>
+        </a>
+
+        <a th:if="${notification.postId == null}"
+           href="#"
+           class="notification-card read">
             <div class="message" th:text="${notification.message}">Notification message</div>
             <div class="timestamp" th:text="${#temporals.format(notification.timestamp, 'dd MMM yyyy HH:mm')}">
                 Timestamp

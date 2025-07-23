@@ -199,7 +199,7 @@ public class PostController {
         return "view-post";
     }
 
-    @PostMapping("/delete/post/{postId}")
+    @PostMapping("/posts/delete/{postId}")
     public String deletePostById(@PathVariable("postId") Long postId) {
         postService.deletePost(postId);
 

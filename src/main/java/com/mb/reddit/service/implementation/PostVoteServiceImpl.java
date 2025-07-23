@@ -56,7 +56,7 @@ public class PostVoteServiceImpl implements PostVoteService {
         postVote.setLikedAt(LocalDateTime.now());
         postVoteRepository.save(postVote);
 
-        if(postVote.getIsLike()){
+        if(postVote.getIsLike() && !currentUser.equals(post.getAuthor())){
             String type = "UPVOTE";
             Notification existing = notificationRepository.findTopByRecipientAndPostAndType(
                     post.getAuthor().getId(), post.getId(), type);
@@ -68,6 +68,7 @@ public class PostVoteServiceImpl implements PostVoteService {
                 notification.setMessage(currentUser.getUsername() + " upvoted your post: " + post.getTitle());
                 notification.setType("UPVOTE");
                 notification.setRead(false);
+                notification.setPostId(postId);
                 notification.setTimestamp(LocalDateTime.now());
                 notificationRepository.save(notification);
             }

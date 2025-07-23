@@ -26,6 +26,9 @@ public class Notification {
 
     private LocalDateTime timestamp;
 
+    @Transient
+    private Long postId;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User recipient;
