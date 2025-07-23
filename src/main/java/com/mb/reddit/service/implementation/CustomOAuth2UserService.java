@@ -1,5 +1,6 @@
 package com.mb.reddit.service.implementation;
 
+import com.mb.reddit.entity.CustomUserDetails;
 import com.mb.reddit.entity.User;
 import com.mb.reddit.repository.UserRepository;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
@@ -34,9 +35,10 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 		}
 
 		Optional<User> existingUser = userRepository.findUserByEmail(email);
+		User user;
 
 		if (existingUser.isPresent()) {
-			return oauth2User;
+			user = existingUser.get();
 		} else {
 			User newUser = new User();
 			newUser.setEmail(email);
@@ -44,13 +46,11 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 			newUser.setProfilePicture(picture);
 			newUser.setBio("");
 			newUser.setPassword("$2a$12$/ayDca8LhV7cNuCKs7BTl.q.l9STeA.HlGfS.YofUZgHYU4o2cFgS");
-
-			userRepository.save(newUser);
-
-			return oauth2User;
+			user = userRepository.save(newUser);
 		}
-	}
 
+		return new CustomUserDetails(user, oauth2User.getAttributes());
+	}
 
 	private String generateUniqueUsername(String name, String email) {
 		String baseUsername = name != null ? name.replaceAll("\\s+", "").toLowerCase()
