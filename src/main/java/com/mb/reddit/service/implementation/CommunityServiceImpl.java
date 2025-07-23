@@ -52,7 +52,7 @@ public class CommunityServiceImpl implements CommunityService {
         if(fileBanner != null) {
             try {
                 String bannerUrl = cloudinaryService.uploadFile(fileBanner);
-                community.setIconUrl(bannerUrl);
+                community.setBannerUrl(bannerUrl);
             } catch(IOException exception) {
                 throw new RuntimeException("Failed to upload media", exception);
             }
@@ -77,13 +77,20 @@ public class CommunityServiceImpl implements CommunityService {
         return (long) communityRepository.findById(communityId).orElseThrow(() -> new RuntimeException("Community Not found")).getMembers().size();
     }
 
+    @Transactional
     @Override
     public void addMemberByCommunityId(User member, Long communityId) {
-        Community community = communityRepository.findById(communityId).orElseThrow(() -> new RuntimeException("Community Not found"));
+        Community community = communityRepository.findById(communityId)
+                .orElseThrow(() -> new RuntimeException("Community Not found"));
 
-        community.getMembers().add(member);
+        if (!community.getMembers().contains(member)) {
+            community.getMembers().add(member);
+            member.getJoinedCommunities().add(community); // <- this is important
 
-        communityRepository.save(community);
+            System.out.println("------------success-------------------");
+        } else {
+            System.out.println("-----------failure---------------");
+        }
     }
 
     @Override
@@ -134,5 +141,20 @@ public class CommunityServiceImpl implements CommunityService {
         result.addAll(communityRepository.findUserCommunities(userId));
 
         return result.stream().distinct().toList();
+    }
+
+    @Transactional
+    @Override
+    public void removeMemberByCommunityId(User member, Long communityId) {
+        Community community = communityRepository.findById(communityId)
+                .orElseThrow(() -> new RuntimeException("Community Not found"));
+
+        community.getMembers().remove(member);
+
+        member.getJoinedCommunities().remove(community);
+
+        communityRepository.save(community);
+
+        userRepository.save(member);
     }
 }

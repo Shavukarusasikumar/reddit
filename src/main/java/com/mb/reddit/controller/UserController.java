@@ -85,36 +85,6 @@ public class UserController {
         return "redirect:/user/login";
     }
 
-
-    @PostMapping("/join-community/{id}")
-    @ResponseBody
-    public ResponseEntity<String> joinCommunity(@PathVariable("id") Long communityId, Authentication authentication) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(401).body("Authentication required");
-        }
-
-        try {
-            userService.adduserToCommunityByCommunityId(communityId);
-            return ResponseEntity.ok("Joined community");
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Error joining community");
-        }
-    }
-
-
-    @PostMapping("/leave-community/{id}")
-    @ResponseBody
-    public ResponseEntity<String> leaveCommunity(@PathVariable("id") Long communityId, Authentication authentication) {
-        if (authentication == null || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(401).body("Authentication required");
-        }
-
-        userService.removeUserFromCommunityByCommunityId(communityId);
-
-        return ResponseEntity.ok("Removed  community");
-    }
-
-
     @GetMapping("/user")
     public String getUserProfilePage(Model model) {
         User user = userService.getCurrentUser();

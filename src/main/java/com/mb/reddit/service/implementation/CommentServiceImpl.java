@@ -136,10 +136,12 @@ public class CommentServiceImpl implements CommentService {
         }
 
         for (Comment comment : comments) {
+            // Initialize the replies collection
+            Hibernate.initialize(comment.getReplies());
             if (comment.getReplies() != null && !comment.getReplies().isEmpty()) {
-                Hibernate.initialize(comment.getReplies());
-
-                loadNestedReplies(new ArrayList<>(comment.getReplies()));
+                // Recursively load nested replies
+                List<Comment> replies = new ArrayList<>(comment.getReplies());
+                comment.setReplies(loadNestedReplies(replies));
             }
         }
         return comments;
@@ -156,4 +158,6 @@ public class CommentServiceImpl implements CommentService {
                 .mapToInt(vote -> Boolean.TRUE.equals(vote.getIsLike()) ? 1 : -1)
                 .sum();
     }
+
+
 }

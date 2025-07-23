@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -33,10 +34,11 @@ public class Comment {
 	private Post post;
 
 	@ManyToOne
+	@JoinColumn(name = "parent_comment_id")
 	private Comment parentComment;
 
-	@OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL)
-	private List<Comment> replies;
+	@OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private List<Comment> replies = new ArrayList<>();
 
 	@OneToMany(mappedBy = "comment", cascade = CascadeType.ALL)
 	private List<CommentVote> likes;

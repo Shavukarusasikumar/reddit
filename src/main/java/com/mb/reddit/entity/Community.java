@@ -48,7 +48,7 @@ public class Community {
     @OneToMany(mappedBy = "community")
     private List<Flair> flairs;
 
-    @ManyToMany(mappedBy = "joinedCommunities")
+    @ManyToMany(mappedBy = "joinedCommunities", cascade = CascadeType.ALL)
     private List<User> members;
 
     @OneToMany(mappedBy = "community", cascade = CascadeType.ALL, orphanRemoval = true)

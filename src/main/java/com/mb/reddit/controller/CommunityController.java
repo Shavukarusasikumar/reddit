@@ -9,6 +9,7 @@ import com.mb.reddit.service.PostService;
 import com.mb.reddit.service.TopicService;
 
 import com.mb.reddit.service.UserService;
+import com.mb.reddit.service.implementation.UserServiceImpl;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -28,13 +29,15 @@ public class CommunityController {
     private final TopicService topicService;
     private final UserService userService;
     private final PostService postService;
+    private final UserServiceImpl userServiceImpl;
 
     public CommunityController(CommunityService communityService , TopicService topicService,
-                               UserService userService,  PostService postService) {
+                               UserService userService,  PostService postService,  UserServiceImpl userServiceImpl) {
         this.communityService = communityService;
         this.topicService = topicService;
         this.userService = userService;
         this.postService = postService;
+        this.userServiceImpl = userServiceImpl;
     }
 
 
@@ -123,5 +126,28 @@ public class CommunityController {
         ));
 
         return "community-profile";
+    }
+
+    @PostMapping("/user/join-community/{communityId}")
+    public String joinCommunity(@PathVariable Long communityId) {
+        User currentUser = userService.getCurrentUser();
+        if (currentUser != null) {
+            System.out.println(currentUser.getId());
+            communityService.addMemberByCommunityId(currentUser, communityId);
+            System.out.println("---------------------------user joined----------------------------");
+        }else{
+            System.out.println(currentUser.getId());
+            System.out.println("-----------------------------user not joined-----------------------");
+        }
+        return "redirect:/r/" + communityService.getCommunityById(communityId).getName();
+    }
+
+    @PostMapping("/user/leave-community/{communityId}")
+    public String leaveCommunity(@PathVariable Long communityId) {
+        User currentUser = userService.getCurrentUser();
+        if (currentUser != null) {
+            communityService.removeMemberByCommunityId(currentUser, communityId);
+        }
+        return "redirect:/r/" + communityService.getCommunityById(communityId).getName();
     }
 }

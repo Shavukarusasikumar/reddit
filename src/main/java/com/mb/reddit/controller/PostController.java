@@ -171,9 +171,8 @@ public class PostController {
         boolean isJoined = false;
         if (isAuthenticated) {
             CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-            if (owner.getUsername().equals(userDetails.getUsername())) {
-                isJoined = userService.hasUserJoinedCommunity(community);
-            }
+            isJoined = community.getMembers().stream()
+                    .anyMatch(member -> member.getId().equals(userDetails.getId()));
         }
         boolean isSaved = false;
         if (isAuthenticated) {
@@ -185,7 +184,7 @@ public class PostController {
         model.addAttribute("isSaved", isSaved);
         model.addAttribute("community", community);
         model.addAttribute("owner", owner);
-        model.addAttribute("isJoined", isJoined);
+        model.addAttribute("hasJoined", isJoined);
         model.addAttribute("post", post);
         model.addAttribute("topLevelComments", topLevelComments);
         model.addAttribute("commentVotes", commentVotes);
