@@ -47,7 +47,7 @@ public class SecurityConfiguration {
                 )
                 .oauth2Login(oauth2 -> oauth2
                         .loginPage("/user/login")
-                        .defaultSuccessUrl("/posts", true)
+                        .defaultSuccessUrl("/", true)
                         .failureUrl("/user/login?error=true")
                 )
                 .logout(logout -> logout

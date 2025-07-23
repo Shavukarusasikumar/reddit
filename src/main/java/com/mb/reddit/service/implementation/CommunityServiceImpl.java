@@ -3,6 +3,8 @@ package com.mb.reddit.service.implementation;
 import com.mb.reddit.entity.Community;
 import com.mb.reddit.entity.CustomUserDetails;
 import com.mb.reddit.entity.User;
+import com.mb.reddit.exception.custom.CommunityNotFoundException;
+import com.mb.reddit.exception.custom.MediaUploadError;
 import com.mb.reddit.repository.CommunityRepository;
 import com.mb.reddit.repository.UserRepository;
 import com.mb.reddit.service.CommunityService;
@@ -45,7 +47,7 @@ public class CommunityServiceImpl implements CommunityService {
                 String iconUrl = cloudinaryService.uploadFile(fileIcon);
                 community.setIconUrl(iconUrl);
             } catch(IOException exception) {
-                throw new RuntimeException("Failed to upload media", exception);
+                throw new MediaUploadError("Failed to upload media"+ exception.getMessage());
             }
         }
 
@@ -54,7 +56,7 @@ public class CommunityServiceImpl implements CommunityService {
                 String bannerUrl = cloudinaryService.uploadFile(fileBanner);
                 community.setBannerUrl(bannerUrl);
             } catch(IOException exception) {
-                throw new RuntimeException("Failed to upload media", exception);
+                throw new MediaUploadError("Failed to upload media"+ exception.getMessage());
             }
         }
 
@@ -70,12 +72,12 @@ public class CommunityServiceImpl implements CommunityService {
 
     @Override
     public List<User> getCommunityMembers(Long communityId) {
-        return communityRepository.findById(communityId).orElseThrow(() -> new RuntimeException("Community Not found")).getMembers();
+        return communityRepository.findById(communityId).orElseThrow(() -> new CommunityNotFoundException("Community Not found" + communityId)).getMembers();
     }
 
     @Override
     public Long getMembersCountByCommunityId(Long communityId) {
-        return (long) communityRepository.findById(communityId).orElseThrow(() -> new RuntimeException("Community Not found")).getMembers().size();
+        return (long) communityRepository.findById(communityId).orElseThrow(() -> new CommunityNotFoundException("Community Not found" + communityId)).getMembers().size();
     }
 
     @Transactional
@@ -96,12 +98,12 @@ public class CommunityServiceImpl implements CommunityService {
 
     @Override
     public User getCreatorByCommunityId(Long communityId) {
-        return communityRepository.findById(communityId).orElseThrow(() -> new RuntimeException("Community Not found")).getCreator();
+        return communityRepository.findById(communityId).orElseThrow(() -> new CommunityNotFoundException("Community Not found" + communityId)).getCreator();
     }
 
     @Override
     public Community getCommunityById(Long communityId) {
-        return communityRepository.findById(communityId).orElseThrow(() -> new RuntimeException("Community Not found"));
+        return communityRepository.findById(communityId).orElseThrow(() -> new CommunityNotFoundException("Community Not found" + communityId));
     }
 
     @Override
@@ -148,7 +150,7 @@ public class CommunityServiceImpl implements CommunityService {
     @Override
     public void removeMemberByCommunityId(User member, Long communityId) {
         Community community = communityRepository.findById(communityId)
-                .orElseThrow(() -> new RuntimeException("Community Not found"));
+                .orElseThrow(() -> new CommunityNotFoundException("Community Not found" + communityId));
 
         community.getMembers().remove(member);
 

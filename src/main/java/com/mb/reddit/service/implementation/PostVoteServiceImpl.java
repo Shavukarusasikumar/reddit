@@ -1,6 +1,7 @@
 package com.mb.reddit.service.implementation;
 
 import com.mb.reddit.entity.*;
+import com.mb.reddit.exception.custom.PostNotFoundException;
 import com.mb.reddit.repository.NotificationRepository;
 import com.mb.reddit.repository.PostRepository;
 import com.mb.reddit.repository.PostVoteRepository;
@@ -40,7 +41,7 @@ public class PostVoteServiceImpl implements PostVoteService {
     public void addVoteByPostId(Long postId, Boolean isLike) {
         System.out.println("----------------------------Starting Vote Process for Post: " + postId + " IsLike: " + isLike + "-------------------------------------");
 
-        Post post = postRepository.findById(postId).orElseThrow(() -> new RuntimeException("Post not found " + postId));
+        Post post = postRepository.findById(postId).orElseThrow(() -> new PostNotFoundException("Post not found " + postId));
 
         User currentUser = userServiceImpl.getCurrentUser();
 

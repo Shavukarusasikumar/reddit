@@ -4,6 +4,9 @@ import com.mb.reddit.entity.Comment;
 import com.mb.reddit.entity.CommentVote;
 import com.mb.reddit.entity.Post;
 import com.mb.reddit.entity.User;
+import com.mb.reddit.exception.custom.CommentNotFoundException;
+import com.mb.reddit.exception.custom.PostNotFoundException;
+import com.mb.reddit.exception.custom.UnauthorizedAccessException;
 import com.mb.reddit.repository.CommentRepository;
 import com.mb.reddit.repository.CommentVoteRepository;
 import com.mb.reddit.repository.PostRepository;
@@ -41,7 +44,7 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     public Comment createComment(Comment comment, Long postId, Long parentCommentId) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new RuntimeException("Post not found"));
+                .orElseThrow(() -> new PostNotFoundException("Post not found"+ postId));
 
         User user = userServiceImpl.getCurrentUser();
 
@@ -52,7 +55,7 @@ public class CommentServiceImpl implements CommentService {
 
         if (parentCommentId != null) {
             Comment parentComment = commentRepository.findById(parentCommentId)
-                    .orElseThrow(() -> new RuntimeException("Parent comment not found"));
+                    .orElseThrow(() -> new CommentNotFoundException("Parent comment not found" + parentCommentId));
             comment.setParentComment(parentComment);
         }
 
@@ -65,7 +68,7 @@ public class CommentServiceImpl implements CommentService {
         Optional<Comment> optionalComment = commentRepository.findById(id);
 
         if (optionalComment.isEmpty()) {
-            throw new RuntimeException("Comment not found");
+            throw new CommentNotFoundException("Comment not found" + id);
         }
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -73,7 +76,7 @@ public class CommentServiceImpl implements CommentService {
         String username = authentication.getName();
 
         if (!username.equals(optionalComment.get().getUser().getUsername())) {
-            throw new RuntimeException("User not allowed to update comment");
+            throw new UnauthorizedAccessException("User not allowed to update comment");
         }
 
         commentRepository.deleteById(id);
@@ -85,7 +88,7 @@ public class CommentServiceImpl implements CommentService {
         Optional<Comment> optionalComment = commentRepository.findById(commentId);
 
         if (optionalComment.isEmpty()) {
-            throw new RuntimeException("Comment not found");
+            throw new CommentNotFoundException("Comment not found" + commentId);
         }
 
         Comment existingComment = optionalComment.get();
@@ -94,7 +97,7 @@ public class CommentServiceImpl implements CommentService {
         String username = authentication.getName();
 
         if (!username.equals(existingComment.getUser().getUsername())) {
-            throw new RuntimeException("User not allowed to update comment");
+            throw new UnauthorizedAccessException("User not allowed to update comment");
         }
 
         existingComment.setContent(updatedContent);
@@ -118,7 +121,7 @@ public class CommentServiceImpl implements CommentService {
         Optional<Comment> optionalComment = commentRepository.findById(commentId);
 
         if (optionalComment.isEmpty()) {
-            throw new RuntimeException("Comment not found");
+            throw new CommentNotFoundException("Comment not found" + commentId);
         }
 
         return optionalComment.get();

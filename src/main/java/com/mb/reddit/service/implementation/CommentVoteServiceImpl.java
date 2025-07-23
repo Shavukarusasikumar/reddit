@@ -4,6 +4,7 @@ import com.mb.reddit.entity.Comment;
 import com.mb.reddit.entity.CommentVote;
 import com.mb.reddit.entity.CustomUserDetails;
 import com.mb.reddit.entity.User;
+import com.mb.reddit.exception.custom.CommentNotFoundException;
 import com.mb.reddit.repository.CommentRepository;
 import com.mb.reddit.repository.CommentVoteRepository;
 import com.mb.reddit.repository.UserRepository;
@@ -48,7 +49,7 @@ public class CommentVoteServiceImpl implements CommentVoteService {
 
 	private void handleVote(Long commentId, boolean isUpvote, Long userId) {
 		Comment comment = commentRepository.findById(commentId)
-				.orElseThrow(() -> new RuntimeException("Comment not found"));
+				.orElseThrow(() -> new CommentNotFoundException("Comment not found" + commentId));
 
 		Optional<CommentVote> existingVote = commentVoteRepository.findByUserIdAndCommentId(userId, commentId);
         User user = userServiceImpl.getCurrentUser();
@@ -101,7 +102,7 @@ public class CommentVoteServiceImpl implements CommentVoteService {
 	public Long getPostIdForComment(Long commentId) {
 		return commentRepository.findById(commentId)
 				.map(comment -> comment.getPost().getId())
-				.orElseThrow(() -> new RuntimeException("Comment not found"));
+				.orElseThrow(() -> new CommentNotFoundException("Comment not found" + commentId));
 	}
 
 	@Override

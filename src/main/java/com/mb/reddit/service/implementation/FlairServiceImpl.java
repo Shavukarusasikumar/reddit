@@ -2,6 +2,7 @@ package com.mb.reddit.service.implementation;
 
 import com.mb.reddit.entity.Community;
 import com.mb.reddit.entity.Flair;
+import com.mb.reddit.exception.custom.CommunityNotFoundException;
 import com.mb.reddit.repository.CommunityRepository;
 import com.mb.reddit.repository.FlairRepository;
 import com.mb.reddit.service.FlairService;
@@ -25,7 +26,7 @@ public class FlairServiceImpl implements FlairService {
     @Transactional
     public Flair createFlair(long communityId, Flair flair) {
         Community community = communityRepository.findById(communityId).orElseThrow(() ->
-                new RuntimeException("Community Not Found"));
+                new CommunityNotFoundException("Community Not Found with id " + communityId));
 
         flair.setCommunity(community);
 
@@ -45,6 +46,6 @@ public class FlairServiceImpl implements FlairService {
     @Override
     public List<Flair> getAllFlairsByCommunityId(long communityId) {
         return communityRepository.findById(communityId).orElseThrow(() ->
-                new RuntimeException("Community Not Found")).getFlairs();
+                new CommunityNotFoundException("Community Not Found" + communityId)).getFlairs();
     }
 }

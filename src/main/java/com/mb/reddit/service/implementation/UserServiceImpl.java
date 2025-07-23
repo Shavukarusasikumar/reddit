@@ -2,6 +2,9 @@ package com.mb.reddit.service.implementation;
 
 import com.mb.reddit.dto.UserKarmaDTO;
 import com.mb.reddit.entity.*;
+import com.mb.reddit.exception.custom.CommunityNotFoundException;
+import com.mb.reddit.exception.custom.PostNotFoundException;
+import com.mb.reddit.exception.custom.UserNotFoundException;
 import com.mb.reddit.repository.CommunityRepository;
 import com.mb.reddit.repository.PostRepository;
 import com.mb.reddit.repository.UserRepository;
@@ -44,7 +47,7 @@ public class UserServiceImpl implements UserService {
         String username = authentication.getName();
 
         User user = userRepository.findUserByUsername(username);
-        Post post = postRepository.findById(postId).orElseThrow(() -> new RuntimeException("Post not found"));
+        Post post = postRepository.findById(postId).orElseThrow(() -> new PostNotFoundException("Post not found with id " + postId));
 
         if(!user.getSavedPosts().contains(post)) {
             user.getSavedPosts().add(post);
@@ -74,14 +77,14 @@ public class UserServiceImpl implements UserService {
 
         User user = userRepository.findUserByUsername(username);
         if (user == null) {
-            throw new UsernameNotFoundException("User not found: " + username);
+            throw new UserNotFoundException("User not found: " + username);
         }
 
         Community community = communityRepository.findById(communityId)
-                .orElseThrow(() -> new EntityNotFoundException("Community not found with id: " + communityId));
+                .orElseThrow(() -> new CommunityNotFoundException("Community not found with id: " + communityId));
 
         if (user.getJoinedCommunities().remove(community)) {
-            userRepository.save(user); // Only save if a removal actually happened
+            userRepository.save(user);
         }
     }
 
@@ -148,7 +151,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getUserById(long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + userId));
     }
 
     @Override
@@ -158,7 +161,7 @@ public class UserServiceImpl implements UserService {
 
         List<User> following = userRepository.findAllFollowingByUserId(currUser.getId());
         User newUser = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
+                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
 
         following.add(newUser);
 
@@ -174,7 +177,7 @@ public class UserServiceImpl implements UserService {
 
         List<User> followers = userRepository.findAllFollowersByUserId(currUser.getId());
         User newUser = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id : " + id));
+                .orElseThrow(() -> new UserNotFoundException("User not found with id : " + id));
 
         followers.add(newUser);
 
@@ -190,12 +193,11 @@ public class UserServiceImpl implements UserService {
 
         List<User> followers = userRepository.findAllFollowersByUserId(currUser.getId());
         User newUser = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id " + id));
+                .orElseThrow(() -> new UserNotFoundException("User not found with id " + id));
 
         for (int i = 0; i < followers.size(); i++) {
             if (Objects.equals(followers.get(i).getId(), newUser.getId())) {
                 followers.remove(i);
-
                 break;
             }
         }
@@ -212,7 +214,7 @@ public class UserServiceImpl implements UserService {
 
         List<User> following = userRepository.findAllFollowingByUserId(currUser.getId());
         User newUser = userRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("User not found with id " + id));
+                .orElseThrow(() -> new UserNotFoundException("User not found with id " + id));
 
         for (int i = 0; i < following.size(); i++) {
 
@@ -236,13 +238,12 @@ public class UserServiceImpl implements UserService {
 
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         return userRepository.findById(userDetails.getId())
-                .orElseThrow(() -> new RuntimeException("No User Found With Id: " + userDetails.getId()));
+                .orElseThrow(() -> new UserNotFoundException("No User Found With Id: " + userDetails.getId()));
     }
 
 
     @Override
     public boolean hasUserJoinedCommunity(Community community) {
-
         User user = getCurrentUser();
         List<Community> joinedCommunities = user.getJoinedCommunities();
 
@@ -299,9 +300,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public void addPostToUserSavedPosts(Long postId, Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new RuntimeException("Post not found"));
+                .orElseThrow(() -> new PostNotFoundException("Post not found"));
 
         if (!user.getSavedPosts().contains(post)) {
             user.getSavedPosts().add(post);
@@ -312,9 +313,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public void removePostFromUserSavedPosts(Long postId, Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new RuntimeException("Post not found"));
+                .orElseThrow(() -> new PostNotFoundException("Post not found"));
 
         user.getSavedPosts().remove(post);
         userRepository.save(user);
@@ -323,7 +324,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean isPostSavedByUser(Long postId, Long userId) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
         return user.getSavedPosts().stream()
                 .anyMatch(p -> p.getId().equals(postId));
     }

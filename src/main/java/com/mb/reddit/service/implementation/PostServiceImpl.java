@@ -2,6 +2,9 @@ package com.mb.reddit.service.implementation;
 
 import com.mb.reddit.dto.PostWithVotesDTO;
 import com.mb.reddit.entity.*;
+import com.mb.reddit.exception.custom.MediaUploadError;
+import com.mb.reddit.exception.custom.PostNotFoundException;
+import com.mb.reddit.exception.custom.UnauthorizedAccessException;
 import com.mb.reddit.repository.*;
 import com.mb.reddit.service.PostService;
 
@@ -42,7 +45,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public Post getPostById(Long postId) {
-        return postRepository.findById(postId).orElseThrow(() -> new RuntimeException("Post not found with id " + postId));
+        return postRepository.findById(postId).orElseThrow(() -> new PostNotFoundException("Post not found with id " + postId));
     }
 
     @Override
@@ -135,7 +138,7 @@ public class PostServiceImpl implements PostService {
                 post.setCreatedAt(LocalDateTime.now());
                 post.setIsPublished(true);
             } catch(IOException exception) {
-                throw new RuntimeException("Failed to upload media", exception);
+                throw new MediaUploadError("Failed to upload media" + exception.getMessage());
             }
         }
 
@@ -161,7 +164,7 @@ public class PostServiceImpl implements PostService {
         Post oldPost = postRepository.findById(updatedPost.getId()).orElseThrow();
 
         if(!username.equals(oldPost.getAuthor().getUsername())) {
-            throw new RuntimeException("Unauthorized");
+            throw new UnauthorizedAccessException("Cannot update Post");
         }
 
         oldPost.setContent(updatedPost.getContent());
@@ -177,7 +180,7 @@ public class PostServiceImpl implements PostService {
                 String mediaUrl = cloudinaryService.uploadFile(media);
                 oldPost.setMediaUrl(mediaUrl);
             } catch(IOException exception) {
-                throw new RuntimeException("Failed to upload media", exception);
+                throw new MediaUploadError("Failed to upload media"+ exception.getMessage());
             }
         }
 
