@@ -1,12 +1,15 @@
 package com.mb.reddit.controller;
 
 import com.mb.reddit.entity.Community;
+import com.mb.reddit.entity.Post;
 import com.mb.reddit.entity.Topic;
 import com.mb.reddit.entity.User;
 import com.mb.reddit.service.CommunityService;
+import com.mb.reddit.service.PostService;
 import com.mb.reddit.service.TopicService;
 
 import com.mb.reddit.service.UserService;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,12 +27,14 @@ public class CommunityController {
     private final CommunityService communityService;
     private final TopicService topicService;
     private final UserService userService;
+    private final PostService postService;
 
     public CommunityController(CommunityService communityService , TopicService topicService,
-                               UserService userService) {
+                               UserService userService,  PostService postService) {
         this.communityService = communityService;
         this.topicService = topicService;
         this.userService = userService;
+        this.postService = postService;
     }
 
 
@@ -95,17 +100,27 @@ public class CommunityController {
 
     @GetMapping("/r/{communityName}")
     public String getCommunity(@PathVariable String communityName, Model model,
-                                   @AuthenticationPrincipal User currentUser) {
+                               @AuthenticationPrincipal User currentUser,
+                               @RequestParam(defaultValue = "0") int page,
+                               @RequestParam(defaultValue = "10") int size) {
         Community community = communityService.getCommunityByName(communityName);
-        model.addAttribute("community", community);
 
         boolean isCreator = currentUser != null &&
                 community.getCreator().getId().equals(currentUser.getId());
-        model.addAttribute("isCreator", isCreator);
-
         boolean hasJoined = currentUser != null &&
                 community.getMembers().contains(currentUser);
-        model.addAttribute("hasJoined", hasJoined);
+
+        Page<Post> postsPage = postService.getPostsByCommunityId(community.getId(), page, size);
+
+        model.addAllAttributes(Map.of(
+                "community", community,
+                "isCreator", isCreator,
+                "hasJoined", hasJoined,
+                "posts", postsPage.getContent(),
+                "currentPage", postsPage.getNumber(),
+                "totalPages", postsPage.getTotalPages(),
+                "size", size
+        ));
 
         return "community-profile";
     }
