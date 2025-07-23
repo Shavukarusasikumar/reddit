@@ -242,7 +242,7 @@
                     <div th:each="comm : ${recentCommunities}" class="community-item">
                         <img th:src="${comm.iconUrl}" alt="community icon"
                              onerror="this.onerror=null;this.src='https://via.placeholder.com/20x20/ff4500/ffffff?text=r';">
-                        <a th:href="@{/community/r/{id}(id=${comm.id})}"
+                        <a th:href="@{/r/{id}(id=${comm.name})}"
                            class="community-link"
                            th:text="'r/' + ${comm.name}"
                            th:title="'r/' + ${comm.name}"></a>
@@ -263,7 +263,7 @@
                     <div th:each="comm : ${communities}" class="community-item">
                         <img th:src="${comm.iconUrl}" alt="community icon"
                              onerror="this.onerror=null;this.src='https://via.placeholder.com/20x20/ff4500/ffffff?text=r';">
-                        <a th:href="@{/community/r/{id}(id=${comm.id})}"
+                        <a th:href="@{/r/{id}(id=${comm.name})}"
                            class="community-link"
                            th:text="'r/' + ${comm.name}"
                            th:title="'r/' + ${comm.name}"></a>
