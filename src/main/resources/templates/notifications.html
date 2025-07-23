@@ -96,11 +96,14 @@
 
     <!-- Notifications List -->
     <div th:each="notification : ${notifications.content}">
-        <div class="notification-card"
-             th:classappend="${notification.read} ? 'read' : 'unread'">
+        <a th:href="@{/posts/{id}(id=${notification.post.id})}"
+           class="notification-card"
+           th:classappend="${notification.read} ? ' read' : ' unread'">
             <div class="message" th:text="${notification.message}">Notification message</div>
-            <div class="timestamp" th:text="${#temporals.format(notification.timestamp, 'dd MMM yyyy HH:mm')}">Timestamp</div>
-        </div>
+            <div class="timestamp" th:text="${#temporals.format(notification.timestamp, 'dd MMM yyyy HH:mm')}">
+                Timestamp
+            </div>
+        </a>
     </div>
 
     <!-- Pagination Controls -->

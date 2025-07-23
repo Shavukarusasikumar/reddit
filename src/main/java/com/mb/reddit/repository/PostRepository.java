@@ -41,55 +41,23 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 //    Page<PostWithVotesDTO> findAllPublicPublishedPosts(Pageable pageable);
 
     @Query("""
-        SELECT new com.mb.reddit.dto.PostWithVotesDTO(
-            p.id,
-            p.title,
-            p.content,
-            p.mediaUrl,
-            c.name,
-            c.iconUrl,
-            p.createdAt,
-            SUM(CASE WHEN v.isLike = true THEN 1 ELSE 0 END),
-            SUM(CASE WHEN v.isLike = false THEN 1 ELSE 0 END),
-            COUNT(DISTINCT cm.id)
-        )
-        FROM Post p
-        LEFT JOIN PostVote v ON v.post = p
-        LEFT JOIN p.community c
-        LEFT JOIN p.comments cm
-        WHERE p.isPublished = true AND p.author.id = :userId
-        GROUP BY p.id, p.title, p.content, p.mediaUrl, c.name, c.iconUrl, p.createdAt
-        ORDER BY p.createdAt DESC
-    """)
+    SELECT new com.mb.reddit.dto.PostWithVotesDTO(
+        p.id,
+        p.title,
+        p.content,
+        p.mediaUrl,
+        p.community.name,
+        p.community.iconUrl,
+        p.createdAt,
+        (SELECT COUNT(v.id) FROM PostVote v WHERE v.post.id = p.id AND v.isLike = true),
+        (SELECT COUNT(v.id) FROM PostVote v WHERE v.post.id = p.id AND v.isLike = false),
+        (SELECT COUNT(c.id) FROM Comment c WHERE c.post.id = p.id)
+    )
+    FROM Post p
+    WHERE p.isPublished = true AND p.author.id = :userId
+    ORDER BY p.createdAt DESC
+""")
     Page<PostWithVotesDTO> getPostDTOsByUserId(@Param("userId") Long userId, Pageable pageable);
-
-
-    @Query("""
-        SELECT new com.mb.reddit.dto.PostWithVotesDTO(
-            p.id,
-            p.title,
-            p.content,
-            p.mediaUrl,
-            c.name,
-            c.iconUrl,
-            p.createdAt,
-            SUM(CASE WHEN v2.isLike = true THEN 1 ELSE 0 END),
-            SUM(CASE WHEN v2.isLike = false THEN 1 ELSE 0 END),
-            COUNT(cm)
-        )
-        FROM PostVote v
-        JOIN v.post p
-        JOIN p.community c
-        LEFT JOIN PostVote v2 ON v2.post.id = p.id
-        LEFT JOIN Comment cm ON cm.post.id = p.id
-        WHERE p.isPublished = true AND v.user.id = :userId AND v.isLike = :isLike
-        GROUP BY p.id, c.name, c.iconUrl, p.title, p.content, p.mediaUrl, p.createdAt
-        ORDER BY p.createdAt DESC
-    """)
-    Page<PostWithVotesDTO> getVotedPostsDTO(@Param("userId") Long userId,
-                                            @Param("isLike") Boolean isLike,
-                                            Pageable pageable);
-
 
     @Query("""
     SELECT new com.mb.reddit.dto.PostWithVotesDTO(
@@ -97,22 +65,40 @@ public interface PostRepository extends JpaRepository<Post, Long> {
         p.title,
         p.content,
         p.mediaUrl,
-        c.name,
-        c.iconUrl,
+        p.community.name,
+        p.community.iconUrl,
         p.createdAt,
-        SUM(CASE WHEN v.isLike = true THEN 1 ELSE 0 END),
-        SUM(CASE WHEN v.isLike = false THEN 1 ELSE 0 END),
-        COUNT(DISTINCT cm.id)
+        (SELECT COUNT(v2.id) FROM PostVote v2 WHERE v2.post.id = p.id AND v2.isLike = true),
+        (SELECT COUNT(v2.id) FROM PostVote v2 WHERE v2.post.id = p.id AND v2.isLike = false),
+        (SELECT COUNT(c.id) FROM Comment c WHERE c.post.id = p.id)
+    )
+    FROM PostVote v
+    JOIN v.post p
+    WHERE p.isPublished = true AND v.user.id = :userId AND v.isLike = :isLike
+    ORDER BY p.createdAt DESC
+""")
+    Page<PostWithVotesDTO> getVotedPostsDTO(@Param("userId") Long userId,
+                                            @Param("isLike") Boolean isLike,
+                                            Pageable pageable);
+
+    @Query("""
+    SELECT new com.mb.reddit.dto.PostWithVotesDTO(
+        p.id,
+        p.title,
+        p.content,
+        p.mediaUrl,
+        p.community.name,
+        p.community.iconUrl,
+        p.createdAt,
+        (SELECT COUNT(v.id) FROM PostVote v WHERE v.post.id = p.id AND v.isLike = true),
+        (SELECT COUNT(v.id) FROM PostVote v WHERE v.post.id = p.id AND v.isLike = false),
+        (SELECT COUNT(c.id) FROM Comment c WHERE c.post.id = p.id)
     )
     FROM User u
     JOIN u.savedPosts p
-    LEFT JOIN PostVote v ON v.post = p
-    LEFT JOIN p.community c
-    LEFT JOIN p.comments cm
     WHERE u.id = :userId AND p.isPublished = true
-    GROUP BY p.id, p.title, p.content, p.mediaUrl, c.name, c.iconUrl, p.createdAt
     ORDER BY p.createdAt DESC
-    """)
+""")
     Page<PostWithVotesDTO> getSavedPostDTOsByUserId(@Param("userId") Long userId, Pageable pageable);
 
     @Query("SELECT u.savedPosts FROM User u WHERE u.id = :userId")
@@ -191,18 +177,24 @@ public interface PostRepository extends JpaRepository<Post, Long> {
         p.community.name,
         p.community.iconUrl,
         p.createdAt,
-        COALESCE(SUM(CASE WHEN v.isLike = true THEN 1 ELSE 0 END), 0),
-        COALESCE(SUM(CASE WHEN v.isLike = false THEN 1 ELSE 0 END), 0),
-        COUNT(c)
+        (SELECT COUNT(v1) FROM PostVote v1 WHERE v1.post = p AND v1.isLike = true),
+        (SELECT COUNT(v2) FROM PostVote v2 WHERE v2.post = p AND v2.isLike = false),
+        (SELECT COUNT(c1) FROM Comment c1 WHERE c1.post = p)
     )
-            FROM Post p
-            LEFT JOIN p.postVotes v
-            LEFT JOIN p.comments c
-            GROUP BY p.id, p.title, p.content, p.mediaUrl, p.community.name, p.community.iconUrl, p.createdAt
-            ORDER BY COALESCE(SUM(CASE WHEN v.isLike = true THEN 1 ELSE 0 END), 0) DESC, p.createdAt DESC
-        """)
+    FROM Post p
+    WHERE p.isPublished = true
+    ORDER BY 
+      (LOG10(GREATEST(ABS(
+            (SELECT COUNT(v1) FROM PostVote v1 WHERE v1.post = p AND v1.isLike = true) - 
+            (SELECT COUNT(v2) FROM PostVote v2 WHERE v2.post = p AND v2.isLike = false)
+      ), 1)) +
+       SIGN(
+            (SELECT COUNT(v1) FROM PostVote v1 WHERE v1.post = p AND v1.isLike = true) - 
+            (SELECT COUNT(v2) FROM PostVote v2 WHERE v2.post = p AND v2.isLike = false)
+       ) * (EXTRACT(EPOCH FROM p.createdAt) - 1134028003) / 45000
+      ) DESC
+""")
     Page<PostWithVotesDTO> findPopularPosts(Pageable pageable);
-
 
     @Query("""
             SELECT new com.mb.reddit.dto.PostWithVotesDTO(
