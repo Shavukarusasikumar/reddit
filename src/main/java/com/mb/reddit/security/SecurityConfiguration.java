@@ -30,6 +30,7 @@ public class SecurityConfiguration {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.GET,"/").permitAll()
+                        .requestMatchers("/scroll").permitAll()
                         .requestMatchers(HttpMethod.GET,"/posts/*").permitAll()
                         .requestMatchers(HttpMethod.GET, "/community/r/*").permitAll()
                         .requestMatchers(HttpMethod.GET, "/r/*").permitAll()
