@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.Authentication;
 import com.mb.reddit.service.UserService;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.ui.Model;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
@@ -41,7 +42,10 @@ public class PostController {
     public final NotificationService notificationService;
     public final UserServiceImpl userServiceImpl;
 
-    public PostController(PostService postService, UserService userService, CommunityService communityService, FlairService flairService, CommentService commentService, PostVoteService postVoteService, NotificationService notificationService, UserServiceImpl userServiceImpl) {
+    public PostController(PostService postService, UserService userService,
+                          CommunityService communityService, FlairService flairService,
+                          CommentService commentService, PostVoteService postVoteService,
+                          NotificationService notificationService, UserServiceImpl userServiceImpl) {
         this.postService = postService;
         this.commentService = commentService;
         this.postVoteService = postVoteService;
@@ -75,7 +79,8 @@ public class PostController {
     }
 
     @PostMapping("/new-post")
-    public String createPost(@ModelAttribute("post") Post post, @RequestParam Long communityId, @RequestParam(value = "file", required = false) MultipartFile file) {
+    public String createPost(@ModelAttribute("post") Post post, @RequestParam Long communityId,
+                             @RequestParam(value = "file", required = false) MultipartFile file) {
         postService.createPost(post, communityId, file);
 
         return "redirect:/home";
@@ -115,10 +120,9 @@ public class PostController {
         model.addAttribute("isNew", isNew);
         model.addAttribute("popular", popular);
 
-        if(keyword != null && !keyword.isBlank()) {
+        if (keyword != null && !keyword.isBlank()) {
             model.addAttribute("keyword", keyword);
-        }
-        else {
+        } else {
             model.addAttribute("keyword", "");
         }
 
@@ -148,7 +152,7 @@ public class PostController {
         int commentCount = topLevelComments.size();
 
         Boolean currentUserVote = null;
-        if(authentication != null && authentication.isAuthenticated()) {
+        if (authentication != null && authentication.isAuthenticated()) {
             currentUserVote = postVoteService.getVoteStatusByPostId(postId);
         }
         Community community = post.getCommunity();
@@ -160,20 +164,21 @@ public class PostController {
             commentVotes.put(comment.getId(), voteCount);
         }
 
-        boolean isAuthenticated = authentication != null && authentication.isAuthenticated() && !(authentication.getPrincipal() instanceof String);
+        boolean isAuthenticated = authentication != null && authentication.isAuthenticated()
+                && !(authentication.getPrincipal() instanceof String);
 
         model.addAttribute("isAuthenticated", isAuthenticated);
         boolean isJoined = false;
-        if(isAuthenticated) {
+        if (isAuthenticated) {
             CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-            if(owner.getUsername().equals(userDetails.getUsername())) {
+            if (owner.getUsername().equals(userDetails.getUsername())) {
                 isJoined = userService.hasUserJoinedCommunity(community);
             }
         }
         boolean isSaved = false;
-        if(isAuthenticated) {
+        if (isAuthenticated) {
             CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-            if(userDetails != null) {
+            if (userDetails != null) {
                 isSaved = userService.isPostSavedByUser(postId, userDetails.getId());
             }
         }
@@ -191,7 +196,7 @@ public class PostController {
         return "view-post";
     }
 
-    @PostMapping("/posts/delete/{postId}")
+    @PostMapping("/delete/post/{postId}")
     public String deletePostById(@PathVariable("postId") Long postId) {
         postService.deletePost(postId);
 
@@ -218,32 +223,77 @@ public class PostController {
     }
 
     @GetMapping("/user/{userId}/posts")
-    public String getUserPosts(@PathVariable Long userId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, Model model) {
-        Page<Post> posts = postService.getPostsByUserId(userId, page, size);
+    public String getUserPosts(@PathVariable Long userId,
+                               @RequestParam(defaultValue = "0") int page,
+                               @RequestParam(defaultValue = "20") int size,
+                               Model model) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated() ||
+                authentication.getPrincipal() instanceof String) {
+            return "redirect:/user/login";
+        }
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Page<PostWithVotesDTO> posts = postService.getPostsByUserId(userDetails.getId(), page, size);
+
         model.addAttribute("posts", posts);
         model.addAttribute("hasNext", posts.hasNext());
         return "fragments/posts :: postSection";
     }
 
     @GetMapping("/user/{userId}/upvoted")
-    public String getUserUpVotedPosts(@PathVariable Long userId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, Model model) {
-        Page<Post> posts = postService.getUpvotedPostsByUserId(userId, page, size);
+    public String getUserUpVotedPosts(@PathVariable Long userId,
+                               @RequestParam(defaultValue = "0") int page,
+                               @RequestParam(defaultValue = "10") int size,
+                               Model model) {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        if (authentication == null || !authentication.isAuthenticated() ||
+                authentication.getPrincipal() instanceof String) {
+            return "redirect:/user/login";
+        }
+
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Page<PostWithVotesDTO> posts = postService.getUpvotedPostsByUserId(userDetails.getId(),
+                page, size);
+
         model.addAttribute("posts", posts.getContent());
         model.addAttribute("hasNext", posts.hasNext());
         return "fragments/posts :: postSection";
     }
 
     @GetMapping("/user/{userId}/downvoted")
-    public String getUserDownVotedPosts(@PathVariable Long userId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, Model model) {
-        Page<Post> posts = postService.getDownVotedPostsByUserId(userId, page, size);
+    public String getUserDownVotedPosts(@PathVariable Long userId,
+                                      @RequestParam(defaultValue = "0") int page,
+                                      @RequestParam(defaultValue = "10") int size,
+                                      Model model) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated() ||
+                authentication.getPrincipal() instanceof String) {
+            return "redirect:/user/login";
+        }
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Page<PostWithVotesDTO> posts = postService.getDownVotedPostsByUserId(userDetails.getId(), page, size);
+
         model.addAttribute("posts", posts);
         model.addAttribute("hasNext", posts.hasNext());
         return "fragments/posts :: postSection";
     }
 
     @GetMapping("/user/{userId}/saved")
-    public String getUserSavedPosts(@PathVariable Long userId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, Model model) {
-        Page<Post> posts = postService.getSavedPostsByUserId(userId, page, size);
+    public String getUserSavedPosts(@PathVariable Long userId,
+                                    @RequestParam(defaultValue = "0") int page,
+                                    @RequestParam(defaultValue = "10") int size,
+                                    Model model) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated() ||
+                authentication.getPrincipal() instanceof String) {
+            return "redirect:/user/login";
+        }
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+
+        Page<PostWithVotesDTO> posts = postService.getSavedPostsByUserId(userDetails.getId(), page, size);
+
         model.addAttribute("posts", posts.getContent());
         model.addAttribute("hasNext", posts.hasNext());
         return "fragments/posts :: postSection";
@@ -252,7 +302,8 @@ public class PostController {
     @PostMapping("/save/{postId}")
     @ResponseBody
     public ResponseEntity<String> savePost(@PathVariable("postId") Long postId, Authentication authentication) {
-        if(authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal() instanceof String) {
+        if (authentication == null || !authentication.isAuthenticated() ||
+                authentication.getPrincipal() instanceof String) {
             return ResponseEntity.status(401).body("Authentication required");
         }
 
@@ -260,7 +311,7 @@ public class PostController {
             CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
             userService.addPostToUserSavedPosts(postId, userDetails.getId());
             return ResponseEntity.ok("Post saved successfully");
-        } catch(Exception e) {
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error saving post: " + e.getMessage());
         }
     }
@@ -268,7 +319,8 @@ public class PostController {
     @PostMapping("/unsave/{postId}")
     @ResponseBody
     public ResponseEntity<String> unsavePost(@PathVariable("postId") Long postId, Authentication authentication) {
-        if(authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal() instanceof String) {
+        if (authentication == null || !authentication.isAuthenticated() ||
+                authentication.getPrincipal() instanceof String) {
             return ResponseEntity.status(401).body("Authentication required");
         }
 
@@ -276,7 +328,7 @@ public class PostController {
             CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
             userService.removePostFromUserSavedPosts(postId, userDetails.getId());
             return ResponseEntity.ok("Post unsaved successfully");
-        } catch(Exception e) {
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error unsaving post: " + e.getMessage());
         }
     }

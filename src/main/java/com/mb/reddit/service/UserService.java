@@ -1,5 +1,6 @@
 package com.mb.reddit.service;
 
+import com.mb.reddit.dto.UserKarmaDTO;
 import com.mb.reddit.entity.Comment;
 import com.mb.reddit.entity.Community;
 import com.mb.reddit.entity.Post;
@@ -38,4 +39,5 @@ public interface UserService {
     void addPostToUserSavedPosts(Long postId, Long userId);
     void removePostFromUserSavedPosts(Long postId, Long userId);
     boolean isPostSavedByUser(Long postId, Long userId);
+    UserKarmaDTO getKarmaDto(Long userId);
 }

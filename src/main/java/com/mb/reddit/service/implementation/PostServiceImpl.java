@@ -199,9 +199,9 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Page<Post> getPostsByUserId(Long userId, int pageNumber, int size) {
+    public Page<PostWithVotesDTO> getPostsByUserId(Long userId, int pageNumber, int size) {
         Pageable pageable = PageRequest.of(pageNumber, size);
-        Page<Post> postsPage = postRepository.getPostsByUserId(userId, pageable);
+        Page<PostWithVotesDTO> postsPage = postRepository.getPostDTOsByUserId(userId, pageable);
         postsPage.forEach(post -> {
             String showTime = TimeAgoUtils.getTimeAgo(post.getCreatedAt());
             post.setShowTime(showTime);
@@ -211,12 +211,14 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Page<Post> getUpvotedPostsByUserId(Long userId, int pageNumber, int size) {
+    public Page<PostWithVotesDTO> getUpvotedPostsByUserId(Long userId, int pageNumber, int size) {
         Pageable pageable = PageRequest.of(pageNumber, size);
         Boolean isLike = true;
-        Page<Post> postsPage = postRepository.getVotedPostByUserId(userId, isLike, pageable);
+        Page<PostWithVotesDTO> postsPage = postRepository.getVotedPostsDTO(userId, isLike,pageable);
 
+        System.out.println(postsPage);
         postsPage.forEach(post -> {
+            System.out.println(post);
             String showTime = TimeAgoUtils.getTimeAgo(post.getCreatedAt());
             post.setShowTime(showTime);
         });
@@ -225,11 +227,11 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Page<Post> getDownVotedPostsByUserId(Long userId, int page, int size) {
+    public Page<PostWithVotesDTO> getDownVotedPostsByUserId(Long userId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
         Boolean isLike = false;
 
-        Page<Post> postsPage = postRepository.getVotedPostByUserId(userId, isLike, pageable);
+        Page<PostWithVotesDTO> postsPage = postRepository.getVotedPostsDTO(userId, isLike, pageable);
 
         postsPage.forEach(post -> {
             String showTime = TimeAgoUtils.getTimeAgo(post.getCreatedAt());
@@ -240,10 +242,10 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Page<Post> getSavedPostsByUserId(Long userId, int page, int size) {
+    public Page<PostWithVotesDTO> getSavedPostsByUserId(Long userId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
 
-        Page<Post> postsPage = postRepository.getSavedPostsByUserId(userId, pageable);
+        Page<PostWithVotesDTO> postsPage = postRepository.getSavedPostDTOsByUserId(userId, pageable);
 
         postsPage.forEach(post -> {
             String showTime = TimeAgoUtils.getTimeAgo(post.getCreatedAt());

@@ -1,5 +1,6 @@
 package com.mb.reddit.repository;
 
+import com.mb.reddit.dto.UserKarmaDTO;
 import com.mb.reddit.entity.Comment;
 import com.mb.reddit.entity.Community;
 import com.mb.reddit.entity.Post;
@@ -38,6 +39,23 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("SELECT c FROM Community c WHERE c.creator.id = :userId")
     List<Community> findAllCreatedCommunitiesByUserId(@Param("userId") Long userId);
+
+    @Query("""
+    SELECT new com.mb.reddit.dto.UserKarmaDTO(
+        u.id,
+        u.username,
+        COALESCE(SUM(CASE WHEN pv.isLike = true THEN 1 WHEN pv.isLike = false THEN -1 ELSE 0 END), 0),
+        COALESCE(SUM(CASE WHEN cv.isLike = true THEN 1 WHEN cv.isLike = false THEN -1 ELSE 0 END), 0)
+    )
+    FROM User u
+    LEFT JOIN Post p ON p.author.id = u.id
+    LEFT JOIN PostVote pv ON pv.post.id = p.id
+    LEFT JOIN Comment c ON c.user.id = u.id
+    LEFT JOIN CommentVote cv ON cv.comment.id = c.id
+    WHERE u.id = :userId
+    GROUP BY u.id, u.username
+    """)
+    UserKarmaDTO getKarmaByUserId(@Param("userId") Long userId);
 
     User findUserByUsername(String name);
     boolean existsByUsername(String username);

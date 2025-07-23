@@ -20,8 +20,9 @@ public interface PostService {
     Post updatePost(PostWithVotesDTO post, MultipartFile media,boolean removeMedia);
 
     void deletePost(Long postId);
-
-    Page<PostWithVotesDTO> getAllPost(int pageNumber, int pageSize, String sortBy, boolean rising, boolean top, boolean isNew, boolean popular, String keyword);
+    Page<PostWithVotesDTO> getAllPost(int pageNumber, int pageSize, String sortBy,
+                              boolean rising, boolean top, boolean isNew,
+                              boolean popular, String keyword);
 
     Page<Post> getPostsByCommunityId(Long communityId, int pageNumber, int pageSize);
 
@@ -29,13 +30,12 @@ public interface PostService {
 
     Integer getPostVotesByPostId(Long postId);
 
-    Page<Post> getPostsByUserId(Long userId, int page, int size);
+    Page<PostWithVotesDTO> getPostsByUserId(Long userId, int page, int size);
 
-    Page<Post> getUpvotedPostsByUserId(Long userId, int page, int size);
+    Page<PostWithVotesDTO> getUpvotedPostsByUserId(Long userId, int page, int size);
 
-    Page<Post> getDownVotedPostsByUserId(Long userId, int page, int size);
-
-    Page<Post> getSavedPostsByUserId(Long userId, int page, int size);
+    Page<PostWithVotesDTO> getDownVotedPostsByUserId(Long userId, int page, int size);
 
     PostWithVotesDTO getPostWithVotesByPostId(@Param("postId") Long postId);
+    Page<PostWithVotesDTO> getSavedPostsByUserId(Long userId, int page, int size);
 }

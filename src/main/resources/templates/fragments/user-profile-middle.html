@@ -3,10 +3,12 @@
 <head>
     <style>
         .layout-container {
-           display: grid;
-           grid-template-columns: 312px 1fr 400px;
-           padding-top: 20px;
-           gap: 20px;
+            display: grid;
+            grid-template-columns: 312px 1fr 400px;
+            padding-top: 20px;
+            gap: 20px;
+            max-width: 98vw;
+            box-sizing: border-box;
         }
        .home-left {
             width: 312px;
@@ -105,7 +107,8 @@
        display: flex;
        background-color: white;
        margin-bottom: 10px;
-       border: 1px solid #ccc;
+       border : none;
+       border-bottom : 2px solid #ccc;
        border-radius: 4px;
        overflow: hidden;
        transition: border-color 0.2s;
@@ -124,7 +127,7 @@
        padding: 8px 4px;
        flex-shrink: 0;
    }
- .post-content-area {
+   .post-content-area {
        flex: 1;
        padding: 8px 8px 8px 8px;
        overflow: hidden;
@@ -287,7 +290,8 @@
    }
 
    .right-sidebar {
-       width: 500px;
+       max-width: 400px;
+       width: 100%;
        padding: 0 25px;
        box-sizing: border-box;
        font-family: 'Segoe UI', sans-serif;
@@ -386,7 +390,7 @@
         <!-- User Profile Row -->
         <div class="user-profile">
             <img th:src="${user.profilePicture != null ? user.profilePicture : '/images/default-avatar.png'}"
-                 alt="User Profile">
+                 alt="User Profile" onerror="this.onerror=null;this.src='/images/profile-icon.png';">
             <div class="user-info">
                 <div class="username" th:text="${user.username}">Username</div>
                 <div class="user-handle" th:text="'u/' + ${user.username}">u/username</div>
@@ -422,25 +426,31 @@
         </div>
 
         <!-- Karma Card -->
-        <div class="sidebar-card karma-card">
-            <div class="card-title">Karma</div>
-            <div class="user-meta-card">
-                <div class="user-meta-item">
-                    <span class="meta-label">Post Karma</span>
-                    <span class="meta-value" th:text="${postKarma != null ? postKarma : 0}">0</span>
+
+        <div class="sidebar-card karma-card"
+             style="background-color: #e9f3fc; border: 1px solid #d8eafc; border-radius: 12px; padding: 16px; margin-bottom: 16px; width: 100%; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);">
+            <div class="card-title" style="font-size: 18px; font-weight: 600; color: #222; margin-bottom: 8px;">Karma</div>
+            <div class="user-meta-card" style="display: flex; flex-direction: column; gap: 10px;">
+                <div class="user-meta-item" style="display: flex; justify-content: space-between; font-size: 14px; color: #555;">
+                    <span class="meta-label" style="font-weight: 500;">Post Karma</span>
+                    <span class="meta-value" style="font-weight: 600; color: #000;"
+                          th:text="${karma != null && karma.postKarma != null ? karma.postKarma : 'Not Set'}">0</span>
                 </div>
-                <div class="user-meta-item">
-                    <span class="meta-label">Comment Karma</span>
-                    <span class="meta-value" th:text="${commentKarma != null ? commentKarma : 0}">0</span>
+                <div class="user-meta-item" style="display: flex; justify-content: space-between; font-size: 14px; color: #555;">
+                    <span class="meta-label" style="font-weight: 500;">Comment Karma</span>
+                    <span class="meta-value" style="font-weight: 600; color: #000;"
+                          th:text="${karma != null && karma.commentKarma != null ? karma.commentKarma : 'Not Set'}">0</span>
                 </div>
-                <div class="user-meta-item">
-                    <span class="meta-label">Total Karma</span>
-                    <span class="meta-value" th:text="${(postKarma != null ? postKarma : 0) + (commentKarma != null ? commentKarma : 0)}">0</span>
+                <div class="user-meta-item" style="display: flex; justify-content: space-between; font-size: 14px; color: #555;">
+                    <span class="meta-label" style="font-weight: 500;">Total Karma</span>
+                    <span class="meta-value" style="font-weight: 600; color: #000;"
+                          th:text="${karma != null ? (karma.postKarma != null ? karma.postKarma : 0) + (karma.commentKarma != null ? karma.commentKarma : 0) : 'Not Set'}">0</span>
                 </div>
+
             </div>
         </div>
 
-<!--        &lt;!&ndash; About Reddit Section &ndash;&gt;-->
+        <!--        &lt;!&ndash; About Reddit Section &ndash;&gt;-->
 <!--        <div class="sidebar-card">-->
 <!--            <h3 class="card-title">About Reddit</h3>-->
 <!--            <p>Reddit is a social news aggregation, discussion, and content sharing platform where registered-->

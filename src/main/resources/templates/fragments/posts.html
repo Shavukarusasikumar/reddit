@@ -3,27 +3,20 @@
 
 
     <div th:each="post : ${posts}" class="post-container">
-        <!--<div class="post-votes">
-            <div class="vote-buttons" th:data-post-id="${post.id}">
-                <i class="fa-solid fa-arrow-up upvote-btn"
-                   th:classappend="${post.isLiked} == true ? ' active' : ''"></i>
-                <span class="vote-count" th:text="${post.voteCount}">0</span>
-                <i class="fa-solid fa-arrow-down downvote-btn"
-                   th:classappend="${post.isLiked} == false ? ' active' : ''"></i>
-            </div>
-        </div>-->
 
         <div class="post-content-area">
             <div class="post-header">
                 <div class="post-header-left">
-                    <a th:href="@{'/r/' + ${post.community.name}}"
-                       th:text="'r/' + ${post.community.name}"
+                    <a th:href="@{'/r/' + ${post.communityName}}"
+                       th:text="'r/' + ${post.communityName}"
                        class="community-link"></a>
                     <span class="post-time" th:text="' • ' + ${post.showTime}"></span>
                 </div>
             </div>
 
+            <a th:href="@{/posts/{id}(id=${post.id})}" >
             <div class="post-title" th:text="${post.title}">Post title</div>
+            </a>
 
             <div th:if="${post.mediaUrl != null}" class="post-media">
                 <img class="post-image" th:src="${post.mediaUrl}" alt="Post image" loading="lazy">
@@ -35,9 +28,20 @@
             </div>
 
             <div class="post-actions">
+                <a  class="post-votes">
+                    <div class="action-button likes-count"
+                         th:data-vote-state="${post.isLiked == null ? 0 : (post.isLiked ? 1 : -1)}">
+                        <i class="fa-solid fa-arrow-up upvote-btn"
+                           th:classappend="${post.isLiked} == true ? ' active' : ''"></i>
+                        <span class="vote-count" th:text="${post.voteCount}">0</span>
+                        <i class="fa-solid fa-arrow-down downvote-btn"
+                           th:classappend="${post.isLiked} == false ? ' active' : ''"></i>
+                    </div>
+                </a>
+
                 <a th:href="@{/posts/{id}(id=${post.id})}" class="action-button comment-btn">
                     <i class="fa-regular fa-comment"></i>
-                    <span th:text="${post.comments.size()} + ' Comments'">0 Comments</span>
+                    <span th:text="${post.commentCount} + ' Comments'">0 Comments</span>
                 </a>
                 <div class="action-button share-btn">
                     <i class="fa-solid fa-share"></i>

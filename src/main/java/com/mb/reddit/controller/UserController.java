@@ -1,5 +1,6 @@
 package com.mb.reddit.controller;
 
+import com.mb.reddit.dto.UserKarmaDTO;
 import com.mb.reddit.entity.User;
 import com.mb.reddit.repository.UserRepository;
 import com.mb.reddit.service.NotificationService;
@@ -117,13 +118,16 @@ public class UserController {
     @GetMapping("/user")
     public String getUserProfilePage(Model model) {
         User user = userService.getCurrentUser();
+
         if (user == null) {
             return "redirect:/user/login";
         }
-
+        UserKarmaDTO karmaDTO = userService.getKarmaDto(user.getId());
         Integer notificationCount = notificationService.getNotificationCount();
+        System.out.println(karmaDTO);
+        
         model.addAttribute("notificationCount", notificationCount);
-
+        model.addAttribute("karma", karmaDTO);
         model.addAttribute("user", user);
 
         return "fragments/user-profile-middle";

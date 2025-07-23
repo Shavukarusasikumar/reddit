@@ -1,5 +1,6 @@
 package com.mb.reddit.service.implementation;
 
+import com.mb.reddit.dto.UserKarmaDTO;
 import com.mb.reddit.entity.*;
 import com.mb.reddit.repository.CommunityRepository;
 import com.mb.reddit.repository.PostRepository;
@@ -325,5 +326,11 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new RuntimeException("User not found"));
         return user.getSavedPosts().stream()
                 .anyMatch(p -> p.getId().equals(postId));
+    }
+
+    @Override
+    public UserKarmaDTO getKarmaDto(Long userId) {
+        UserKarmaDTO userKarmaDTO = userRepository.getKarmaByUserId(userId);
+        return userKarmaDTO;
     }
 }

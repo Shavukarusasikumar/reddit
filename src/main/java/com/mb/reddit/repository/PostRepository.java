@@ -18,33 +18,102 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Query("SELECT p FROM Post p WHERE p.community.id = :communityId")
     Page<Post> getPostsByCommunityId(@Param("communityId") Long communityId, Pageable pageable);
 
-    //    @Query("""
-    //    SELECT new com.mb.reddit.dto.PostWithVotesDTO(
-    //        p.id,
-    //        p.title,
-    //        p.content,
-    //        p.mediaUrl,
-    //        p.community.name,
-    //        p.community.iconUrl,
-    //        p.createdAt,
-    //        SUM(CASE WHEN v.isLike = true THEN 1 ELSE 0 END),
-    //        SUM(CASE WHEN v.isLike = false THEN 1 ELSE 0 END),
-    //        COUNT(c)
-    //    )
-    //            FROM Post p
-    //            LEFT JOIN p.postVotes v
-    //            LEFT JOIN p.comments c
-    //            WHERE p.isPublished = true AND p.community.isPrivate = false
-    //            GROUP BY p.id, p.title, p.content, p.mediaUrl, p.community.name, p.community.iconUrl, p.createdAt
-    //            ORDER BY p.createdAt DESC
-    //        """)
-    //    Page<PostWithVotesDTO> findAllPublicPublishedPosts(Pageable pageable);
+//    @Query("""
+//    SELECT new com.mb.reddit.dto.PostWithVotesDTO(
+//        p.id,
+//        p.title,
+//        p.content,
+//        p.mediaUrl,
+//        p.community.name,
+//        p.community.iconUrl,
+//        p.createdAt,
+//        SUM(CASE WHEN v.isLike = true THEN 1 ELSE 0 END),
+//        SUM(CASE WHEN v.isLike = false THEN 1 ELSE 0 END),
+//        COUNT(c)
+//    )
+//            FROM Post p
+//            LEFT JOIN p.postVotes v
+//            LEFT JOIN p.comments c
+//            WHERE p.isPublished = true AND p.community.isPrivate = false
+//            GROUP BY p.id, p.title, p.content, p.mediaUrl, p.community.name, p.community.iconUrl, p.createdAt
+//            ORDER BY p.createdAt DESC
+//        """)
+//    Page<PostWithVotesDTO> findAllPublicPublishedPosts(Pageable pageable);
 
-    @Query("SELECT DISTINCT p from Post p Where p.isPublished = true AND p.author.id = :userId")
-    Page<Post> getPostsByUserId(@Param("userId") Long userId, Pageable pageable);
+    @Query("""
+        SELECT new com.mb.reddit.dto.PostWithVotesDTO(
+            p.id,
+            p.title,
+            p.content,
+            p.mediaUrl,
+            c.name,
+            c.iconUrl,
+            p.createdAt,
+            SUM(CASE WHEN v.isLike = true THEN 1 ELSE 0 END),
+            SUM(CASE WHEN v.isLike = false THEN 1 ELSE 0 END),
+            COUNT(DISTINCT cm.id)
+        )
+        FROM Post p
+        LEFT JOIN PostVote v ON v.post = p
+        LEFT JOIN p.community c
+        LEFT JOIN p.comments cm
+        WHERE p.isPublished = true AND p.author.id = :userId
+        GROUP BY p.id, p.title, p.content, p.mediaUrl, c.name, c.iconUrl, p.createdAt
+        ORDER BY p.createdAt DESC
+    """)
+    Page<PostWithVotesDTO> getPostDTOsByUserId(@Param("userId") Long userId, Pageable pageable);
 
-    @Query("SELECT DISTINCT p FROM Post p JOIN PostVote v ON v.post = p " + "WHERE p.isPublished = true AND v.user.id = :userId AND v.isLike = :islike " + "ORDER BY p.createdAt DESC")
-    Page<Post> getVotedPostByUserId(@Param("userId") Long userId, @Param("islike") Boolean islike, Pageable pageable);
+
+    @Query("""
+        SELECT new com.mb.reddit.dto.PostWithVotesDTO(
+            p.id,
+            p.title,
+            p.content,
+            p.mediaUrl,
+            c.name,
+            c.iconUrl,
+            p.createdAt,
+            SUM(CASE WHEN v2.isLike = true THEN 1 ELSE 0 END),
+            SUM(CASE WHEN v2.isLike = false THEN 1 ELSE 0 END),
+            COUNT(cm)
+        )
+        FROM PostVote v
+        JOIN v.post p
+        JOIN p.community c
+        LEFT JOIN PostVote v2 ON v2.post.id = p.id
+        LEFT JOIN Comment cm ON cm.post.id = p.id
+        WHERE p.isPublished = true AND v.user.id = :userId AND v.isLike = :isLike
+        GROUP BY p.id, c.name, c.iconUrl, p.title, p.content, p.mediaUrl, p.createdAt
+        ORDER BY p.createdAt DESC
+    """)
+    Page<PostWithVotesDTO> getVotedPostsDTO(@Param("userId") Long userId,
+                                            @Param("isLike") Boolean isLike,
+                                            Pageable pageable);
+
+
+    @Query("""
+    SELECT new com.mb.reddit.dto.PostWithVotesDTO(
+        p.id,
+        p.title,
+        p.content,
+        p.mediaUrl,
+        c.name,
+        c.iconUrl,
+        p.createdAt,
+        SUM(CASE WHEN v.isLike = true THEN 1 ELSE 0 END),
+        SUM(CASE WHEN v.isLike = false THEN 1 ELSE 0 END),
+        COUNT(DISTINCT cm.id)
+    )
+    FROM User u
+    JOIN u.savedPosts p
+    LEFT JOIN PostVote v ON v.post = p
+    LEFT JOIN p.community c
+    LEFT JOIN p.comments cm
+    WHERE u.id = :userId AND p.isPublished = true
+    GROUP BY p.id, p.title, p.content, p.mediaUrl, c.name, c.iconUrl, p.createdAt
+    ORDER BY p.createdAt DESC
+    """)
+    Page<PostWithVotesDTO> getSavedPostDTOsByUserId(@Param("userId") Long userId, Pageable pageable);
 
     @Query("SELECT u.savedPosts FROM User u WHERE u.id = :userId")
     Page<Post> getSavedPostsByUserId(@Param("userId") Long userId, Pageable pageable);
@@ -114,24 +183,24 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
 
     @Query("""
-            SELECT new com.mb.reddit.dto.PostWithVotesDTO(
-                p.id,
-                p.title,
-                p.content,
-                p.mediaUrl,
-                p.community.name,
-                p.community.iconUrl,
-                p.createdAt,
-                COALESCE(SUM(CASE WHEN v.isLike = true THEN 1 ELSE 0 END), 0),
-                COALESCE(SUM(CASE WHEN v.isLike = false THEN 1 ELSE 0 END), 0),
-                COUNT(c)
-            )
-                    FROM Post p
-                    LEFT JOIN p.postVotes v
-                    LEFT JOIN p.comments c
-                    GROUP BY p.id, p.title, p.content, p.mediaUrl, p.community.name, p.community.iconUrl, p.createdAt
-                    ORDER BY COALESCE(SUM(CASE WHEN v.isLike = true THEN 1 ELSE 0 END), 0) DESC, p.createdAt DESC
-            """)
+    SELECT new com.mb.reddit.dto.PostWithVotesDTO(
+        p.id,
+        p.title,
+        p.content,
+        p.mediaUrl,
+        p.community.name,
+        p.community.iconUrl,
+        p.createdAt,
+        COALESCE(SUM(CASE WHEN v.isLike = true THEN 1 ELSE 0 END), 0),
+        COALESCE(SUM(CASE WHEN v.isLike = false THEN 1 ELSE 0 END), 0),
+        COUNT(c)
+    )
+            FROM Post p
+            LEFT JOIN p.postVotes v
+            LEFT JOIN p.comments c
+            GROUP BY p.id, p.title, p.content, p.mediaUrl, p.community.name, p.community.iconUrl, p.createdAt
+            ORDER BY COALESCE(SUM(CASE WHEN v.isLike = true THEN 1 ELSE 0 END), 0) DESC, p.createdAt DESC
+        """)
     Page<PostWithVotesDTO> findPopularPosts(Pageable pageable);
 
 
