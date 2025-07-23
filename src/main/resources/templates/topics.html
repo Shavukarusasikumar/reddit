@@ -234,7 +234,7 @@
                 <div class="community-content">
                     <div class="community-icon" th:style="${community.iconUrl != null} ? 'background-image: url(' + ${community.iconUrl} + ')' : ''"></div>
                     <h4 class="community-name">
-                        <a th:href="@{/community/r/{id}(id=${community.id})}" th:text="'r/' + ${community.name}"></a>
+                        <a th:href="@{/r/{id}(id=${community.name})}" th:text="'r/' + ${community.name}"></a>
                     </h4>
                     <p class="community-description" th:text="${community.description}"></p>
                     <div class="community-meta">
