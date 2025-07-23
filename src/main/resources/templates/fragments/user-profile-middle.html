@@ -18,7 +18,6 @@
             height: fit-content;
         }
 
-
        .user-fragment {
            background-color: #ffffff;
            padding: 16px;
@@ -29,7 +28,6 @@
            width: 100%;
            justify-self: center;
        }
-
 
        .user-profile {
          display: flex;
@@ -43,6 +41,7 @@
          height: 60px;
          border-radius: 50%;
          object-fit: cover;
+         border: 2px solid #e0e0e0;
        }
 
        .user-info {
@@ -59,7 +58,7 @@
          color: #222;
        }
 
-       .user-info .email {
+       .user-info .user-handle {
          font-size: 14px;
          color: #666;
          text-overflow: ellipsis;
@@ -90,6 +89,12 @@
        .user-actions button:hover {
          background-color: #f0f0f0;
        }
+
+       .user-actions button.active {
+         background-color: #0079d3;
+         color: white;
+       }
+
       .post-layout-wrapper {
            max-width: 700px;
            margin: 0 auto;
@@ -280,98 +285,93 @@
    .menu-container:hover .menu-dropdown {
        display: block;
    }
-       .right-sidebar {
-    width: 100%;
-    max-width: 320px;
-    padding: 16px;
-    box-sizing: border-box;
-    font-family: 'Segoe UI', sans-serif;
-}
-        .right-sidebar {
-            width: 500px;
-            padding: 0 25px;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', sans-serif;
-            background-color: #f5faff; /* Very light blue for the whole sidebar */
-        }
 
-        .sidebar-card {
-            background-color: #ffffff;
-            border: 1px solid #d8eafc;
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 16px;
-            width: 100%;
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
-        }
+   .right-sidebar {
+       width: 500px;
+       padding: 0 25px;
+       box-sizing: border-box;
+       font-family: 'Segoe UI', sans-serif;
+       background-color: #f5faff;
+   }
 
-        /* Slightly darker background for special sections */
-        .sidebar-card.profile-card,
-        .sidebar-card.karma-card {
-            background-color: #e9f3fc; /* Light blue tint */
-        }
+   .sidebar-card {
+       background-color: #ffffff;
+       border: 1px solid #d8eafc;
+       border-radius: 12px;
+       padding: 16px;
+       margin-bottom: 16px;
+       width: 100%;
+       box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+   }
 
-        /* Titles */
-        .card-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: #222;
-            margin-bottom: 8px;
-        }
+   .sidebar-card.profile-card,
+   .sidebar-card.karma-card {
+       background-color: #e9f3fc;
+   }
 
-        /* Text */
-        .sidebar-card p {
-            font-size: 14px;
-            color: #444;
-            line-height: 1.5;
-        }
+   .card-title {
+       font-size: 18px;
+       font-weight: 600;
+       color: #222;
+       margin-bottom: 8px;
+   }
 
-        .sidebar-card ul {
-            padding-left: 20px;
-            margin: 0;
-            font-size: 14px;
-            color: #444;
-        }
+   .sidebar-card p {
+       font-size: 14px;
+       color: #444;
+       line-height: 1.5;
+   }
 
-        .sidebar-card ul li {
-            margin-bottom: 6px;
-        }
+   .sidebar-card ul {
+       padding-left: 20px;
+       margin: 0;
+       font-size: 14px;
+       color: #444;
+   }
 
-        /* User Meta Section */
-        .user-meta-card {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
+   .sidebar-card ul li {
+       margin-bottom: 6px;
+   }
 
-        .user-meta-item {
-            display: flex;
-            justify-content: space-between;
-            font-size: 14px;
-            color: #555;
-        }
+   .user-meta-card {
+       display: flex;
+       flex-direction: column;
+       gap: 10px;
+   }
 
-        .meta-label {
-            font-weight: 500;
-        }
+   .user-meta-item {
+       display: flex;
+       justify-content: space-between;
+       font-size: 14px;
+       color: #555;
+   }
 
-        .meta-value {
-            font-weight: 600;
-            color: #000;
-        }
+   .meta-label {
+       font-weight: 500;
+   }
 
-        /* Role List */
-        .role-list {
-            list-style: none;
-            padding-left: 0;
-        }
+   .meta-value {
+       font-weight: 600;
+       color: #000;
+   }
 
-        .role-list li::before {
-            content: "✓";
-            color: #0079d3;
-            margin-right: 8px;
-        }
+   .role-list {
+       list-style: none;
+       padding-left: 0;
+   }
 
+   .role-list li::before {
+       content: "✓";
+       color: #0079d3;
+       margin-right: 8px;
+   }
+
+   .empty-state {
+       text-align: center;
+       padding: 40px;
+       color: #666;
+       font-style: italic;
+   }
     </style>
 </head>
 <body>
@@ -383,81 +383,111 @@
     </aside>
 
     <div class="user-fragment">
-    <!-- User Profile Row -->
-    <div class="user-profile">
-        <img th:src="${user.profilePicture}" alt="User Profile">
-        <div class="user-info">
-            <div class="username" th:text="${user.username}">John Doe</div>
-            <div class="u/username" th:text="'u/' + ${user.username}">john.doe@example.com</div>
+        <!-- User Profile Row -->
+        <div class="user-profile">
+            <img th:src="${user.profilePicture != null ? user.profilePicture : '/images/default-avatar.png'}"
+                 alt="User Profile">
+            <div class="user-info">
+                <div class="username" th:text="${user.username}">Username</div>
+                <div class="user-handle" th:text="'u/' + ${user.username}">u/username</div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="user-actions">
+            <button class="section-btn active" data-section="posts">Posts</button>
+            <button class="section-btn" data-section="saved">Saved</button>
+            <button class="section-btn" data-section="upvoted">Upvoted</button>
+            <button class="section-btn" data-section="downvoted">Downvoted</button>
+        </div>
+
+        <!-- Content Area for dynamic loading -->
+        <div style="margin-top: 20px;">
+            <div id="section-content">
+                <!-- Default posts content will be loaded here -->
+                <div class="empty-state" th:if="${user.posts == null || user.posts.isEmpty()}">
+                    <p>No posts yet. Start sharing your thoughts!</p>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Action Buttons (Single Horizontal Row) -->
-    <div class="user-actions">
-        <button class="section-btn" data-section="posts">Posts</button>
-        <button class="section-btn" data-section="saved">Saved</button>
-        <button class="section-btn" data-section="upvoted">Upvoted</button>
-        <button class="section-btn" data-section="downvoted">Downvoted</button>
-    </div>
-
-    <!-- Content Area for dynamic loading -->
-    <div style="margin-top: 20px;">
-
-            <div id="section-content"></div>
-
-    </div>
-    </div>
     <aside class="right-sidebar">
+        <!-- User Profile Card -->
         <div class="sidebar-card profile-card">
-            <div class="card-title">u/SanjeetJi</div>
-            <p>User’s bio goes here.</p>
+            <div class="card-title" th:text="'u/' + ${user.username}">u/username</div>
+            <p th:text="${user.bio != null && !user.bio.isEmpty() ? user.bio : 'No bio available.'}">
+                User's bio goes here.
+            </p>
         </div>
 
+        <!-- Karma Card -->
         <div class="sidebar-card karma-card">
             <div class="card-title">Karma</div>
             <div class="user-meta-card">
                 <div class="user-meta-item">
                     <span class="meta-label">Post Karma</span>
-                    <span class="meta-value">123</span>
+                    <span class="meta-value" th:text="${postKarma != null ? postKarma : 0}">0</span>
                 </div>
                 <div class="user-meta-item">
                     <span class="meta-label">Comment Karma</span>
-                    <span class="meta-value">456</span>
+                    <span class="meta-value" th:text="${commentKarma != null ? commentKarma : 0}">0</span>
+                </div>
+                <div class="user-meta-item">
+                    <span class="meta-label">Total Karma</span>
+                    <span class="meta-value" th:text="${(postKarma != null ? postKarma : 0) + (commentKarma != null ? commentKarma : 0)}">0</span>
                 </div>
             </div>
         </div>
 
-        <!-- 2. About Reddit Section -->
-        <div class="sidebar-card">
-            <h3 class="card-title">About Reddit</h3>
-            <p>Reddit is a social news aggregation, discussion, and content sharing platform where registered
-                users can post content such as text, links, images, and videos, which are then upvoted
-                or downvoted by other users.
-            .</p>
-        </div>
+<!--        &lt;!&ndash; About Reddit Section &ndash;&gt;-->
+<!--        <div class="sidebar-card">-->
+<!--            <h3 class="card-title">About Reddit</h3>-->
+<!--            <p>Reddit is a social news aggregation, discussion, and content sharing platform where registered-->
+<!--                users can post content such as text, links, images, and videos, which are then upvoted-->
+<!--                or downvoted by other users.</p>-->
+<!--        </div>-->
 
-        <div class="sidebar-card">
-            <h3 class="card-title">Community Rules</h3>
-            <ul>
-                <li>Be respectful</li>
-                <li>No spam</li>
-                <li>Stay on topic</li>
-            </ul>
-        </div>
+<!--        &lt;!&ndash; Community Rules &ndash;&gt;-->
+<!--        <div class="sidebar-card">-->
+<!--            <h3 class="card-title">Community Rules</h3>-->
+<!--            <ul>-->
+<!--                <li>Be respectful</li>-->
+<!--                <li>No spam</li>-->
+<!--                <li>Stay on topic</li>-->
+<!--                <li>Follow Reddit's content policy</li>-->
+<!--            </ul>-->
+<!--        </div>-->
 
-        <!-- 3. Community Role -->
-        <div class="sidebar-card">
-            <h3 class="card-title">Community Role</h3>
-            <ul class="role-list">
-                <li>Contributor</li>
-                <li>Active Member</li>
-            </ul>
+<!--        &lt;!&ndash; Community Role &ndash;&gt;-->
+<!--        <div class="sidebar-card">-->
+<!--            <h3 class="card-title">Community Role</h3>-->
+<!--            <ul class="role-list">-->
+<!--                <li>Contributor</li>-->
+<!--                <li>Active Member</li>-->
+<!--            </ul>-->
+<!--        </div>-->
 
-        </div>
-
+<!--        &lt;!&ndash; User Stats &ndash;&gt;-->
+<!--        <div class="sidebar-card">-->
+<!--            <h3 class="card-title">User Stats</h3>-->
+<!--            <div class="user-meta-card">-->
+<!--                <div class="user-meta-item">-->
+<!--                    <span class="meta-label">Posts</span>-->
+<!--                    <span class="meta-value" th:text="${user.posts != null ? user.posts.size() : 0}">0</span>-->
+<!--                </div>-->
+<!--                <div class="user-meta-item">-->
+<!--                    <span class="meta-label">Comments</span>-->
+<!--                    <span class="meta-value" th:text="${user.comments != null ? user.comments.size() : 0}">0</span>-->
+<!--                </div>-->
+<!--                <div class="user-meta-item">-->
+<!--                    <span class="meta-label">Communities</span>-->
+<!--                    <span class="meta-value" th:text="${user.joinedCommunities != null ? user.joinedCommunities.size() : 0}">0</span>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
     </aside>
 </div>
-
 
 <script>
     const userId = /*[[${user.id}]]*/ '2'; // Thymeleaf userId
@@ -503,6 +533,11 @@
     function bindSectionTabs() {
       document.querySelectorAll('.section-btn').forEach(btn => {
         btn.addEventListener('click', () => {
+          // Remove active class from all buttons
+          document.querySelectorAll('.section-btn').forEach(b => b.classList.remove('active'));
+          // Add active class to clicked button
+          btn.classList.add('active');
+
           const section = btn.dataset.section;
           fetch(`/user/${userId}/${section}`)
             .then(res => res.text())
@@ -512,15 +547,34 @@
 
               // Wait until DOM updates, then bind votes
               setTimeout(bindVoteButtons, 0);
+            })
+            .catch(error => {
+              console.error('Error loading section:', error);
+              const container = document.getElementById('section-content');
+              container.innerHTML = '<div class="empty-state"><p>Error loading content. Please try again.</p></div>';
             });
         });
       });
     }
 
+    // Load initial posts content
+    function loadInitialContent() {
+      fetch(`/user/${userId}/posts`)
+        .then(res => res.text())
+        .then(html => {
+          const container = document.getElementById('section-content');
+          container.innerHTML = html;
+          setTimeout(bindVoteButtons, 0);
+        })
+        .catch(error => {
+          console.error('Error loading initial content:', error);
+        });
+    }
+
     // First page load
     document.addEventListener('DOMContentLoaded', () => {
       bindSectionTabs();
-      bindVoteButtons(); // For initial content
+      loadInitialContent(); // Load posts by default
     });
 </script>
 </body>

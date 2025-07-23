@@ -24,16 +24,16 @@ import java.util.List;
 @RequestMapping("/user")
 public class UserController {
 
-	private final UserRepository userRepository;
-	private final PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
     private final UserService userService;
-	private final NotificationService notificationService;
+    private final NotificationService notificationService;
 
-	public UserController(UserRepository userRepository, PasswordEncoder passwordEncoder,
+    public UserController(UserRepository userRepository, PasswordEncoder passwordEncoder,
                           UserService userService, NotificationService notificationService) {
-		this.userRepository = userRepository;
-		this.passwordEncoder = passwordEncoder;
-		this.userService = userService;
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.userService = userService;
         this.notificationService = notificationService;
     }
 
@@ -44,7 +44,7 @@ public class UserController {
 
     @GetMapping("/")
     public String home(Model model, Principal principal) {
-        if(principal != null) {
+        if (principal != null) {
             model.addAttribute("username", principal.getName());
         }
         return "home";
@@ -55,47 +55,47 @@ public class UserController {
         return "register";
     }
 
-	@PostMapping("/register")
-	public String registerUser(
-			@RequestParam String username,
-			@RequestParam String email,
-			@RequestParam String password,
-			@RequestParam(required = false) String bio,
-			Model model) {
-		if (userRepository.existsByUsername(username)) {
-			model.addAttribute("errorMessage", "Username already taken");
-			return "register";
-		}
+    @PostMapping("/register")
+    public String registerUser(
+            @RequestParam String username,
+            @RequestParam String email,
+            @RequestParam String password,
+            @RequestParam(required = false) String bio,
+            Model model) {
+        if (userRepository.existsByUsername(username)) {
+            model.addAttribute("errorMessage", "Username already taken");
+            return "register";
+        }
 
-		if (userRepository.existsByEmail(email)) {
-			model.addAttribute("errorMessage", "Email already registered");
-			return "register";
-		}
+        if (userRepository.existsByEmail(email)) {
+            model.addAttribute("errorMessage", "Email already registered");
+            return "register";
+        }
 
-		User registeredUser = userService.registerUser(username, email, password, bio);
+        User registeredUser = userService.registerUser(username, email, password, bio);
 
-		Authentication authentication = new UsernamePasswordAuthenticationToken(
-				registeredUser.getUsername(),
-				null,
-				Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
-		);
-		SecurityContextHolder.getContext().setAuthentication(authentication);
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                registeredUser.getUsername(),
+                null,
+                Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
+        );
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
-		return "redirect:/user/login";
-	}
+        return "redirect:/user/login";
+    }
 
 
     @PostMapping("/join-community/{id}")
     @ResponseBody
     public ResponseEntity<String> joinCommunity(@PathVariable("id") Long communityId, Authentication authentication) {
-        if(authentication == null || !authentication.isAuthenticated()) {
+        if (authentication == null || !authentication.isAuthenticated()) {
             return ResponseEntity.status(401).body("Authentication required");
         }
 
         try {
             userService.adduserToCommunityByCommunityId(communityId);
             return ResponseEntity.ok("Joined community");
-        } catch(Exception e) {
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error joining community");
         }
     }
@@ -104,7 +104,7 @@ public class UserController {
     @PostMapping("/leave-community/{id}")
     @ResponseBody
     public ResponseEntity<String> leaveCommunity(@PathVariable("id") Long communityId, Authentication authentication) {
-        if(authentication == null || !authentication.isAuthenticated()) {
+        if (authentication == null || !authentication.isAuthenticated()) {
             return ResponseEntity.status(401).body("Authentication required");
         }
 
@@ -114,20 +114,20 @@ public class UserController {
     }
 
 
-	@GetMapping("/user")
-	public String getUserProfilePage(Model model){
-		User user = userService.getCurrentUser();
-     if(user == null){
-                return "redirect:/user/login";
+    @GetMapping("/user")
+    public String getUserProfilePage(Model model) {
+        User user = userService.getCurrentUser();
+        if (user == null) {
+            return "redirect:/user/login";
         }
 
         Integer notificationCount = notificationService.getNotificationCount();
         model.addAttribute("notificationCount", notificationCount);
 
-		model.addAttribute("user", user);
+        model.addAttribute("user", user);
 
-		return "fragments/user-profile-middle";
-	}
+        return "fragments/user-profile-middle";
+    }
 
     @GetMapping("/chat")
     public String chatPage(Model model) {
