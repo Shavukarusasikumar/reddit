@@ -641,25 +641,38 @@
             <div class="profile-section">
                 <div class="profile-icon">
                     <img th:if="${community.iconUrl}" th:src="${community.iconUrl}" alt="Community Icon">
-                    <svg th:unless="${community.iconUrl}" class="reddit-icon" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                    <svg th:unless="${community.iconUrl}" class="reddit-icon" viewBox="0 0 20 20"
+                         xmlns="http://www.w3.org/2000/svg">
                         <path d="M16.5,2.924,11.264,15.551H9.91L15.461,2.924ZM6.487,15.551H5.13L10.681,2.924H12.035Z"/>
                     </svg>
                 </div>
                 <div class="community-details">
                     <h1 th:text="'r/' + ${community.name}">r/announcements</h1>
-                    <div class="community-subtitle" th:text="${#lists.size(community.members)} + ' members'">152 members</div>
+                    <div class="community-subtitle" th:text="${#lists.size(community.members)} + ' members'">152
+                        members
+                    </div>
                 </div>
             </div>
 
             <div class="actions">
                 <button class="create-post">Create Post</button>
-                <button th:unless="${isCreator}"
+
+                <!-- Show Join/Joined button only if not the creator -->
+                <button
                         th:id="joinStatus"
                         th:class="${hasJoined} ? 'joined-button' : 'join-button'"
                         th:text="${hasJoined} ? 'Joined' : 'Join'">
-                    Joined
+                    Join
+                </button>
+
+                <!-- Show Join Requests button only for the creator -->
+                <button
+                        class="join-requests-button"
+                        onclick="window.location.href='/community/join-requests'">
+                    Join Requests
                 </button>
             </div>
+
         </div>
     </div>
 </div>
@@ -673,7 +686,8 @@
 
         <div th:if="${posts.empty}" class="empty-state">
             <h4>🌟 Be the first to post!</h4>
-            <p>This community is waiting for its first post. Share something interesting to get the conversation started!</p>
+            <p>This community is waiting for its first post. Share something interesting to get the conversation
+                started!</p>
         </div>
 
         <div class="posts-list" th:unless="${posts.empty}">
@@ -683,9 +697,11 @@
                     <span class="post-time" th:text="${post.showTime}">2 hours ago</span>
                 </div>
                 <h4 class="post-title">
-                    <a th:href="@{'/posts/' + ${post.id}}" style="text-decoration: none; color: inherit;" th:text="${post.title}">Post Title</a>
+                    <a th:href="@{'/posts/' + ${post.id}}" style="text-decoration: none; color: inherit;"
+                       th:text="${post.title}">Post Title</a>
                 </h4>
-                <div class="post-content" th:if="${post.content}" th:text="${post.content}">Post content goes here...</div>
+                <div class="post-content" th:if="${post.content}" th:text="${post.content}">Post content goes here...
+                </div>
                 <div class="post-media" th:if="${post.mediaUrl}">
                     <img th:src="${post.mediaUrl}" alt="Post media">
                 </div>
@@ -752,7 +768,8 @@
                 <div class="moderator-section">
                     <div class="detail-label" style="margin-bottom: 12px;">👑 Moderators</div>
                     <div class="moderator-item">
-                        <div class="mod-avatar" th:text="${community.creator.username.substring(0,1).toUpperCase()}">U</div>
+                        <div class="mod-avatar" th:text="${community.creator.username.substring(0,1).toUpperCase()}">U
+                        </div>
                         <span th:text="'u/' + ${community.creator.username}">u/creator</span>
                         <span class="mod-badge">Creator</span>
                     </div>
@@ -768,15 +785,18 @@
             <div class="details-content">
                 <div class="detail-row">
                     <span class="detail-label">📝 Posts</span>
-                    <span class="detail-value" style="color: #46d160; font-weight: 700;" th:text="${#lists.size(community.posts)}">127</span>
+                    <span class="detail-value" style="color: #46d160; font-weight: 700;"
+                          th:text="${#lists.size(community.posts)}">127</span>
                 </div>
                 <div class="detail-row">
                     <span class="detail-label">🏷️ Topics</span>
-                    <span class="detail-value" style="color: #ff4500; font-weight: 700;" th:text="${community.topics != null ? #lists.size(community.topics) : 0}">5</span>
+                    <span class="detail-value" style="color: #ff4500; font-weight: 700;"
+                          th:text="${community.topics != null ? #lists.size(community.topics) : 0}">5</span>
                 </div>
                 <div class="detail-row">
                     <span class="detail-label">⭐ Flairs</span>
-                    <span class="detail-value" style="color: gray; font-weight: 700;" th:text="${community.flairs != null ? #lists.size(community.flairs) : 0}">8</span>
+                    <span class="detail-value" style="color: gray; font-weight: 700;"
+                          th:text="${community.flairs != null ? #lists.size(community.flairs) : 0}">8</span>
                 </div>
             </div>
         </div>

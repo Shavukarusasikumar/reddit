@@ -83,9 +83,9 @@ public class CommunityServiceImpl implements CommunityService {
         Community community = communityRepository.findById(communityId)
                 .orElseThrow(() -> new RuntimeException("Community Not found"));
 
-        if (!community.getMembers().contains(member)) {
+        if (!community.getMembers().contains(member) && !community.getIsPrivate()) {
             community.getMembers().add(member);
-            member.getJoinedCommunities().add(community); // <- this is important
+            member.getJoinedCommunities().add(community);
 
             System.out.println("------------success-------------------");
         } else {

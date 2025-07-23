@@ -165,8 +165,34 @@ public interface PostRepository extends JpaRepository<Post, Long> {
         WHERE p.isPublished = true AND p.community.isPrivate = false
         ORDER BY p.createdAt DESC
     """)
-    Page<PostWithVotesDTO> findNewPosts(Pageable pageable);
+    Page<PostWithVotesDTO> findPublicPosts(Pageable pageable);
 
+    @Query("""
+    SELECT new com.mb.reddit.dto.PostWithVotesDTO(
+        p.id,
+        p.title,
+        p.content,
+        p.mediaUrl,
+        p.community.name,
+        p.community.iconUrl,
+        p.createdAt,
+        (SELECT COALESCE(SUM(CASE WHEN v.isLike = true THEN 1 ELSE 0 END), 0)
+         FROM PostVote v
+         WHERE v.post.id = p.id),
+        (SELECT COALESCE(SUM(CASE WHEN v.isLike = false THEN 1 ELSE 0 END), 0)
+         FROM PostVote v
+         WHERE v.post.id = p.id),
+        (SELECT COUNT(c.id) FROM Comment c WHERE c.post.id = p.id)
+    )
+    FROM Post p
+        JOIN p.community cm
+        JOIN cm.members m
+        WHERE p.isPublished = true 
+          AND cm.isPrivate = true
+          AND m.id = :userId
+        ORDER BY p.createdAt DESC
+    """)
+    Page<PostWithVotesDTO> findPrivatePostsForUser(@Param("userId") Long userId, Pageable pageable);
 
     @Query("""
     SELECT new com.mb.reddit.dto.PostWithVotesDTO(
@@ -182,7 +208,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
         (SELECT COUNT(c1) FROM Comment c1 WHERE c1.post = p)
     )
     FROM Post p
-    WHERE p.isPublished = true
+    WHERE p.isPublished = true AND p.community.isPrivate = false
     ORDER BY 
       (LOG10(GREATEST(ABS(
             (SELECT COUNT(v1) FROM PostVote v1 WHERE v1.post = p AND v1.isLike = true) - 

@@ -16,11 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -51,10 +47,13 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public Page<PostWithVotesDTO> getAllPost(int pageNumber, int pageSize, String sortBy, boolean rising, boolean top, boolean isNew, boolean popular, String keyword) {
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
         LocalDateTime timeThreshold = LocalDateTime.now().minusHours(96);
 
         Page<PostWithVotesDTO> page;
+
         if(keyword != null && !keyword.isEmpty()) {
             page = postRepository.searchPostsByKeyword(keyword, pageable);
         }
@@ -68,27 +67,35 @@ public class PostServiceImpl implements PostService {
             page = postRepository.findPopularPosts(pageable);
         }
         else {
-            page = postRepository.findNewPosts(pageable);
+            Long userId = getLoggedInUserId(authentication);
+
+            if (userId != null) {
+                Page<PostWithVotesDTO> publicPosts = postRepository.findPublicPosts(pageable);
+                Page<PostWithVotesDTO> privatePosts = postRepository.findPrivatePostsForUser(userId, pageable);
+
+                List<PostWithVotesDTO> combined = new ArrayList<>();
+                combined.addAll(publicPosts.getContent());
+                combined.addAll(privatePosts.getContent());
+
+                combined.sort(Comparator.comparing(PostWithVotesDTO::getCreatedAt).reversed());
+
+                int start = (int) pageable.getOffset();
+                int end = Math.min(start + pageable.getPageSize(), combined.size());
+                page = new PageImpl<>(combined.subList(start, end), pageable, combined.size());
+            } else {
+
+                page = postRepository.findPublicPosts(pageable);
+            }
         }
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if(authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getName())) {
-            return page;
-        }
 
-
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        Long userId = userDetails.getId();
+        Long userId = getLoggedInUserId(authentication);
         if(userId == null) {
             return page;
         }
 
         List<PostWithVotesDTO> postList = page.getContent();
-        List<Long> postIds = new ArrayList<>();
-        for(PostWithVotesDTO post : postList) {
-            System.out.println(post.getId() + " " + post.getVoteCount());
-            postIds.add(post.getId());
-        }
+        List<Long> postIds = postList.stream().map(PostWithVotesDTO::getId).toList();
 
         if(postIds.isEmpty()) {
             return page;
@@ -102,13 +109,19 @@ public class PostServiceImpl implements PostService {
         }
 
         for(PostWithVotesDTO post : postList) {
-            Boolean isLiked = voteMap.get(post.getId());
-            post.setIsLiked(isLiked);
+            post.setIsLiked(voteMap.get(post.getId()));
         }
 
         return page;
     }
 
+    private Long getLoggedInUserId(Authentication authentication) {
+        if(authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getName())) {
+            return null;
+        }
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        return userDetails != null ? userDetails.getId() : null;
+    }
 
     @Override
     public List<Comment> getCommentsByPostId(Long postId) {
@@ -172,12 +185,11 @@ public class PostServiceImpl implements PostService {
         oldPost.setContent(updatedPost.getContent());
         oldPost.setTitle(updatedPost.getTitle());
 
-        // If removeMedia checkbox is checked
         if(removeMedia) {
             oldPost.setMediaUrl(null);
         }
+        // If removeMedia checkbox is checked
 
-        // If a new file is uploaded
         if(media != null && !media.isEmpty()) {
             try {
                 String mediaUrl = cloudinaryService.uploadFile(media);
@@ -214,7 +226,7 @@ public class PostServiceImpl implements PostService {
     public Page<PostWithVotesDTO> getUpvotedPostsByUserId(Long userId, int pageNumber, int size) {
         Pageable pageable = PageRequest.of(pageNumber, size);
         Boolean isLike = true;
-        Page<PostWithVotesDTO> postsPage = postRepository.getVotedPostsDTO(userId, isLike,pageable);
+        Page<PostWithVotesDTO> postsPage = postRepository.getVotedPostsDTO(userId, isLike, pageable);
 
         System.out.println(postsPage);
         postsPage.forEach(post -> {
