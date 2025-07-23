@@ -67,25 +67,7 @@ public class PostServiceImpl implements PostService {
             page = postRepository.findPopularPosts(pageable);
         }
         else {
-            Long userId = getLoggedInUserId(authentication);
-
-            if (userId != null) {
-                Page<PostWithVotesDTO> publicPosts = postRepository.findPublicPosts(pageable);
-                Page<PostWithVotesDTO> privatePosts = postRepository.findPrivatePostsForUser(userId, pageable);
-
-                List<PostWithVotesDTO> combined = new ArrayList<>();
-                combined.addAll(publicPosts.getContent());
-                combined.addAll(privatePosts.getContent());
-
-                combined.sort(Comparator.comparing(PostWithVotesDTO::getCreatedAt).reversed());
-
-                int start = (int) pageable.getOffset();
-                int end = Math.min(start + pageable.getPageSize(), combined.size());
-                page = new PageImpl<>(combined.subList(start, end), pageable, combined.size());
-            } else {
-
-                page = postRepository.findPublicPosts(pageable);
-            }
+            page = postRepository.findPublicPosts(pageable);
         }
 
 
