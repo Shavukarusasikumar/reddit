@@ -201,6 +201,35 @@
             padding: 30px;
             align-items: start;
         }
+        .request-button {
+            padding: 8px 16px;
+            background-color: #6f42c1; /* purple */
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+        }
+
+        .request-button:hover {
+            background-color: #5936a6; /* darker purple on hover */
+            transform: translateY(-1px);
+        }
+
+        .request-button:active {
+            transform: scale(0.98);
+        }
+
+        .leave-button {
+            background-color: #e53e3e; /* red */
+            color: white;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
 
         /* Posts Section */
         .main-content {
@@ -660,17 +689,14 @@
                 <!-- Show Join/Joined button only if not the creator -->
                 <button
                         th:id="joinStatus"
-                        th:class="${hasJoined} ? 'joined-button' : 'join-button'"
-                        th:text="${hasJoined} ? 'Joined' : 'Join'">
+                        th:class="${hasJoined} ? 'leave-button' : 'join-button'"
+                        th:text="${hasJoined} ? 'Leave' : 'Join'">
                     Join
                 </button>
+                <a th:href="@{'/join-requests/' + ${community.id}}">
+                    <button class="request-button">Join Requests</button>
+                </a>
 
-                <!-- Show Join Requests button only for the creator -->
-                <button
-                        class="join-requests-button"
-                        onclick="window.location.href='/community/join-requests'">
-                    Join Requests
-                </button>
             </div>
 
         </div>
@@ -803,7 +829,7 @@
     </div>
 </div>
 
-<script th:inline="javascript">
+<!--<script th:inline="javascript">
     /*<![CDATA[*/
     document.addEventListener('DOMContentLoaded', function() {
         const joinButton = document.getElementById('joinStatus');
@@ -841,6 +867,74 @@
         document.querySelector('.create-post')?.addEventListener('click', function() {
             console.log('Create post clicked');
         });
+    });
+    /*]]>*/
+</script>-->
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    document.addEventListener('DOMContentLoaded', function () {
+        const joinButton = document.getElementById('joinStatus');
+        const isPrivate = /*[[${community.isPrivate}]]*/ false;
+        let isAlreadyJoined = /*[[${hasJoined}]]*/ false;
+        const communityId = /*[[${community.id}]]*/ 0;
+
+        function updateButtonUI() {
+            if (isAlreadyJoined) {
+                joinButton.textContent = "Leave";
+                joinButton.className = "leave-button";
+                joinButton.disabled = false;
+            } else {
+                if (isPrivate) {
+                    joinButton.textContent = "Request Join";
+                } else {
+                    joinButton.textContent = "Join";
+                }
+                joinButton.className = "join-button";
+                joinButton.disabled = false;
+            }
+        }
+
+        if (joinButton) {
+            updateButtonUI();
+
+            joinButton.addEventListener("click", function () {
+                if (!joinButton || joinButton.disabled) return;
+
+                let endpoint;
+                if (isAlreadyJoined) {
+                    endpoint = "leave";
+                } else {
+                    endpoint = isPrivate ? "request" : "join";
+                }
+
+                fetch(`/api/communities/${communityId}/${endpoint}`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                })
+                .then(response => {
+                    if (response.ok) {
+                        if (isPrivate && !isAlreadyJoined) {
+                            // For private communities, show static "Request Sent"
+                            joinButton.textContent = "Request Sent";
+                            joinButton.disabled = true;
+                            joinButton.className = "disabled-button";
+                        } else {
+                            isAlreadyJoined = !isAlreadyJoined;
+                            updateButtonUI();
+                        }
+                    } else {
+                        alert("Something went wrong");
+                    }
+                })
+                .catch(err => {
+                    console.error("Error:", err);
+                    alert("Network error occurred");
+                });
+            });
+        }
     });
     /*]]>*/
 </script>

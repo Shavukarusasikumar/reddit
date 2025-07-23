@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Join Requests</title>
+    <style>
+        .request-card {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            padding: 16px;
+            margin-bottom: 12px;
+            border-radius: 8px;
+        }
+        .request-actions {
+            margin-top: 10px;
+        }
+        .accept-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        .reject-btn {
+            background-color: #dc3545;
+            color: white;
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Join Requests</h2>
+
+<div th:if="${#lists.isEmpty(joinRequests)}">
+    <p>No pending join requests.</p>
+</div>
+
+<div th:each="request : ${joinRequests}" class="request-card">
+    <p><strong>User:</strong> <span th:text="${request.requester.username}">Username</span></p>
+    <p><strong>Requested At:</strong> <span th:text="${#temporals.format(request.requestedAt, 'dd MMM yyyy HH:mm')}"></span></p>
+
+    <div class="request-actions">
+        <form th:action="@{'/' + ${request.id} + '/accept'}" method="post" style="display:inline;">
+            <button type="submit" class="accept-btn">Accept</button>
+        </form>
+
+        <form th:action="@{'/' + ${request.id} + '/reject'}" method="post" style="display:inline;">
+            <button type="submit" class="reject-btn">Reject</button>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

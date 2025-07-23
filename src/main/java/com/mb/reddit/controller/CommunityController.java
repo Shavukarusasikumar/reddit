@@ -4,13 +4,11 @@ import com.mb.reddit.entity.Community;
 import com.mb.reddit.entity.Post;
 import com.mb.reddit.entity.Topic;
 import com.mb.reddit.entity.User;
-import com.mb.reddit.service.CommunityService;
-import com.mb.reddit.service.PostService;
-import com.mb.reddit.service.TopicService;
+import com.mb.reddit.service.*;
 
-import com.mb.reddit.service.UserService;
 import com.mb.reddit.service.implementation.UserServiceImpl;
 import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -30,13 +28,15 @@ public class CommunityController {
     private final UserService userService;
     private final PostService postService;
     private final UserServiceImpl userServiceImpl;
+    private final JoinRequestService joinRequestService;
 
-    public CommunityController(CommunityService communityService, TopicService topicService, UserService userService, PostService postService, UserServiceImpl userServiceImpl) {
+    public CommunityController(CommunityService communityService, TopicService topicService, UserService userService, PostService postService, UserServiceImpl userServiceImpl, JoinRequestService joinRequestService) {
         this.communityService = communityService;
         this.topicService = topicService;
         this.userService = userService;
         this.postService = postService;
         this.userServiceImpl = userServiceImpl;
+        this.joinRequestService = joinRequestService;
     }
 
 
@@ -91,9 +91,12 @@ public class CommunityController {
     }
 
     @GetMapping("/r/{communityName}")
-    public String getCommunity(@PathVariable String communityName, Model model, @AuthenticationPrincipal User currentUser, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+    public String getCommunity(@PathVariable String communityName, Model model,
+                               @RequestParam(defaultValue = "0") int page,
+                               @RequestParam(defaultValue = "10") int size) {
         Community community = communityService.getCommunityByName(communityName);
 
+        User currentUser =  userService.getCurrentUser();
         boolean isCreator = currentUser != null && community.getCreator().getId().equals(currentUser.getId());
         boolean hasJoined = currentUser != null && community.getMembers().contains(currentUser);
 
@@ -128,11 +131,43 @@ public class CommunityController {
         return "redirect:/r/" + communityService.getCommunityById(communityId).getName();
     }
 
-    @GetMapping("/community/{communityId}/join-requests")
-    public String getJoinReuqest(@PathVariable("communityId") String communityId,Model model) {
 
-        return "";
+    @PostMapping("/api/communities/{id}/join")
+    @ResponseBody
+    public ResponseEntity<?> joinNewCommunity(@PathVariable Long id){
+        System.out.println("WAS HERE NC");
+        User currentUser = userService.getCurrentUser();
+        if(currentUser == null){
+            return ResponseEntity.badRequest().build();
+        }else{
+            communityService.addMemberByCommunityId(currentUser, id);
+            return ResponseEntity.ok().build();
+        }
     }
 
-    ;
+    @PostMapping("/api/communities/{id}/request")
+    @ResponseBody
+    public ResponseEntity<?> requestToJoinCommunity(@PathVariable Long id) {
+        System.out.println("---------------------------WAS HERE NRTJC---------------------------");
+        User user = userService.getCurrentUser();
+        if(user == null){
+            return ResponseEntity.badRequest().build();
+        } else {
+            Community community = communityService.getCommunityById(id);
+            joinRequestService.sendJoinRequest(community, user);
+        }
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/api/communities/{id}/leave")
+    public ResponseEntity<?> leaveCommunityRB(@PathVariable Long id) {
+        User currentUser = userService.getCurrentUser();
+        if (currentUser != null) {
+            communityService.removeMemberByCommunityId(currentUser, id);
+            System.out.println("LEAVE community: " + id);
+            return ResponseEntity.ok().build();
+        }else{
+            return ResponseEntity.badRequest().build();
+        }
+    }
 }
