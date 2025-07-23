@@ -27,7 +27,7 @@ public class NotificationController {
     @GetMapping("notifications")
     public String getAllNotifications(@RequestParam(defaultValue = "0") int pageNumber,
                                       @RequestParam(defaultValue = "20") int pageSize,
-                                      Model model){
+                                      Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated() ||
                 authentication.getPrincipal() instanceof String) {
@@ -41,7 +41,8 @@ public class NotificationController {
 
 
         Page<Notification> notifications = notificationService.getAllNotifications(pageNumber, pageSize, userId);
-        notificationService.markAllAsReadForUser(userId);
+        //notificationService.markAllAsReadForUser(userId);
+        notificationService.deleteAllReadNotificationForUser(userId);
 
         model.addAttribute("notifications", notifications);
         model.addAttribute("totalPages", notifications.getTotalPages());

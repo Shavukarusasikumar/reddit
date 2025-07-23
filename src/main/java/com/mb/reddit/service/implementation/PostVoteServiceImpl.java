@@ -42,9 +42,7 @@ public class PostVoteServiceImpl implements PostVoteService {
 
         Post post = postRepository.findById(postId).orElseThrow(() -> new RuntimeException("Post not found " + postId));
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String username = authentication.getName();
-        User currentUser = userServiceImpl.getLoggedInUser();
+        User currentUser = userServiceImpl.getCurrentUser();
 
         PostVote postVote = postVoteRepository.getPostVoteByUserIdAndPostId(currentUser.getId(),
                 postId).orElse(new PostVote());
@@ -56,12 +54,12 @@ public class PostVoteServiceImpl implements PostVoteService {
         postVote.setIsLike(isLike);
         postVote.setLikedAt(LocalDateTime.now());
         postVoteRepository.save(postVote);
-        System.out.println("----------------------------Vote Saved Successfully ---------------------------------------------");
 
         if(postVote.getIsLike()){
             String type = "UPVOTE";
-            Notification existing = notificationRepository.findTopByRecipientAndPostAndType(post.getAuthor(),
-                    post, type);
+            Notification existing = notificationRepository.findTopByRecipientAndPostAndType(
+                    post.getAuthor().getId(), post.getId(), type);
+
             if (existing == null) {
                 Notification notification = new Notification();
                 notification.setRecipient(post.getAuthor());

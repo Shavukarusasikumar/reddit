@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -20,10 +21,11 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     @Query("SELECT n FROM Notification n WHERE n.recipient = :user ORDER BY n.timestamp DESC")
     List<Notification> getAllNotifications(User user);
 
-    @Query("SELECT n FROM Notification n WHERE n.recipient = :recipient AND n.post = :post AND n.type = :type")
-    Notification findTopByRecipientAndPostAndType(User author, Post post, String type);
+    @Query("SELECT n FROM Notification n WHERE n.recipient.id = :authorId AND n.post.id = :postId AND n.type = :type")
+    Notification findTopByRecipientAndPostAndType(@Param("authorId") Long authorId,@Param("postId") Long postId,
+                                                  String type);
 
-    @Query("SELECT COUNT(n) FROM Notification n WHERE n.recipient.id = :userId AND n.read = false")
+    @Query("SELECT COUNT(n) FROM Notification n WHERE n.recipient.id = :userId")
     int countUnreadNotificationsByUserId(@Param("userId") Long userId);
 
     @Query("SELECT n FROM Notification n WHERE n.recipient.id = :userId")
@@ -32,5 +34,10 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     @Modifying
     @Query("UPDATE Notification n SET n.read = true WHERE n.recipient = :userId AND n.read = false")
     void markAllAsReadForUser(@Param("userId") Long userId);
+
+    @Modifying
+    @Transactional
+    @Query("DELETE from Notification n WHERE n.recipient.id = :userId")
+    void deleteAllReadNotificationForUser(Long userId);
 }
 

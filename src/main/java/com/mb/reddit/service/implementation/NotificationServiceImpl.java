@@ -63,4 +63,10 @@ public class NotificationServiceImpl implements NotificationService {
     public void markAllAsReadForUser(Long userId) {
         notificationRepository.markAllAsReadForUser(userId);
     }
+
+    @Override
+    @Transactional
+    public void deleteAllReadNotificationForUser(Long userId) {
+        notificationRepository.deleteAllReadNotificationForUser(userId);
+    }
 }

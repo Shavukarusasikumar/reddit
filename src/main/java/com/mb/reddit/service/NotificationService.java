@@ -12,4 +12,6 @@ public interface NotificationService {
     Page<Notification> getAllNotifications(int pageNumber, int pageSize, Long userId);
 
     void markAllAsReadForUser(Long userId);
+
+    void deleteAllReadNotificationForUser(Long userId);
 }
