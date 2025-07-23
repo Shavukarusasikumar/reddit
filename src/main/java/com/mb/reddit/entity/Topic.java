@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Entity
 @Table(name = "topics")
 @Getter
@@ -19,7 +21,6 @@ public class Topic {
 
     private String name;
 
-    @ManyToOne
-    @JoinColumn(name = "community_id")
-    private Community community;
+    @ManyToMany(mappedBy = "topics")
+    private List<Community> communities;
 }

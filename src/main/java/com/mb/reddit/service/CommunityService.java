@@ -35,4 +35,6 @@ public interface CommunityService {
     void removeMemberByCommunityId(User member, Long communityId);
 
 
+
+    List<Community> getCommunitiesByTopicId(Long topicId);
 }

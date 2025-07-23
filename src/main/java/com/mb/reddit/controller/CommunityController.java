@@ -45,7 +45,7 @@ public class CommunityController {
         List<Topic> allTopics = topicService.getAllTopics();
 
         model.addAttribute("allTopics", allTopics);
-        model.addAttribute("notificationCount", 0);
+        model.addAttribute("notificationCount",0);
         return "create-community";
     }
 
@@ -65,12 +65,13 @@ public class CommunityController {
         community.setCreatedAt(LocalDateTime.now());
         community.setCreator(userService.getCurrentUser());
 
+        // Get topics before creating community
+        List<Topic> selectedTopics = topicService.getAllTopicsByIds(topics);
+        community.setTopics(selectedTopics); // Set topics to community
+
+        // Create community with topics
         community = communityService.createCommunity(community, iconFile, bannerFile);
 
-        List<Topic> selectedTopics = topicService.getAllTopicsByIds(topics);
-        for(Topic topic : selectedTopics) {
-            topic.setCommunity(community);
-        }
         return "redirect:/";
     }
 
@@ -110,12 +111,11 @@ public class CommunityController {
     @PostMapping("/user/join-community/{communityId}")
     public String joinCommunity(@PathVariable Long communityId) {
         User currentUser = userService.getCurrentUser();
-        if(currentUser != null) {
+        if (currentUser != null) {
             System.out.println(currentUser.getId());
             communityService.addMemberByCommunityId(currentUser, communityId);
             System.out.println("---------------------------user joined----------------------------");
-        }
-        else {
+        }else{
             System.out.println(currentUser.getId());
             System.out.println("-----------------------------user not joined-----------------------");
         }

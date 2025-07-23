@@ -51,6 +51,11 @@ public class Community {
     @ManyToMany(mappedBy = "joinedCommunities", cascade = CascadeType.ALL)
     private List<User> members;
 
-    @OneToMany(mappedBy = "community", cascade = CascadeType.ALL, orphanRemoval = true)
+    @ManyToMany
+    @JoinTable(
+            name = "community_topics",
+            joinColumns = @JoinColumn(name = "community_id"),
+            inverseJoinColumns = @JoinColumn(name = "topic_id")
+    )
     private List<Topic> topics;
 }

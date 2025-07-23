@@ -131,7 +131,7 @@ public class PostController {
 
     @GetMapping("/scroll")
     public String getMorePosts(@RequestParam(defaultValue = "0") int pageNumber, @RequestParam(defaultValue = "10") int pageSize, @RequestParam(defaultValue = "createdAt") String sortBy, @RequestParam(defaultValue = "false", required = false) boolean rising, @RequestParam(defaultValue = "false", required = false) boolean top, @RequestParam(defaultValue = "false") boolean isNew, @RequestParam(defaultValue = "false") boolean popular, @RequestParam(required = false) String keyword, @RequestParam(required = false) String category, Model model) {
-
+        System.out.println("came to scroll");
         Page<PostWithVotesDTO> posts = postService.getAllPost(pageNumber, pageSize, sortBy, rising, top, isNew, popular, keyword);
 
         model.addAttribute("posts", posts.getContent());

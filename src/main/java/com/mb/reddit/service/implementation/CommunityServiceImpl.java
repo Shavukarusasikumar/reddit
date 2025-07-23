@@ -59,6 +59,7 @@ public class CommunityServiceImpl implements CommunityService {
         }
 
         user.getCreatedCommunities().add(community);
+        user.getJoinedCommunities().add(community);
         return communityRepository.save(community);
     }
 
@@ -156,5 +157,10 @@ public class CommunityServiceImpl implements CommunityService {
         communityRepository.save(community);
 
         userRepository.save(member);
+    }
+
+    @Override
+    public List<Community> getCommunitiesByTopicId(Long topicId) {
+        return communityRepository.findByTopicsId(topicId);
     }
 }

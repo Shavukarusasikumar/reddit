@@ -25,4 +25,9 @@ public class TopicServiceImpl implements TopicService {
     public List<Topic> getAllTopicsByIds(List<Long> topicIds) {
         return topicRepository.findAllById(topicIds);
     }
+
+    @Override
+    public Topic getTopicById(Long topicId) {
+        return topicRepository.findById(topicId).orElse(null);
+    }
 }

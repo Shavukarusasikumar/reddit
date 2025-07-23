@@ -7,4 +7,5 @@ import java.util.List;
 public interface TopicService {
     List<Topic> getAllTopics();
     List<Topic> getAllTopicsByIds(List<Long> topicIds);
+    Topic getTopicById(Long topicId);
 }

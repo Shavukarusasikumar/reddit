@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reddit Clone - Topics</title>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --reddit-orange: #FF5700;
+            --reddit-dark: #1A1A1B;
+            --reddit-light-dark: #272729;
+            --reddit-gray: #DAE0E6;
+            --reddit-blue: #0079D3;
+            --reddit-white: #FFFFFF;
+            --reddit-light-gray: #F6F7F8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'IBM Plex Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--reddit-gray);
+            color: var(--reddit-dark);
+        }
+
+        .container {
+            display: flex;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            gap: 24px;
+        }
+
+        .topics-sidebar {
+            width: 280px;
+            background-color: var(--reddit-white);
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 16px;
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+        }
+
+        .topics-header {
+            font-size: 16px;
+            font-weight: 500;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--reddit-gray);
+            margin-bottom: 12px;
+            color: var(--reddit-dark);
+        }
+
+        .topics-list {
+            list-style: none;
+        }
+
+        .topic-item {
+            padding: 8px 0;
+        }
+
+        .topic-link {
+            color: var(--reddit-dark);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            display: block;
+            padding: 6px 8px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+
+        .topic-link:hover {
+            background-color: var(--reddit-light-gray);
+            color: var(--reddit-blue);
+        }
+
+        .topic-link.active {
+            background-color: var(--reddit-light-gray);
+            color: var(--reddit-blue);
+            font-weight: 600;
+        }
+
+        .communities-section {
+            flex: 1;
+        }
+
+        .communities-header {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 16px;
+            color: var(--reddit-dark);
+        }
+
+        .communities-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .community-card {
+            background-color: var(--reddit-white);
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .community-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .community-banner {
+            height: 80px;
+            background-color: var(--reddit-blue);
+            background-size: cover;
+            background-position: center;
+        }
+
+        .community-content {
+            padding: 16px;
+            position: relative;
+        }
+
+        .community-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background-color: var(--reddit-white);
+            border: 3px solid var(--reddit-white);
+            position: absolute;
+            top: -24px;
+            left: 16px;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .community-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 24px;
+            margin-bottom: 8px;
+            color: var(--reddit-dark);
+        }
+
+        .community-name a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .community-name a:hover {
+            text-decoration: underline;
+        }
+
+        .community-description {
+            font-size: 14px;
+            color: var(--reddit-light-dark);
+            margin-bottom: 12px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .community-meta {
+            display: flex;
+            align-items: center;
+            font-size: 12px;
+            color: var(--reddit-light-dark);
+        }
+
+        .community-members {
+            display: flex;
+            align-items: center;
+            margin-right: 12px;
+        }
+
+        .community-members svg {
+            margin-right: 4px;
+        }
+
+        .no-communities {
+            background-color: var(--reddit-white);
+            padding: 24px;
+            border-radius: 4px;
+            text-align: center;
+            color: var(--reddit-light-dark);
+        }
+
+        .selected-topic {
+            font-size: 14px;
+            margin-bottom: 16px;
+            color: var(--reddit-light-dark);
+        }
+
+        .selected-topic strong {
+            color: var(--reddit-dark);
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <!-- Topics Sidebar -->
+    <div class="topics-sidebar">
+        <h3 class="topics-header">Popular Topics</h3>
+        <ul class="topics-list">
+            <li class="topic-item" th:each="topic : ${topics}">
+                <a href="#" class="topic-link"
+                   th:classappend="${selectedTopic != null && selectedTopic.id == topic.id} ? 'active' : ''"
+                   th:onclick="'loadCommunities(' + ${topic.id} + ')'"
+                   th:text="${topic.name}">
+                    Topic Name
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Communities Section -->
+    <div class="communities-section">
+        <div th:if="${selectedTopic != null}" class="selected-topic">
+            Showing communities for topic: <strong th:text="${selectedTopic.name}"></strong>
+        </div>
+        <h3 class="communities-header" th:text="${selectedTopic != null} ? 'Communities' : 'Select a topic to view communities'"></h3>
+
+        <div th:if="${selectedTopic != null && !communities.isEmpty()}" class="communities-grid">
+            <div class="community-card" th:each="community : ${communities}">
+                <div class="community-banner" th:style="${community.bannerUrl != null} ? 'background-image: url(' + ${community.bannerUrl} + ')' : ''"></div>
+                <div class="community-content">
+                    <div class="community-icon" th:style="${community.iconUrl != null} ? 'background-image: url(' + ${community.iconUrl} + ')' : ''"></div>
+                    <h4 class="community-name">
+                        <a th:href="@{/community/r/{id}(id=${community.id})}" th:text="'r/' + ${community.name}"></a>
+                    </h4>
+                    <p class="community-description" th:text="${community.description}"></p>
+                    <div class="community-meta">
+                        <div class="community-members">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                <circle cx="9" cy="7" r="4"></circle>
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                            </svg>
+                            <span th:text="${community.members.size()} + ' members'"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${selectedTopic != null && communities.isEmpty()}" class="no-communities">
+            No communities found for this topic.
+        </div>
+    </div>
+</div>
+
+<script>
+    function loadCommunities(topicId) {
+        // Construct the URL with the topicId parameter
+        const newUrl = new URL(window.location.href);
+        newUrl.searchParams.set('topicId', topicId);
+        window.location.href = newUrl.toString();
+    }
+</script>
+</body>
+</html>
