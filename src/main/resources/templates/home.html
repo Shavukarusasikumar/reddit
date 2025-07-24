@@ -101,6 +101,30 @@
 
         <main class="home-main-scroll-wrapper">
             <div class="home-main">
+                <div class="filter-row">
+                    <form id="filterForm" class="filter-form" onsubmit="return false;">
+                        <label for="sortOption">Sort by:</label>
+                        <select id="sortOption" class="filter-dropdown" onchange="applyFilters(); toggleTimeFilter();">
+                            <option value="" th:selected="${selectedSort == ''}">Best</option>
+                            <option value="hot" th:selected="${selectedSort == 'hot'}">Hot</option>
+                            <option value="top" th:selected="${selectedSort == 'top'}">Top</option>
+                            <option value="rising" th:selected="${selectedSort == 'rising'}">Rising</option>
+                        </select>
+
+                        <div id="timeFilterWrapper">
+                            <label for="timeFilter">Show:</label>
+                            <select id="timeFilter" class="filter-dropdown" onchange="applyFilters()">
+                                <option value="" th:selected="${time == ''}">None</option>
+                                <option value="today" th:selected="${time == 'today'}">Today</option>
+                                <option value="yesterday" th:selected="${time == 'yesterday'}">Yesterday</option>
+                                <option value="month" th:selected="${time == 'month'}">This Month</option>
+                                <option value="year" th:selected="${time == 'year'}">This Year</option>
+                                <option value="all" th:selected="${time == 'all'}">All</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+
                 <div id="post-list">
                     <div th:each="post : ${posts}" class="post-container">
                         <div class="post-content-area">
@@ -111,7 +135,7 @@
                                              @{${post.communityIconUrl}} :
                                              @{/images/profile-icon.png}"
                                          alt="Community Icon"
-                                         onerror="this.onerror=null;this.src='https://via.placeholder.com/20x20/ff4500/ffffff?text=r';" />
+                                         onerror="this.onerror=null;this.src='https://via.placeholder.com/20x20/ff4500/ffffff?text=r';"/>
                                     <a th:href="@{|r/${post.communityName}|}"
                                        th:text="|r/${post.communityName}|"
                                        class="community-link"></a>
@@ -200,6 +224,7 @@
         flex: 1;
         padding: 8px 8px 8px 8px;
         overflow: hidden;
+        margin: 20px
     }
 
     .post-header {
@@ -374,6 +399,70 @@
     .menu-container:hover .menu-dropdown {
         display: block;
     }
+ <style>
+    .filter-row {
+        display: flex;
+        justify-content: flex-start;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        padding: 10px 0;
+    }
+
+    .filter-form {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .filter-dropdown {
+        appearance: none;
+        background-color: #f6f7f8;
+        color: #1a1a1b;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        padding: 8px 32px 8px 12px;
+        font-size: 14px;
+        position: relative;
+        min-width: 160px;
+        transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    }
+
+    .filter-dropdown:hover {
+        border-color: #0079d3;
+        background-color: #ffffff;
+    }
+
+    .filter-dropdown:focus {
+        outline: none;
+        border-color: #0079d3;
+        box-shadow: 0 0 0 2px rgba(0, 121, 211, 0.2);
+    }
+
+    .filter-form label {
+        font-weight: 500;
+        font-size: 14px;
+        color: #555;
+    }
+
+    #timeFilterWrapper {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    /* Optional: Add down arrow icon */
+    .filter-dropdown {
+        background-image: url("data:image/svg+xml;utf8,<svg fill='%23555' height='20' viewBox='0 0 24 24' width='20' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        background-size: 16px 16px;
+    }
+</style>
+
+
 </style>
 
 <!-- Add user authentication status from server -->
@@ -567,6 +656,39 @@ function loadMorePosts() {
         if (el) el.classList.toggle("show");
     }
 </script>
+
+<script>
+    function applyFilters() {
+        const sort = document.getElementById('sortOption').value;
+        const time = document.getElementById('timeFilter').value;
+        const params = new URLSearchParams();
+
+        if (sort) params.append('sort', sort);
+        if (time) params.append('time', time);
+
+        window.location.href = '/?' + params.toString();
+    }
+</script>
+<script>
+    function toggleTimeFilter() {
+        const sortValue = document.getElementById('sortOption').value;
+        const timeFilterWrapper = document.getElementById('timeFilterWrapper');
+
+        if (sortValue === 'rising') {
+            timeFilterWrapper.style.display = 'none';
+        } else {
+            timeFilterWrapper.style.display = 'inline-block';
+        }
+    }
+
+    // Run this on page load too, so it's correct on reload
+    document.addEventListener("DOMContentLoaded", function () {
+        toggleTimeFilter();
+    });
+</script>
+
+
+
 
 <script>
     /* --------------------------

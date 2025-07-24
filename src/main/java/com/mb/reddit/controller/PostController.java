@@ -89,63 +89,63 @@ public class PostController {
         return "redirect:/";
     }
 
+
     @GetMapping("/")
-    public String getAllPosts(@RequestParam(defaultValue = "0", required = false) int pageNumber, @RequestParam(defaultValue = "10", required = false) int pageSize, @RequestParam(defaultValue = "createdAt", required = false) String sortBy, @RequestParam(defaultValue = "false", required = false) boolean rising, @RequestParam(defaultValue = "false", required = false) boolean top, @RequestParam(defaultValue = "false") boolean isNew, @RequestParam(defaultValue = "false") boolean popular, @RequestParam(required = false) String keyword, Model model) {
+    public String getAllPosts(
+            @RequestParam(defaultValue = "0") int pageNumber,
+            @RequestParam(defaultValue = "10") int pageSize,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) String time,
+            @RequestParam(required = false) String keyword,
+            Model model) {
 
         long start = System.currentTimeMillis();
-        Page<PostWithVotesDTO> posts = postService.getAllPost(pageNumber, pageSize, sortBy, rising, top, isNew, popular, keyword);
 
-        long dbTime = System.currentTimeMillis();
-        System.out.println("Controller : DB fetch time: " + (dbTime - start) + " ms");
+        Page<PostWithVotesDTO> posts = postService.getAllPost(pageNumber, pageSize, sort, time, keyword);
 
-        long cumminityStart = System.currentTimeMillis();
+        System.out.println("Controller : DB fetch time: " + (System.currentTimeMillis() - start) + " ms");
+
         List<Community> joinedCommunities = communityService.findUserJoinedCommunities();
-        long communityEnd = System.currentTimeMillis();
-        System.out.println("Community fetching time : " + (communityEnd - cumminityStart) + " ms");
-
         List<Community> recentCommunities = joinedCommunities.stream().limit(5).toList();
-
         List<PostWithVotesDTO> latest10Posts = posts.getContent();
-        long startNotification = System.currentTimeMillis();
         Integer notificationCount = notificationService.getNotificationCount();
-        long stopNotification = System.currentTimeMillis();
-        System.out.println("notification count time: " + (stopNotification - startNotification));
 
         model.addAttribute("notificationCount", notificationCount);
-
-        model.addAttribute("posts", posts.getContent());
+        model.addAttribute("posts", latest10Posts);
         model.addAttribute("recentPosts", latest10Posts);
         model.addAttribute("communities", joinedCommunities);
         model.addAttribute("recentCommunities", recentCommunities);
         model.addAttribute("hasNext", posts.hasNext());
-        model.addAttribute("isRising", rising);
-        model.addAttribute("isTop", top);
-        model.addAttribute("isNew", isNew);
-        model.addAttribute("popular", popular);
 
-        if (keyword != null && !keyword.isBlank()) {
-            model.addAttribute("keyword", keyword);
-        } else {
-            model.addAttribute("keyword", "");
-        }
+        model.addAttribute("selectedSort", sort != null ? sort : "");
+        model.addAttribute("time", time != null ? time : "");
+        model.addAttribute("keyword", keyword != null ? keyword : "");
 
         return "home";
     }
 
-    @GetMapping("/scroll")
-    public String getMorePosts(@RequestParam(defaultValue = "0") int pageNumber, @RequestParam(defaultValue = "10") int pageSize, @RequestParam(defaultValue = "createdAt") String sortBy, @RequestParam(defaultValue = "false", required = false) boolean rising, @RequestParam(defaultValue = "false", required = false) boolean top, @RequestParam(defaultValue = "false") boolean isNew, @RequestParam(defaultValue = "false") boolean popular, @RequestParam(required = false) String keyword, @RequestParam(required = false) String category, Model model) {
 
-        Page<PostWithVotesDTO> posts = postService.getAllPost(pageNumber, pageSize, sortBy, rising, top, isNew, popular, keyword);
+    @GetMapping("/scroll")
+    public String getMorePosts(
+            @RequestParam(defaultValue = "0") int pageNumber,
+            @RequestParam(defaultValue = "10") int pageSize,
+            @RequestParam(required = false) String sort,
+            @RequestParam(required = false) String time,
+            @RequestParam(required = false) String keyword,
+            Model model) {
+
+        Page<PostWithVotesDTO> posts = postService.getAllPost(pageNumber, pageSize, sort, time, keyword);
 
         model.addAttribute("posts", posts.getContent());
         model.addAttribute("hasNext", posts.hasNext());
-        model.addAttribute("isRising", rising);
-        model.addAttribute("isTop", top);
-        model.addAttribute("isNew", isNew);
-        model.addAttribute("popular", popular);
+
+        model.addAttribute("selectedSort", sort != null ? sort : "");
+        model.addAttribute("time", time != null ? time : "");
+        model.addAttribute("keyword", keyword != null ? keyword : "");
 
         return "home";
     }
+
 
     @GetMapping("/posts/{postId}")
     public String getPostById(@PathVariable Long postId, Model model, Authentication authentication) {
@@ -206,6 +206,7 @@ public class PostController {
         model.addAttribute("notificationCount", 0);
         return "view-post";
     }
+
 
     @PostMapping("/posts/delete/{postId}")
     public String deletePostById(@PathVariable("postId") Long postId) {

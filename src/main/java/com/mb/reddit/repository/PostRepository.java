@@ -82,26 +82,30 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     // for top
     @Query("""
-            SELECT new com.mb.reddit.dto.PostWithVotesDTO(
-                p.id,
-                p.title,
-                p.content,
-                p.mediaUrl,
-                p.community.name,
-                p.community.iconUrl,
-                p.createdAt,
-                (SELECT COUNT(v1) FROM PostVote v1 WHERE v1.post = p AND v1.isLike = true),
-                (SELECT COUNT(v2) FROM PostVote v2 WHERE v2.post = p AND v2.isLike = false),
-                (SELECT COUNT(c) FROM Comment c WHERE c.post = p)
-            )
-            FROM Post p
-            WHERE p.isPublished = true AND p.community.isPrivate = false
-            ORDER BY 
-                (SELECT COUNT(v1) FROM PostVote v1 WHERE v1.post = p AND v1.isLike = true) -
-                (SELECT COUNT(v2) FROM PostVote v2 WHERE v2.post = p AND v2.isLike = false) DESC
-            """)
-    Page<PostWithVotesDTO> findTopPosts(Pageable pageable);
-
+        SELECT new com.mb.reddit.dto.PostWithVotesDTO(
+            p.id,
+            p.title,
+            p.content,
+            p.mediaUrl,
+            p.community.name,
+            p.community.iconUrl,
+            p.createdAt,
+            (SELECT COUNT(v1) FROM PostVote v1 WHERE v1.post = p AND v1.isLike = true),
+            (SELECT COUNT(v2) FROM PostVote v2 WHERE v2.post = p AND v2.isLike = false),
+            (SELECT COUNT(c) FROM Comment c WHERE c.post = p)
+        )
+        FROM Post p
+        WHERE p.isPublished = true 
+          AND p.community.isPrivate = false
+          AND (COALESCE(:startDate, p.createdAt) = p.createdAt OR p.createdAt >= :startDate)
+          AND (COALESCE(:endDate, p.createdAt) = p.createdAt OR p.createdAt <= :endDate)
+        ORDER BY 
+            (SELECT COUNT(v1) FROM PostVote v1 WHERE v1.post = p AND v1.isLike = true) -
+            (SELECT COUNT(v2) FROM PostVote v2 WHERE v2.post = p AND v2.isLike = false) DESC
+        """)
+    Page<PostWithVotesDTO> findTopPosts(@Param("startDate") LocalDateTime startDate,
+                                        @Param("endDate") LocalDateTime endDate,
+                                        Pageable pageable);
     //for raising
     @Query("""
             SELECT new com.mb.reddit.dto.PostWithVotesDTO(
@@ -223,4 +227,31 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             WHERE p.id= :postId
             """)
     PostWithVotesDTO getPostWithVotesByPostId(@Param("postId") Long postId);
+
+    @Query("""
+    SELECT new com.mb.reddit.dto.PostWithVotesDTO(
+        p.id,
+        p.title,
+        p.content,
+        p.mediaUrl,
+        p.community.name,
+        p.community.iconUrl,
+        p.createdAt,
+        (SELECT COUNT(v1) FROM PostVote v1 WHERE v1.post = p AND v1.isLike = true),
+        (SELECT COUNT(v2) FROM PostVote v2 WHERE v2.post = p AND v2.isLike = false),
+        (SELECT COUNT(c1) FROM Comment c1 WHERE c1.post = p)
+    )
+    FROM Post p
+    WHERE p.isPublished = true 
+      AND p.community.isPrivate = false
+      AND (COALESCE(:startDate, p.createdAt) = p.createdAt OR p.createdAt >= :startDate)
+      AND (COALESCE(:endDate, p.createdAt) = p.createdAt OR p.createdAt <= :endDate)
+    ORDER BY (
+        (SELECT COUNT(v1) FROM PostVote v1 WHERE v1.post = p AND v1.isLike = true) + 
+        (SELECT COUNT(c1) FROM Comment c1 WHERE c1.post = p)
+    ) DESC
+""")
+    Page<PostWithVotesDTO> findHotPosts(@Param("startDate") LocalDateTime startDate,
+                                        @Param("endDate") LocalDateTime endDate,
+                                        Pageable pageable);
 }

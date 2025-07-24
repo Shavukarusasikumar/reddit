@@ -20,9 +20,8 @@ public interface PostService {
     Post updatePost(PostWithVotesDTO post, MultipartFile media,boolean removeMedia);
 
     void deletePost(Long postId);
-    Page<PostWithVotesDTO> getAllPost(int pageNumber, int pageSize, String sortBy,
-                              boolean rising, boolean top, boolean isNew,
-                              boolean popular, String keyword);
+    Page<PostWithVotesDTO> getAllPost(int pageNumber, int pageSize, String sort, String time, String keyword);
+
 
     Page<Post> getPostsByCommunityId(Long communityId, int pageNumber, int pageSize);
 

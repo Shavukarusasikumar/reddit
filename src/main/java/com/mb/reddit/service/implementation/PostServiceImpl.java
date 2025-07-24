@@ -31,16 +31,14 @@ public class PostServiceImpl implements PostService {
     private final PostVoteRepository postVoteRepository;
     private final CommunityRepository communityRepository;
     private final UserRepository userRepository;
-    private final UserServiceImpl userService;
 
-    public PostServiceImpl(PostRepository postRepository, CommentRepository commentRepository, UserServiceImpl userService, CloudinaryService cloudinaryService, PostVoteRepository postVoteRepository, CommunityRepository communityRepository, UserRepository userRepository) {
+    public PostServiceImpl(PostRepository postRepository, CommentRepository commentRepository, CloudinaryService cloudinaryService, PostVoteRepository postVoteRepository, CommunityRepository communityRepository, UserRepository userRepository) {
         this.postRepository = postRepository;
         this.commentRepository = commentRepository;
         this.cloudinaryService = cloudinaryService;
         this.postVoteRepository = postVoteRepository;
         this.communityRepository = communityRepository;
         this.userRepository = userRepository;
-        this.userService = userService;
     }
 
     @Override
@@ -48,52 +46,48 @@ public class PostServiceImpl implements PostService {
         return postRepository.findById(postId).orElseThrow(() -> new PostNotFoundException("Post not found with id " + postId));
     }
 
-    @Override
-    public Page<PostWithVotesDTO> getAllPost(int pageNumber, int pageSize, String sortBy, boolean rising, boolean top, boolean isNew, boolean popular, String keyword) {
-
+    public Page<PostWithVotesDTO> getAllPost(int pageNumber, int pageSize, String sort, String time, String keyword) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
-        LocalDateTime timeThreshold = LocalDateTime.now().minusHours(96);
+
+        LocalDateTime[] timeRange = getTimeRange(time);
+        LocalDateTime startDate = timeRange[0];
+        LocalDateTime endDate = timeRange[1];
 
         Page<PostWithVotesDTO> page;
 
-        if(keyword != null && !keyword.isEmpty() && !keyword.trim().isEmpty()) {
+        if (keyword != null && !keyword.trim().isEmpty()) {
             page = postRepository.searchPostsByKeyword(keyword, pageable);
-        }
-        else if(top) {
-            page = postRepository.findTopPosts(pageable);
-        }
-        else if(rising) {
-            page = postRepository.findRisingPosts(timeThreshold, pageable);
-        }
-        else if(popular) {
-            page = postRepository.findPopularPosts(pageable);
-        }
-        else {
-            page = postRepository.findPublicPosts(pageable);
-        }
+        } else {
+            String sortOption = (sort != null) ? sort : "";
 
+            page = switch (sortOption) {
+                case "top" -> postRepository.findTopPosts(startDate, endDate, pageable);
+                case "hot" -> postRepository.findHotPosts(startDate, endDate, pageable);
+                case "rising" -> {
+                    LocalDateTime timeThreshold = LocalDateTime.now().minusHours(96);
+                    yield postRepository.findRisingPosts(timeThreshold, pageable);
+                }
+                case "popular" -> postRepository.findPopularPosts(pageable);
+                default -> postRepository.findPublicPosts(pageable);
+            };
+        }
 
         Long userId = getLoggedInUserId(authentication);
-        if(userId == null) {
-            return page;
-        }
+        if (userId == null) return page;
 
         List<PostWithVotesDTO> postList = page.getContent();
         List<Long> postIds = postList.stream().map(PostWithVotesDTO::getId).toList();
-
-        if(postIds.isEmpty()) {
-            return page;
-        }
+        if (postIds.isEmpty()) return page;
 
         List<PostVote> userVotes = postVoteRepository.findByUserIdAndPostIds(userId, postIds);
 
         Map<Long, Boolean> voteMap = new HashMap<>();
-        for(PostVote vote : userVotes) {
+        for (PostVote vote : userVotes) {
             voteMap.put(vote.getPost().getId(), vote.getIsLike());
         }
 
-        for(PostWithVotesDTO post : postList) {
+        for (PostWithVotesDTO post : postList) {
             post.setIsLiked(voteMap.get(post.getId()));
         }
 
@@ -263,4 +257,37 @@ public class PostServiceImpl implements PostService {
 
         return postRepository.getPostsByCommunityId(communityId, pageable);
     }
+
+    private LocalDateTime[] getTimeRange(String time) {
+        if (time == null || time.isBlank() || time.equals("all")) {
+            return new LocalDateTime[]{ null, null };
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+
+        return switch (time) {
+            case "today" -> new LocalDateTime[] {
+                    now.toLocalDate().atStartOfDay(),
+                    now.toLocalDate().atStartOfDay().plusDays(1).minusSeconds(1)
+            };
+            case "yesterday" -> new LocalDateTime[] {
+                    now.toLocalDate().minusDays(1).atStartOfDay(),
+                    now.toLocalDate().atStartOfDay().minusSeconds(1)
+            };
+            case "month" -> new LocalDateTime[] {
+                    now.withDayOfMonth(1).toLocalDate().atStartOfDay(),
+                    now.withDayOfMonth(1).toLocalDate().atStartOfDay().plusMonths(1).minusSeconds(1)
+            };
+            case "year" -> new LocalDateTime[] {
+                    now.withDayOfYear(1).toLocalDate().atStartOfDay(),
+                    now.withDayOfYear(1).toLocalDate().atStartOfDay().plusYears(1).minusSeconds(1)
+            };
+            default -> new LocalDateTime[] {
+                    LocalDateTime.of(1970, 1, 1, 0, 0),
+                    LocalDateTime.of(2999, 12, 31, 23, 59, 59)
+            };
+        };
+    }
+
+
 }
