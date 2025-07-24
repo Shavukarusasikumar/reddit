@@ -57,7 +57,7 @@ public class PostServiceImpl implements PostService {
 
         Page<PostWithVotesDTO> page;
 
-        if(keyword != null && !keyword.isEmpty()) {
+        if(keyword != null && !keyword.isEmpty() && !keyword.trim().isEmpty()) {
             page = postRepository.searchPostsByKeyword(keyword, pageable);
         }
         else if(top) {
