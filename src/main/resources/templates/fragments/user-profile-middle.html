@@ -68,34 +68,37 @@
          white-space: nowrap;
        }
 
-       .user-actions {
-         display: flex;
-         justify-content: space-between;
-         margin-top: 10px;
-         gap: 12px;
-         flex-wrap: wrap;
-       }
+    .user-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
 
-       .user-actions button {
-         background: none;
-         border: none;
-         padding: 8px 12px;
-         font-size: 15px;
-         font-weight: 500;
-         color: #333;
-         cursor: pointer;
-         transition: background-color 0.2s ease, color 0.2s ease;
-         border-radius: 6px;
-       }
+    .user-actions button {
+      flex: 1 1 auto;
+      min-width: 110px;
+      text-align: center;
+      background: none;
+      border: none;
+      padding: 10px 14px;
+      font-size: 15px;
+      font-weight: 500;
+      color: #333;
+      cursor: pointer;
+      transition: background-color 0.2s ease, color 0.2s ease;
+      border-radius: 6px;
+    }
 
-       .user-actions button:hover {
-         background-color: #f0f0f0;
-       }
+    .user-actions button:hover {
+      background-color: #f0f0f0;
+    }
 
-       .user-actions button.active {
-         background-color: #0079d3;
-         color: white;
-       }
+    .user-actions button.active {
+      background-color: #e3effd;
+      color: #005999;
+    }
+
 
       .post-layout-wrapper {
            max-width: 700px;

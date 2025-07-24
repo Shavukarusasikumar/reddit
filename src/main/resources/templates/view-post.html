@@ -719,6 +719,16 @@
             margin-left: 32px;
             gap: 8px;
         }
+        .author-name a {
+            font-size: 0.9em;
+            color: #888;
+            text-decoration: none;
+        }
+
+        .author-name a:hover {
+            text-decoration: underline;
+        }
+
 
     </style>
 </head>
@@ -733,14 +743,18 @@
             <div class="user-avatar" th:text="${post.community != null ? post.community.name.substring(0,1).toUpperCase() : (post.author != null ? post.author.username.substring(0,1).toUpperCase() : 'U')}">U</div>
             <div class="username">
                 <span th:text="${post.community != null ? 'r/' + post.community.name : (post.author != null ? post.author.username : 'Anonymous')}">Username</span>
-
-                <!-- Action Buttons -->
-                <div th:if="${isOwner}" class="post-actions">
-                    <a th:href="@{/posts/edit/{postId}(postId=${post.id})}" class="btn-action edit-btn">Edit</a>
-                    <form th:action="@{/posts/delete/{postId}(postId=${post.id})}" method="post" class="inline-form">
-                        <button type="submit" class="btn-action delete-btn">Delete</button>
-                    </form>
+                <div class="author-name">
+                    <a th:href="@{/user/{userId}(userId=${post.author.id})}"
+                       th:text="'u/' + ${post.author.username}">Posted by username</a>
                 </div>
+
+            </div>
+            <!-- Action Buttons -->
+            <div th:if="${isOwner}" class="post-actions">
+                <a th:href="@{/posts/edit/{postId}(postId=${post.id})}" class="btn-action edit-btn">Edit</a>
+                <form th:action="@{/posts/delete/{postId}(postId=${post.id})}" method="post" class="inline-form">
+                    <button type="submit" class="btn-action delete-btn">Delete</button>
+                </form>
             </div>
         </div>
     </div>
