@@ -520,21 +520,19 @@ const scrollContainer = document.querySelector('.home-main-scroll-wrapper');
 scrollContainer.addEventListener('scroll', handleScroll);
 
     /* Improved Scroll Handler */
-    function handleScroll() {
-        if (loading || !hasNext) return;
+function handleScroll() {
+    if (loading || !hasNext) return;
 
-        const posts = document.querySelectorAll('#post-list .post-container');
-        if (posts.length < nextTriggerIndex) return;
+    const posts = document.querySelectorAll('#post-list .post-container');
+    if (posts.length < nextTriggerIndex) return;
 
-        const triggerPost = posts[nextTriggerIndex - 1];
-        const { top, bottom } = triggerPost.getBoundingClientRect();
+    const triggerPost = posts[nextTriggerIndex - 1];
+    const { top, bottom } = triggerPost.getBoundingClientRect();
 
-        // Trigger when post enters viewport
-        if (top < window.innerHeight && bottom > 0) {
-        console.log("Trigger post in viewport, loading more...");
-            loadMorePosts();
-        }
+    if (top < window.innerHeight && bottom > 0) {
+        loadMorePosts();
     }
+}
 
     function isInViewport(el) {
         if (!el) return false;
@@ -548,8 +546,19 @@ function loadMorePosts() {
     const loadingEl = document.getElementById('loading');
     if (loadingEl) loadingEl.style.display = 'block';
 
-    // Request NEXT page (currentPage + 1)
-    fetch(`/scroll?pageNumber=${currentPage + 1}&pageSize=${PAGE_SIZE}&sortBy=createdAt`)
+    // Get current search parameters
+    const urlParams = new URLSearchParams(window.location.search);
+    const sort = urlParams.get('sort');
+    const time = urlParams.get('time');
+    const keyword = urlParams.get('keyword');
+
+    // Build the request URL with all parameters
+    let requestUrl = `/scroll?pageNumber=${currentPage + 1}&pageSize=${PAGE_SIZE}`;
+    if (sort) requestUrl += `&sort=${sort}`;
+    if (time) requestUrl += `&time=${time}`;
+    if (keyword) requestUrl += `&keyword=${keyword}`;
+
+    fetch(requestUrl)
         .then(response => {
             if (!response.ok) throw new Error('Network error');
             return response.text();
@@ -561,22 +570,16 @@ function loadMorePosts() {
             const newPosts = tempDiv.querySelectorAll('.post-container');
             const postList = document.getElementById('post-list');
 
-            // Append new posts
             newPosts.forEach(post => postList.appendChild(post));
 
-            // Update state
             hasNext = newPosts.length === PAGE_SIZE;
-            currentPage++;  // Only increment AFTER successful load
-
-            // Update trigger index for next batch
+            currentPage++;
             nextTriggerIndex += PAGE_SIZE;
 
-            // Initialize voting for new posts
             initVoteState(postList);
         })
         .catch(err => {
             console.error('Error loading posts:', err);
-            // Reset trigger index to retry
             nextTriggerIndex -= PAGE_SIZE;
         })
         .finally(() => {
