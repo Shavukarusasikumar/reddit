@@ -784,7 +784,7 @@
     </div>
 
     <!-- Post Content (if exists) -->
-    <div class="post-content" th:if="${post.content != null and !post.content.isEmpty()}" th:text="${post.content}"></div>
+    <div class="post-content" th:if="${post.content != null and !post.content.isEmpty()}" th:utext="${post.content}"></div>
 
     <!-- Post Media - Show if mediaUrl is not null -->
     <div class="post-media-container" th:if="${post.mediaUrl != null and !post.mediaUrl.isEmpty()}">
