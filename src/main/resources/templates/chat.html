@@ -32,14 +32,40 @@
             min-height: 0;
         }
 
-        #user-list {
+        #user-list-container {
             width: 250px;
             background-color: #ffffff;
             border-right: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #user-search {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            background-color: #f8f9fa;
+        }
+
+        #user-search input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        #user-search input:focus {
+            outline: none;
+            border-color: #ff4500;
+        }
+
+        #user-list {
             list-style: none;
             padding: 0;
             margin: 0;
             overflow-y: auto;
+            flex: 1;
         }
 
         .user-item {
@@ -116,7 +142,7 @@
             background-color: #e03d00;
         }
 
-        .hidden {
+        .user-item        .hidden {
             display: none;
         }
     </style>
@@ -128,13 +154,18 @@
 </div>
 
 <div id="chat-container">
-    <ul id="user-list">
-        <li th:each="user : ${connectedUsers}"
-            th:text="${user.username}"
-            th:attr="data-username=${user.username}"
-            class="user-item">
-        </li>
-    </ul>
+    <div id="user-list-container">
+        <div id="user-search">
+            <input type="text" id="searchUsers" placeholder="Search users..." />
+        </div>
+        <ul id="user-list">
+            <li th:each="user : ${connectedUsers}"
+                th:text="${user.username}"
+                th:attr="data-username=${user.username}"
+                class="user-item">
+            </li>
+        </ul>
+    </div>
 
     <div id="chat-section">
         <div id="chat-messages"></div>
@@ -149,5 +180,45 @@
 <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/stompjs@2.3.3/lib/stomp.min.js"></script>
 <script src="/js/message-main.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchUsers');
+
+        if (searchInput) {
+            searchInput.addEventListener('input', function() {
+                const searchTerm = this.value.toLowerCase().trim();
+                const userItems = document.querySelectorAll('#user-list .user-item');
+
+                console.log('Search term:', searchTerm); // Debug log
+                console.log('Found user items:', userItems.length); // Debug log
+
+                userItems.forEach(function(item) {
+                    const username = item.getAttribute('data-username');
+                    if (username) {
+                        const usernameLower = username.toLowerCase();
+                        console.log('Checking username:', usernameLower); // Debug log
+
+                        if (usernameLower.includes(searchTerm)) {
+                            item.style.display = 'flex';
+                            item.classList.remove('hidden');
+                        } else {
+                            item.style.display = 'none';
+                            item.classList.add('hidden');
+                        }
+                    }
+                });
+            });
+
+            // Also handle keyup event for better responsiveness
+            searchInput.addEventListener('keyup', function() {
+                this.dispatchEvent(new Event('input'));
+            });
+        } else {
+            console.error('Search input not found!');
+        }
+    });
+</script>
+
 </body>
 </html>
