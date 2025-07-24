@@ -22,11 +22,8 @@ public class CloudinaryService {
     private static final int MAX_WIDTH = 792;
     private static final int MAX_HEIGHT = 500;
 
-    // Size limits
-    private static final long MIN_IMAGE_SIZE = 10 * 1024;              // 10 KB
     private static final long MAX_IMAGE_SIZE = 20L * 1024 * 1024;      // 10 MB
 
-    private static final long MIN_VIDEO_SIZE = 100 * 1024;             // 100 KB
     private static final long MAX_VIDEO_SIZE = 50L * 1024 * 1024;      // 30 MB
 
 
@@ -111,10 +108,6 @@ public class CloudinaryService {
             throw new IOException("Invalid image format.");
         }
 
-        if(fileSize < MIN_IMAGE_SIZE) {
-            throw new IOException("Image is too small. Must be at least 10 KB.");
-        }
-
         if(fileSize > MAX_IMAGE_SIZE) {
             throw new IOException("Image is too large. Must be under 5 MB.");
         }
@@ -123,10 +116,6 @@ public class CloudinaryService {
     private void validateVideo(long fileSize, String contentType) throws IOException {
         if(!contentType.startsWith("video/")) {
             throw new IOException("Invalid video format.");
-        }
-
-        if(fileSize < MIN_VIDEO_SIZE) {
-            throw new IOException("Video is too small. Must be at least 100 KB.");
         }
 
         if(fileSize > MAX_VIDEO_SIZE) {
