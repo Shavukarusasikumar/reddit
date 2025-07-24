@@ -496,6 +496,14 @@
             background: #b91c1c;
         }
 
+        .opacity-75 {
+            opacity: 0.75;
+        }
+
+        .vote-button {
+            transition: opacity 0.2s ease;
+        }
+
     </style>
 </head>
 <body>
@@ -793,58 +801,6 @@
         });
     }
 
-<!--    document.addEventListener('DOMContentLoaded', function() {-->
-<!--        // Handle comment form submission with AJAX-->
-<!--        const commentForm = document.querySelector('.comment-input form');-->
-<!--        const isCommentAuth = commentInputContainer?.dataset.auth === 'true';-->
-<!--        if (commentForm) {-->
-<!--            commentForm.addEventListener('submit', async function(e) {-->
-<!--                if (!isCommentAuth) {-->
-<!--                    e.preventDefault();-->
-<!--                    window.location.href = '/user/login';-->
-<!--                    return;-->
-<!--                }-->
-<!--                e.preventDefault();-->
-
-<!--                const submitButton = this.querySelector('button[type="submit"]');-->
-<!--                const originalText = submitButton.textContent;-->
-
-<!--                // Disable button and show loading state-->
-<!--                submitButton.disabled = true;-->
-<!--                submitButton.textContent = 'Adding...';-->
-
-<!--                const formData = new FormData(this);-->
-<!--                const postId = window.location.pathname.split('/')[2];-->
-
-<!--                try {-->
-<!--                    const response = await fetch(`/posts/${postId}/comments`, {-->
-<!--                        method: 'POST',-->
-<!--                        headers: {-->
-<!--                            'X-Requested-With': 'XMLHttpRequest'-->
-<!--                        },-->
-<!--                        body: formData-->
-<!--                    });-->
-
-<!--                    if (response.ok) {-->
-<!--                        // Clear the input-->
-<!--                        this.querySelector('input[name="content"]').value = '';-->
-<!--                        // Reload the page immediately-->
-<!--                        window.location.reload();-->
-<!--                    } else {-->
-<!--                        console.error('Failed to submit comment');-->
-<!--                        alert('Failed to submit comment. Please try again.');-->
-<!--                    }-->
-<!--                } catch (error) {-->
-<!--                    console.error('Error submitting comment:', error);-->
-<!--                    alert('Error submitting comment. Please try again.');-->
-<!--                } finally {-->
-<!--                    // Re-enable button-->
-<!--                    submitButton.disabled = false;-->
-<!--                    submitButton.textContent = originalText;-->
-<!--                }-->
-<!--            });-->
-<!--        }-->
-
         // Handle reply form submissions with AJAX
         document.addEventListener('submit', async function(e) {
             if (e.target.closest('.reply-form')) {
@@ -1057,6 +1013,7 @@
     // Replace the existing voting JavaScript section with this updated version:
 
     // Handle voting functionality
+    // Handle voting functionality
     document.addEventListener('click', async function(e) {
         if (e.target.closest('.vote-button')) {
             e.preventDefault();
@@ -1068,41 +1025,86 @@
             const isUpvote = voteButton.classList.contains('upvote-btn');
             const isVoteAuth = voteContainer.getAttribute('data-auth') === 'true';
 
-            // Determine new vote state and endpoint
-            let endpoint;
-            let newVoteState;
-
+            // Check authentication first
             if (!isVoteAuth) {
                 window.location.href = '/user/login';
                 return;
             }
+
+            // Determine new vote state and endpoint
+            let endpoint;
+            let newVoteState;
+            let voteCountChange = 0;
 
             if (isUpvote) {
                 if (currentVoteState === 1) {
                     // Remove upvote
                     endpoint = `/votes/remove/${postId}`;
                     newVoteState = 0;
+                    voteCountChange = -1;
                 } else {
                     // Add upvote
                     endpoint = `/votes/upvote/${postId}`;
                     newVoteState = 1;
+                    voteCountChange = currentVoteState === -1 ? 2 : 1; // If changing from downvote to upvote
                 }
             } else {
                 if (currentVoteState === -1) {
                     // Remove downvote
                     endpoint = `/votes/remove/${postId}`;
                     newVoteState = 0;
+                    voteCountChange = 1;
                 } else {
                     // Add downvote
                     endpoint = `/votes/downvote/${postId}`;
                     newVoteState = -1;
+                    voteCountChange = currentVoteState === 1 ? -2 : -1; // If changing from upvote to downvote
                 }
             }
 
-            try {
-                // Disable voting buttons during request
-                voteButton.style.pointerEvents = 'none';
+            // Optimistic UI update - change immediately
+            const voteCountElement = voteContainer.querySelector('.vote-count');
+            const currentCount = parseInt(voteCountElement.textContent) || 0;
+            const newCount = currentCount + voteCountChange;
 
+            // Store original values in case we need to rollback
+            const originalState = currentVoteState;
+            const originalCount = currentCount;
+            const originalUpvoteBtn = voteContainer.querySelector('.upvote-btn');
+            const originalDownvoteBtn = voteContainer.querySelector('.downvote-btn');
+
+            // Update UI immediately
+            voteCountElement.textContent = newCount;
+            voteContainer.setAttribute('data-vote-state', newVoteState);
+
+            // Update button states
+            const upvoteBtn = voteContainer.querySelector('.upvote-btn');
+            const downvoteBtn = voteContainer.querySelector('.downvote-btn');
+            const upvoteSvg = upvoteBtn.querySelector('svg');
+            const downvoteSvg = downvoteBtn.querySelector('svg');
+
+            // Remove all active classes
+            upvoteBtn.classList.remove('active-upvote');
+            downvoteBtn.classList.remove('active-downvote');
+
+            // Reset SVG fills
+            upvoteSvg.setAttribute('fill', 'currentColor');
+            downvoteSvg.setAttribute('fill', 'currentColor');
+
+            // Apply new active state
+            if (newVoteState === 1) {
+                upvoteBtn.classList.add('active-upvote');
+                upvoteSvg.setAttribute('fill', '#ff4500');
+            } else if (newVoteState === -1) {
+                downvoteBtn.classList.add('active-downvote');
+                downvoteSvg.setAttribute('fill', '#7193ff');
+            }
+
+            // Add loading state
+            voteButton.style.pointerEvents = 'none';
+            voteButton.classList.add('opacity-75');
+
+            try {
                 let response;
                 if (newVoteState === 0) {
                     // Use DELETE for removing votes
@@ -1122,63 +1124,37 @@
                     });
                 }
 
-                if (response.ok) {
-                    // Update vote count display
-                    const voteCountElement = voteContainer.querySelector('.vote-count');
-                    let currentCount = parseInt(voteCountElement.textContent) || 0;
-
-                    // Calculate new count based on vote change
-                    const oldState = currentVoteState;
-                    if (oldState === 1 && newVoteState !== 1) currentCount--; // Remove upvote
-                    if (oldState === -1 && newVoteState !== -1) currentCount++; // Remove downvote
-                    if (oldState !== 1 && newVoteState === 1) currentCount++; // Add upvote
-                    if (oldState !== -1 && newVoteState === -1) currentCount--; // Add downvote
-
-                    voteCountElement.textContent = currentCount;
-
-                    // Update vote state attribute
-                    voteContainer.setAttribute('data-vote-state', newVoteState);
-
-                    // Update button states
-                    const upvoteBtn = voteContainer.querySelector('.upvote-btn');
-                    const downvoteBtn = voteContainer.querySelector('.downvote-btn');
-                    const upvoteSvg = upvoteBtn.querySelector('svg');
-                    const downvoteSvg = downvoteBtn.querySelector('svg');
-
-                    // Remove all active classes
-                    upvoteBtn.classList.remove('active-upvote');
-                    downvoteBtn.classList.remove('active-downvote');
-
-                    // Reset SVG fills
-                    upvoteSvg.setAttribute('fill', 'currentColor');
-                    downvoteSvg.setAttribute('fill', 'currentColor');
-
-                    // Apply new active state
-                    if (newVoteState === 1) {
-                        upvoteBtn.classList.add('active-upvote');
-                        upvoteSvg.setAttribute('fill', '#ff4500');
-                    } else if (newVoteState === -1) {
-                        downvoteBtn.classList.add('active-downvote');
-                        downvoteSvg.setAttribute('fill', '#7193ff');
-                    }
-
-                } else {
-                    console.error('Vote request failed:', response.status, response.statusText);
-                    const errorText = await response.text();
-                    console.error('Error response:', errorText);
-
-                    if (response.status === 401 || response.status === 403) {
-                        alert('Please log in to vote on posts');
-                    } else {
-                        alert(`Failed to submit vote (${response.status}). Please try again.`);
-                    }
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
+
             } catch (error) {
                 console.error('Error submitting vote:', error);
-                alert('Network error submitting vote. Please check your connection and try again.');
+
+                // Rollback UI changes on error
+                voteCountElement.textContent = originalCount;
+                voteContainer.setAttribute('data-vote-state', originalState);
+
+                // Rollback button states
+                upvoteBtn.classList.remove('active-upvote', 'active-downvote');
+                downvoteBtn.classList.remove('active-upvote', 'active-downvote');
+                upvoteSvg.setAttribute('fill', 'currentColor');
+                downvoteSvg.setAttribute('fill', 'currentColor');
+
+                if (originalState === 1) {
+                    upvoteBtn.classList.add('active-upvote');
+                    upvoteSvg.setAttribute('fill', '#ff4500');
+                } else if (originalState === -1) {
+                    downvoteBtn.classList.add('active-downvote');
+                    downvoteSvg.setAttribute('fill', '#7193ff');
+                }
+
+                // Show error message
+                showToast('Failed to update vote. Please try again.');
             } finally {
-                // Re-enable voting buttons
+                // Remove loading state
                 voteButton.style.pointerEvents = 'auto';
+                voteButton.classList.remove('opacity-75');
             }
         }
     });
