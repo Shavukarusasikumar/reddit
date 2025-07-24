@@ -29,7 +29,6 @@
         }
 
         .notification-card {
-            display: block;
             padding: 16px 20px;
             margin-bottom: 16px;
             border-radius: 10px;
@@ -39,26 +38,37 @@
         }
 
         .notification-card.unread {
-            background-color: #ffffff; /* white for unread */
+            background-color: #ffffff;
         }
 
         .notification-card.read {
-            background-color: #ebebeb; /* light grey for read */
+            background-color: #ebebeb;
         }
 
         .notification-card:hover {
-            background-color: #f0f6ff; /* soft hover highlight */
+            background-color: #f0f6ff;
         }
 
         .message {
             font-size: 16px;
             color: #222;
+            line-height: 1.5;
+        }
+
+        .message a {
+            font-weight: bold;
+            color: #0079d3;
+            text-decoration: none;
+        }
+
+        .message a:hover {
+            text-decoration: underline;
         }
 
         .timestamp {
             font-size: 13px;
             color: #777;
-            margin-top: 6px;
+            margin-top: 8px;
         }
 
         .pagination {
@@ -97,24 +107,37 @@
 
     <!-- Notifications List -->
     <div th:each="notification : ${notifications.content}">
-        <a th:if="${notification.postId != null}"
-           th:href="@{/posts/{id}(id=${notification.postId})}"
-           class="notification-card"
-           th:classappend="${notification.read} ? ' read' : ' unread'">
-            <div class="message" th:text="${notification.message}">Notification message</div>
-            <div class="timestamp" th:text="${#temporals.format(notification.timestamp, 'dd MMM yyyy HH:mm')}">
+        <!-- Notification with post -->
+        <div th:if="${notification.postId != null}"
+             class="notification-card"
+             th:classappend="${notification.read} ? ' read' : ' unread'">
+            <div class="message">
+                <a th:href="@{/user/{id}(id=${notification.senderId})}"
+                   th:text="${notification.senderName}">Sender</a>
+                <span> </span>
+                <a th:href="@{/posts/{id}(id=${notification.postId})}"
+                   th:text="${notification.message}"
+                   style="color: #222; font-weight: normal;">message</a>
+            </div>
+            <div class="timestamp"
+                 th:text="${#temporals.format(notification.timestamp, 'dd MMM yyyy HH:mm')}">
                 Timestamp
             </div>
-        </a>
+        </div>
 
-        <a th:if="${notification.postId == null}"
-           href="#"
-           class="notification-card read">
-            <div class="message" th:text="${notification.message}">Notification message</div>
-            <div class="timestamp" th:text="${#temporals.format(notification.timestamp, 'dd MMM yyyy HH:mm')}">
+        <!-- Notification without post -->
+        <div th:if="${notification.postId == null}"
+             class="notification-card read">
+            <div class="message">
+                <a th:href="@{/user/{id}(id=${notification.senderId})}"
+                   th:text="${notification.senderName}">Sender</a>
+                <span th:text="${notification.message}" style="margin-left: 4px;">sent you a message</span>
+            </div>
+            <div class="timestamp"
+                 th:text="${#temporals.format(notification.timestamp, 'dd MMM yyyy HH:mm')}">
                 Timestamp
             </div>
-        </a>
+        </div>
     </div>
 
     <!-- Pagination Controls -->

@@ -95,10 +95,11 @@ public class CommentController {
         if(!post.getAuthor().getUsername().equals(userDetails.getUsername())) {
             Notification notification = new Notification();
             notification.setRecipient(post.getAuthor());
-            notification.setMessage(userDetails.getUsername() + " commented on your post.");
+            notification.setMessage(" commented on your post: "  + post.getTitle());
             notification.setType("COMMENT");
             notification.setRead(false);
             notification.setSenderId(userDetails.getId());
+            notification.setSenderName(userDetails.getName());
             notification.setTimestamp(LocalDateTime.now());
             notificationService.addNotification(notification);
         }

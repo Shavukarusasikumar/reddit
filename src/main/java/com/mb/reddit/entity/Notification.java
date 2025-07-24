@@ -31,6 +31,8 @@ public class Notification {
 
     private Long senderId;
 
+    private String senderName;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User recipient;
