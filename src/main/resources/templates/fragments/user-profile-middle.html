@@ -436,16 +436,16 @@
                     <span class="meta-value" style="font-weight: 600; color: #000;"
                           th:text="${karma != null && karma.postKarma != null ? karma.postKarma : 'Not Set'}">0</span>
                 </div>
-<!--                <div class="user-meta-item" style="display: flex; justify-content: space-between; font-size: 14px; color: #555;">-->
-<!--                    <span class="meta-label" style="font-weight: 500;">Comment Karma</span>-->
-<!--                    <span class="meta-value" style="font-weight: 600; color: #000;"-->
-<!--                          th:text="${karma != null && karma.commentKarma != null ? karma.commentKarma : 'Not Set'}">0</span>-->
-<!--                </div>-->
-<!--                <div class="user-meta-item" style="display: flex; justify-content: space-between; font-size: 14px; color: #555;">-->
-<!--                    <span class="meta-label" style="font-weight: 500;">Total Karma</span>-->
-<!--                    <span class="meta-value" style="font-weight: 600; color: #000;"-->
-<!--                          th:text="${karma != null ? (karma.postKarma != null ? karma.postKarma : 0) + (karma.commentKarma != null ? karma.commentKarma : 0) : 'Not Set'}">0</span>-->
-<!--                </div>-->
+                <div class="user-meta-item" style="display: flex; justify-content: space-between; font-size: 14px; color: #555;">
+                    <span class="meta-label" style="font-weight: 500;">Comment Karma</span>
+                    <span class="meta-value" style="font-weight: 600; color: #000;"
+                          th:text="${karma != null && karma.commentKarma != null ? karma.commentKarma : 'Not Set'}">0</span>
+                </div>
+                <div class="user-meta-item" style="display: flex; justify-content: space-between; font-size: 14px; color: #555;">
+                    <span class="meta-label" style="font-weight: 500;">Total Karma</span>
+                    <span class="meta-value" style="font-weight: 600; color: #000;"
+                          th:text="${karma != null ? (karma.postKarma != null ? karma.postKarma : 0) + (karma.commentKarma != null ? karma.commentKarma : 0) : 'Not Set'}">0</span>
+                </div>
 
             </div>
         </div>
