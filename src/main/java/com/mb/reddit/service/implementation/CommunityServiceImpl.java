@@ -1,5 +1,6 @@
 package com.mb.reddit.service.implementation;
 
+import com.mb.reddit.dto.CommunityBasicDTO;
 import com.mb.reddit.entity.Community;
 import com.mb.reddit.entity.CustomUserDetails;
 import com.mb.reddit.entity.User;
@@ -131,19 +132,20 @@ public class CommunityServiceImpl implements CommunityService {
     }
 
     @Override
-    public List<Community> findCommunitiesUserCanPost() {
+    public List<CommunityBasicDTO> findCommunitiesUserCanPost() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated() ||
                 authentication.getPrincipal() instanceof String) {
             return new ArrayList<>();
         }
+
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         Long userId = userDetails.getId();
 
-        List<Community> result = new ArrayList<>(communityRepository.findPublicCommunities());
-        result.addAll(communityRepository.findUserCommunities(userId));
+        List<CommunityBasicDTO> result = new ArrayList<>(communityRepository.findPublicCommunities());
+        result.addAll(communityRepository.findUserJoinedCommunities(userId));
 
-        return result.stream().distinct().toList();
+        return result;
     }
 
     @Transactional

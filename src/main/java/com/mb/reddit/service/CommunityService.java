@@ -1,6 +1,7 @@
 package com.mb.reddit.service;
 
 
+import com.mb.reddit.dto.CommunityBasicDTO;
 import com.mb.reddit.entity.Community;
 import com.mb.reddit.entity.User;
 import org.springframework.security.core.Authentication;
@@ -28,7 +29,7 @@ public interface CommunityService {
 
     List<Community> getAllCommunities();
 
-    List<Community> findCommunitiesUserCanPost();
+    List<CommunityBasicDTO> findCommunitiesUserCanPost();
 
     List<Community> findUserJoinedCommunities();
 

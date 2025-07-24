@@ -1,5 +1,6 @@
 package com.mb.reddit.controller;
 
+import com.mb.reddit.dto.CommunityBasicDTO;
 import com.mb.reddit.dto.PostWithVotesDTO;
 import com.mb.reddit.entity.*;
 import com.mb.reddit.repository.CommentRepository;
@@ -57,22 +58,35 @@ public class PostController {
 
     @GetMapping("/new-post")
     public String getCreatePostForm(@RequestParam(name = "c", required = false) Long communityId, Model model) {
-        List<Community> communities = communityService.findCommunitiesUserCanPost();
+
+        long startAll = System.currentTimeMillis(); // Total start time
+
+        // ⏱️ Timer for community list
+        long startCommunities = System.currentTimeMillis();
+        List<CommunityBasicDTO> communities = communityService.findCommunitiesUserCanPost();
+        long endCommunities = System.currentTimeMillis();
+        System.out.println("⏱️ Time to fetch communities: " + (endCommunities - startCommunities) + " ms");
+
         model.addAttribute("communities", communities);
 
         Community selectedCommunity = null;
         List<Flair> flairs = List.of();
 
-        if(communityId != null) {
+        if (communityId != null) {
+            // ⏱️ Timer for selected community
+            long startSelected = System.currentTimeMillis();
             selectedCommunity = communityService.getCommunityById(communityId);
-            flairs = flairService.getAllFlairsByCommunityId(communityId);
+            long endSelected = System.currentTimeMillis();
+            System.out.println("⏱️ Time to fetch selected community: " + (endSelected - startSelected) + " ms");
         }
 
         model.addAttribute("notificationCount", 0);
         model.addAttribute("selectedCommunity", selectedCommunity);
         model.addAttribute("flairs", flairs);
-
         model.addAttribute("postForm", new Post());
+
+        long endAll = System.currentTimeMillis(); // Total end time
+        System.out.println("⏱️ Total time to process /new-post: " + (endAll - startAll) + " ms");
 
         return "create-post";
     }
