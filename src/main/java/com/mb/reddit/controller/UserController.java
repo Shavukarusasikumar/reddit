@@ -117,11 +117,14 @@ public class UserController {
     @GetMapping("/chat")
     public String chatPage(Model model) {
         User user = userService.getCurrentUser();
+        int notificationCount = notificationService.getNotificationCount();
+
         List<User> connectedUsers = userService.getAllUsers()
                 .stream()
                 .filter(u -> !u.getUsername().equals(user.getUsername()))
                 .toList();
 
+        model.addAttribute("notificationCount", notificationCount);
         model.addAttribute("username", user.getUsername());
         model.addAttribute("connectedUsers", connectedUsers);
         return "chat";
