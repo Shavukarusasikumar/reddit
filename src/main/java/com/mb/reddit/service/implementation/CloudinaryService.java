@@ -98,7 +98,9 @@ public class CloudinaryService {
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-        Thumbnails.of(image).size(targetWidth, targetHeight).outputFormat("webp")     // Lossless format
+        Thumbnails.of(image)
+                .size(targetWidth, targetHeight)
+                .outputFormat("jpg")
                 .toOutputStream(outputStream);
 
         return outputStream.toByteArray();

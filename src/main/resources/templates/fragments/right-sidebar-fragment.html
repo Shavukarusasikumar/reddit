@@ -198,17 +198,17 @@
                         </div>
                     </div>
 
-                    <div class="post-image-container" th:if="${post.mediaUrl != null}">
+                    <div class="post-image-container" th:if="${post.mediaUrl != null and post.mediaType == 'image'}">
                         <img th:src="${post.mediaUrl}" class="post-image" alt="Post Image"
-                             onerror="this.onerror=null;this.src='https://via.placeholder.com/70x70/f6f7f8/c1c1c1?text=IMG'">
+                             onerror="this.onerror=null;">
                     </div>
                 </div>
             </div>
 
-            <div th:if="${posts == null or #lists.isEmpty(posts)}" class="empty-state">
-                <i class="fas fa-inbox"></i>
-                <p>No recent posts to show</p>
+            <div th:if=" ${posts== null or #lists.isEmpty(posts)}" class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p>No recent posts to show</p>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
 </th:block>
