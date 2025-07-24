@@ -2,6 +2,8 @@ package com.mb.reddit.controller;
 
 import com.mb.reddit.dto.PostWithVotesDTO;
 import com.mb.reddit.entity.*;
+import com.mb.reddit.repository.CommentRepository;
+import com.mb.reddit.repository.CommentVoteRepository;
 import com.mb.reddit.service.*;
 import com.mb.reddit.entity.User;
 import com.mb.reddit.service.CommunityService;
@@ -22,12 +24,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.PathVariable;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 @Controller
@@ -42,12 +40,13 @@ public class PostController {
     public final NotificationService notificationService;
     public final UserServiceImpl userServiceImpl;
     private final CommentVoteService commentVoteService;
+    private final CommentVoteRepository commentVoteRepository;
 
     public PostController(PostService postService, UserService userService,
                           CommunityService communityService, FlairService flairService,
                           CommentService commentService, PostVoteService postVoteService,
                           NotificationService notificationService, UserServiceImpl userServiceImpl,
-                          CommentVoteService commentVoteService) {
+                          CommentVoteService commentVoteService, CommentVoteRepository commentVoteRepository) {
         this.postService = postService;
         this.commentService = commentService;
         this.postVoteService = postVoteService;
@@ -57,6 +56,7 @@ public class PostController {
         this.userServiceImpl = userServiceImpl;
         this.notificationService = notificationService;
         this.commentVoteService = commentVoteService;
+        this.commentVoteRepository = commentVoteRepository;
     }
 
     @GetMapping("/new-post")
@@ -161,16 +161,9 @@ public class PostController {
         Community community = post.getCommunity();
         User owner = community.getCreator();
 
+        // Initialize maps for comment votes and user votes
         Map<Long, Integer> commentVotes = new HashMap<>();
-        for(Comment comment : topLevelComments) {
-            int voteCount = commentService.getVoteCountForComment(comment.getId());
-            commentVotes.put(comment.getId(), voteCount);
-        }
-
         Map<Long, Boolean> userCommentVotes = new HashMap<>();
-
-
-
 
         boolean isAuthenticated = authentication != null && authentication.isAuthenticated()
                 && !(authentication.getPrincipal() instanceof String);
@@ -188,7 +181,12 @@ public class PostController {
             if (userDetails != null) {
                 isSaved = userService.isPostSavedByUser(postId, userDetails.getId());
             }
+            // Populate both vote counts and user vote status for ALL comments (including nested)
+            populateCommentVotes(topLevelComments, commentVotes);
             populateUserCommentVotes(topLevelComments, userCommentVotes, userDetails.getId());
+        } else {
+            // Even if not authenticated, we still need to populate vote counts
+            populateCommentVotes(topLevelComments, commentVotes);
         }
 
         boolean isOwner = post.getAuthor().getUsername().equals(authentication.getName());
@@ -350,6 +348,10 @@ public class PostController {
 
     // Add this helper method to PostController:
     private void populateCommentVotes(List<Comment> comments, Map<Long, Integer> commentVotes) {
+        if (comments == null || comments.isEmpty()) {
+            return;
+        }
+
         for (Comment comment : comments) {
             int voteCount = commentService.getVoteCountForComment(comment.getId());
             commentVotes.put(comment.getId(), voteCount);
@@ -361,17 +363,40 @@ public class PostController {
         }
     }
 
+
+//    private void populateUserCommentVotes(List<Comment> comments, Map<Long, Boolean> userCommentVotes, Long userId) {
+//        for (Comment comment : comments) {
+//            Boolean voteStatus = commentVoteService.getVoteStatusByCommentIdAndCurrentUser(comment.getId());
+//            if (voteStatus != null) {
+//                userCommentVotes.put(comment.getId(), voteStatus);
+//            }
+//
+//            if (comment.getReplies() != null && !comment.getReplies().isEmpty()) {
+//                populateUserCommentVotes(comment.getReplies(), userCommentVotes, userId);
+//            }
+//        }
+//    }
+
+    // Add this to PostController
     private void populateUserCommentVotes(List<Comment> comments, Map<Long, Boolean> userCommentVotes, Long userId) {
+        if (comments == null || comments.isEmpty()) {
+            return;
+        }
+
         for (Comment comment : comments) {
-            Boolean voteStatus = commentVoteService.getVoteStatusByCommentIdAndCurrentUser(comment.getId());
-            if (voteStatus != null) {
-                userCommentVotes.put(comment.getId(), voteStatus);
+            // Get vote status for current comment
+            Optional<CommentVote> vote = commentVoteRepository.findByUserIdAndCommentId(userId, comment.getId());
+            if (vote.isPresent()) {
+                userCommentVotes.put(comment.getId(), vote.get().getIsLike());
             }
 
+            // Recursively populate votes for replies
             if (comment.getReplies() != null && !comment.getReplies().isEmpty()) {
                 populateUserCommentVotes(comment.getReplies(), userCommentVotes, userId);
             }
         }
     }
+
+
 
 }

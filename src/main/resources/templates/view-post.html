@@ -648,6 +648,78 @@
             gap: 8px;
         }
 
+        .comment-vote-container {
+            display: flex;
+            align-items: center;
+            background-color: #f6f7f8;
+            border-radius: 12px;
+            padding: 2px 6px;
+            gap: 4px;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+            margin-right: 12px;
+        }
+
+        .comment-vote-container:hover {
+            background-color: #edeff1;
+        }
+
+        .comment-vote-button {
+            cursor: pointer;
+            padding: 2px;
+            border-radius: 2px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            background: transparent;
+            color: #878a8c;
+        }
+
+        .comment-vote-button:hover {
+            background-color: rgba(255, 69, 0, 0.1);
+            color: #ff4500;
+        }
+
+        .comment-vote-button.active-upvote {
+            background-color: rgba(255, 69, 0, 0.1);
+            color: #ff4500;
+        }
+
+        .comment-vote-button.active-upvote svg {
+            fill: #ff4500;
+        }
+
+        .comment-vote-button.active-downvote {
+            background-color: rgba(113, 147, 255, 0.1);
+            color: #7193ff;
+        }
+
+        .comment-vote-button.active-downvote svg {
+            fill: #7193ff;
+        }
+
+        .comment-vote-count {
+            font-size: 10px;
+            font-weight: 700;
+            color: #1c1c1c;
+            min-width: 16px;
+            text-align: center;
+        }
+
+        .comment-vote-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .comment-actions {
+            display: flex;
+            align-items: center;
+            margin-left: 32px;
+            gap: 8px;
+        }
+
     </style>
 </head>
 <body>
@@ -670,7 +742,6 @@
                     </form>
                 </div>
             </div>
-
         </div>
     </div>
 
@@ -809,8 +880,7 @@
             <div class="comments-count" th:text="${post.comments != null ? post.comments.size() + ' Comments' : '0 Comments'}">0 Comments</div>
         </div>
 
-        <!-- Dynamic Comments from Thymeleaf -->
-        <!-- Replace the existing comment rendering part with this updated version -->
+        <!-- Top Level Comments -->
         <div class="comment-thread">
             <div th:each="comment : ${topLevelComments}" class="comment-container">
                 <!-- Render comment -->
@@ -819,9 +889,9 @@
                         <div class="comment-avatar" th:text="${comment.user != null ? comment.user.username.substring(0,1).toUpperCase() : 'U'}">U</div>
                         <span class="comment-user" th:text="${comment.user != null ? comment.user.username : 'Anonymous'}">username</span>
                         <span class="comment-time">
-                    <span> • </span>
-                    <span th:text="${#temporals.format(comment.createdAt, 'MMM d, yyyy')}">time</span>
-                </span>
+                            <span> • </span>
+                            <span th:text="${#temporals.format(comment.createdAt, 'MMM d, yyyy')}">time</span>
+                        </span>
                     </div>
                     <div class="comment-content" th:text="${comment.content}">comment content</div>
 
@@ -843,7 +913,7 @@
                             </button>
 
                             <!-- Vote Count -->
-                            <div class="comment-vote-count" th:text="${commentVotes.get(comment.id) ?: 0}">0</div>
+                            <div class="comment-vote-count" th:text="${commentVotes.get(comment.id) != null ? commentVotes.get(comment.id) : 0}">0</div>
 
                             <!-- Downvote Button -->
                             <button type="button" class="comment-vote-button comment-downvote-btn"
@@ -877,11 +947,12 @@
                 </div>
 
                 <!-- Recursive rendering of replies -->
-                <div th:replace="~{:: render-comments-with-votes(${comment.replies})}"></div>
+                <div th:if="${comment.replies != null and !comment.replies.isEmpty()}"
+                     th:replace="~{:: render-comments-with-votes(${comment.replies})}"></div>
             </div>
         </div>
 
-        <!-- Updated Comment rendering fragment for recursion with voting -->
+        <!-- Single Comment rendering fragment for recursion with voting -->
         <div th:fragment="render-comments-with-votes(comments)" th:if="${comments != null and !comments.isEmpty()}" class="comment-thread">
             <div th:each="reply : ${comments}" class="comment-container">
                 <!-- Render reply -->
@@ -890,9 +961,9 @@
                         <div class="comment-avatar" th:text="${reply.user != null ? reply.user.username.substring(0,1).toUpperCase() : 'U'}">U</div>
                         <span class="comment-user" th:text="${reply.user != null ? reply.user.username : 'Anonymous'}">username</span>
                         <span class="comment-time">
-                    <span> • </span>
-                    <span th:text="${#temporals.format(reply.createdAt, 'MMM d, yyyy')}">time</span>
-                </span>
+                            <span> • </span>
+                            <span th:text="${#temporals.format(reply.createdAt, 'MMM d, yyyy')}">time</span>
+                        </span>
                     </div>
                     <div class="comment-content" th:text="${reply.content}">reply content</div>
 
@@ -948,49 +1019,10 @@
                 </div>
 
                 <!-- Recursive rendering of deeper replies -->
-                <div th:replace="~{:: render-comments-with-votes(${reply.replies})}"></div>
+                <div th:if="${reply.replies != null and !reply.replies.isEmpty()}"
+                     th:replace="~{:: render-comments-with-votes(${reply.replies})}"></div>
             </div>
         </div>
-    </div>
-</div>
-
-<!-- Comment rendering fragment for recursion -->
-<div th:fragment="render-comments(comments)" th:if="${comments != null and !comments.isEmpty()}" class="comment-thread">
-    <div th:each="reply : ${comments}" class="comment-container">
-        <!-- Render reply -->
-        <div class="comment">
-            <div class="comment-header">
-                <div class="comment-avatar" th:text="${reply.user != null ? reply.user.username.substring(0,1).toUpperCase() : 'U'}">U</div>
-                <span class="comment-user" th:text="${reply.user != null ? reply.user.username : 'Anonymous'}">username</span>
-                <span class="comment-time">
-                    <span> • </span>
-                    <span th:text="${#temporals.format(reply.createdAt, 'MMM d, yyyy')}">time</span>
-                </span>
-            </div>
-            <div class="comment-content" th:text="${reply.content}">reply content</div>
-            <div class="comment-actions">
-                <div class="comment-action reply-button">Reply</div>
-            </div>
-
-            <!-- Reply Form -->
-            <div class="reply-form hidden">
-                <form th:action="@{/posts/{postId}/comments(postId=${post.id})}" method="post">
-                    <input type="text" name="content" placeholder="Write a reply..." required class="w-full">
-                    <input type="hidden" name="parentCommentId" th:value="${reply.id}">
-                    <div class="flex justify-end mt-2">
-                        <button type="button" class="cancel-reply mr-2 px-3 py-1 text-gray-600 hover:text-gray-800">
-                            Cancel
-                        </button>
-                        <button type="submit" class="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600">
-                            Reply
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- Recursive rendering of deeper replies -->
-        <div th:replace="~{:: render-comments(${reply.replies})}"></div>
     </div>
 </div>
 
@@ -1406,6 +1438,9 @@
         }
     });
 
+    // Add this JavaScript to handle comment voting
+    // Replace the comment voting JavaScript section with this updated version:
+
     document.addEventListener('click', async function(e) {
         if (e.target.closest('.comment-vote-button')) {
             e.preventDefault();
@@ -1413,9 +1448,16 @@
             const voteButton = e.target.closest('.comment-vote-button');
             const voteContainer = voteButton.closest('.comment-vote-container');
             const commentId = voteContainer.getAttribute('data-comment-id');
-            const currentVoteState = parseInt(voteContainer.getAttribute('data-vote-state'));
+            const currentVoteState = parseInt(voteContainer.getAttribute('data-vote-state') || '0');
             const isUpvote = voteButton.classList.contains('comment-upvote-btn');
             const isVoteAuth = voteContainer.getAttribute('data-auth') === 'true';
+
+            console.log('Comment vote clicked:', {
+                commentId,
+                currentVoteState,
+                isUpvote,
+                isVoteAuth
+            });
 
             // Check authentication first
             if (!isVoteAuth) {
@@ -1430,7 +1472,7 @@
 
             if (isUpvote) {
                 if (currentVoteState === 1) {
-                    // Remove upvote - we need to implement this endpoint
+                    // Remove upvote
                     endpoint = `/comments/${commentId}/remove-vote`;
                     newVoteState = 0;
                     voteCountChange = -1;
@@ -1454,60 +1496,62 @@
                 }
             }
 
-            // Optimistic UI update
+            // Get UI elements
             const voteCountElement = voteContainer.querySelector('.comment-vote-count');
-            const currentCount = parseInt(voteCountElement.textContent) || 0;
-            const newCount = currentCount + voteCountChange;
+            const upvoteBtn = voteContainer.querySelector('.comment-upvote-btn');
+            const downvoteBtn = voteContainer.querySelector('.comment-downvote-btn');
+            const upvoteSvg = upvoteBtn.querySelector('svg');
+            const downvoteSvg = downvoteBtn.querySelector('svg');
 
             // Store original values for rollback
             const originalState = currentVoteState;
-            const originalCount = currentCount;
+            const originalCount = parseInt(voteCountElement.textContent) || 0;
+            const newCount = originalCount + voteCountChange;
 
-            // Update UI immediately
+            console.log('Vote calculation:', {
+                originalCount,
+                voteCountChange,
+                newCount
+            });
+
+            // Optimistic UI update
             voteCountElement.textContent = newCount;
             voteContainer.setAttribute('data-vote-state', newVoteState);
 
             // Update button states
-            const upvoteBtn = voteContainer.querySelector('.comment-upvote-btn');
-            const downvoteBtn = voteContainer.querySelector('.comment-downvote-btn');
-
-            // Remove all active classes
             upvoteBtn.classList.remove('active-upvote');
             downvoteBtn.classList.remove('active-downvote');
+            upvoteSvg.setAttribute('fill', 'currentColor');
+            downvoteSvg.setAttribute('fill', 'currentColor');
 
             // Apply new active state
             if (newVoteState === 1) {
                 upvoteBtn.classList.add('active-upvote');
+                upvoteSvg.setAttribute('fill', '#ff4500');
             } else if (newVoteState === -1) {
                 downvoteBtn.classList.add('active-downvote');
+                downvoteSvg.setAttribute('fill', '#7193ff');
             }
 
             // Add loading state
             voteButton.disabled = true;
-            voteButton.style.opacity = '0.5';
+            voteButton.style.opacity = '0.6';
 
             try {
-                let response;
-                if (newVoteState === 0) {
-                    // For remove vote, we'll use POST with a different endpoint
-                    response = await fetch(`/comments/${commentId}/remove-vote`, {
-                        method: 'POST',
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    });
-                } else {
-                    response = await fetch(endpoint, {
-                        method: 'POST',
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest'
-                        }
-                    });
-                }
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Content-Type': 'application/json'
+                    }
+                });
 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
+
+                const result = await response.text();
+                console.log('Vote response:', result);
 
             } catch (error) {
                 console.error('Error submitting comment vote:', error);
@@ -1519,11 +1563,15 @@
                 // Rollback button states
                 upvoteBtn.classList.remove('active-upvote');
                 downvoteBtn.classList.remove('active-downvote');
+                upvoteSvg.setAttribute('fill', 'currentColor');
+                downvoteSvg.setAttribute('fill', 'currentColor');
 
                 if (originalState === 1) {
                     upvoteBtn.classList.add('active-upvote');
+                    upvoteSvg.setAttribute('fill', '#ff4500');
                 } else if (originalState === -1) {
                     downvoteBtn.classList.add('active-downvote');
+                    downvoteSvg.setAttribute('fill', '#7193ff');
                 }
 
                 showToast('Failed to update comment vote. Please try again.');
@@ -1534,7 +1582,6 @@
             }
         }
     });
-
 </script>
 </body>
 </html>

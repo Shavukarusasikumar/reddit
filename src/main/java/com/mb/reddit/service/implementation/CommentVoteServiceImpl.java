@@ -105,6 +105,7 @@ public class CommentVoteServiceImpl implements CommentVoteService {
 				.orElseThrow(() -> new CommentNotFoundException("Comment not found" + commentId));
 	}
 
+	// Add this method to CommentVoteServiceImpl if it doesn't exist
 	@Override
 	public Boolean getVoteStatusByCommentIdAndCurrentUser(Long commentId) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
