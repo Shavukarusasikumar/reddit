@@ -13,15 +13,6 @@
             height: 100%;
             overflow: hidden;
         }
-            video::-webkit-media-controls-play-button {
-        display: none !important;
-    }
-
-    video::-webkit-media-controls-timeline,
-    video::-webkit-media-controls-volume-slider,
-    video::-webkit-media-controls-fullscreen-button {
-        display: none !important;
-    }
 
         .page-layout-container {
             height: 100vh;
@@ -48,6 +39,16 @@
             top: 80px;
             align-self: start;
             height: fit-content;
+        }
+
+        video::-webkit-media-controls-play-button {
+            display: none !important;
+        }
+
+        video::-webkit-media-controls-timeline,
+        video::-webkit-media-controls-volume-slider,
+        video::-webkit-media-controls-fullscreen-button {
+            display: none !important;
         }
 
         .home-main-scroll-wrapper {
@@ -168,11 +169,18 @@
                                         Your browser does not support the video tag.
                                     </video>
                                 </div>
+
+                                <!-- Link URL rendering -->
+                                <div th:if="${post.linkUrl != null}" class="post-link" style="margin-top: 8px;">
+                                    🔗 <a th:href="${post.linkUrl}" th:text="${post.linkUrl}" target="_blank" style="word-break: break-all;"></a>
+                                </div>
                             </div>
+
+
                             <div class="post-text"
                                  th:if="${post.mediaUrl == null and post.content != null}"
-                                 th:utext="${post.content}"
-                        </div>
+                                 th:utext="${post.content}">
+                            </div>
 
                             <div class="post-actions"
                                  th:data-post-id="${post.id}">

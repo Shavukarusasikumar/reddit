@@ -159,31 +159,36 @@ public class PostServiceImpl implements PostService {
 
         Post oldPost = postRepository.findById(updatedPost.getId()).orElseThrow();
 
-        if(!username.equals(oldPost.getAuthor().getUsername())) {
+        if (!username.equals(oldPost.getAuthor().getUsername())) {
             throw new UnauthorizedAccessException("Cannot update Post");
         }
 
         oldPost.setContent(updatedPost.getContent());
         oldPost.setTitle(updatedPost.getTitle());
 
-        if(removeMedia) {
-            oldPost.setMediaUrl(null);
-        }
+        String linkUrl = updatedPost.getLinkUrl();
 
-        if(media != null && !media.isEmpty()) {
+        if (linkUrl != null && !linkUrl.isBlank()) {
+            oldPost.setLinkUrl(linkUrl);
+            oldPost.setMediaUrl(null);
+            oldPost.setMediaType(null);
+        } else if (media != null && !media.isEmpty()) {
             try {
                 String mediaUrl = cloudinaryService.uploadMedia(media);
                 String mediaType = media.getContentType().startsWith("video/") ? "video" : "image";
-                oldPost.setMediaType(mediaType);
                 oldPost.setMediaUrl(mediaUrl);
-            } catch(IOException exception) {
-                throw new MediaUploadError("Failed to upload media"+ exception.getMessage());
+                oldPost.setMediaType(mediaType);
+                oldPost.setLinkUrl(null);
+            } catch (IOException exception) {
+                throw new MediaUploadError("Failed to upload media: " + exception.getMessage());
             }
+        } else if (removeMedia) {
+            oldPost.setMediaUrl(null);
+            oldPost.setMediaType(null);
         }
 
         return postRepository.save(oldPost);
     }
-
     @Override
     public Integer getPostVotesByPostId(Long postId) {
         Integer upVoteCount = postVoteRepository.countUpvoteByPostId(postId);

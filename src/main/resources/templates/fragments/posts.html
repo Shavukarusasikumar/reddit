@@ -18,8 +18,24 @@
             <div class="post-title" th:text="${post.title}">Post title</div>
             </a>
 
-            <div th:if="${post.mediaUrl != null}" class="post-media">
-                <img class="post-image" th:src="${post.mediaUrl}" alt="Post image" loading="lazy">
+            <div class="post-media">
+                <div th:switch="${post.mediaType}">
+                    <!-- Image rendering -->
+                    <img th:case="'image'" th:src="${post.mediaUrl}" alt="Post Image"
+                         style="max-width: 100%; height: auto; border-radius: 8px;"/>
+
+                    <!-- Video rendering -->
+                    <video th:case="'video'" th:src="${post.mediaUrl}"
+                           autoplay muted loop controls
+                           style="max-width: 100%; border-radius: 8px;">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+
+                <!-- Link URL rendering -->
+                <div th:if="${post.linkUrl != null}" class="post-link" style="margin-top: 8px;">
+                    🔗 <a th:href="${post.linkUrl}" th:text="${post.linkUrl}" target="_blank" style="word-break: break-all;"></a>
+                </div>
             </div>
 
             <div class="post-text"

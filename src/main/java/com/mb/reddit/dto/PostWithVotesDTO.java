@@ -1,6 +1,5 @@
 package com.mb.reddit.dto;
 
-import com.mb.reddit.entity.Post;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,6 +17,7 @@ public class PostWithVotesDTO {
     private String content;
     private String mediaUrl;
     private String mediaType;
+    private String linkUrl;
     private String communityName;
     private Long voteCount;
     private LocalDateTime createdAt;
@@ -26,18 +26,21 @@ public class PostWithVotesDTO {
     private Boolean isLiked;
     private String communityIconUrl;
 
-    public PostWithVotesDTO(Long id, String title, String content, String mediaUrl, String mediaType, String communityName, String communityIconUrl, LocalDateTime createdAt, Long upVotes, Long downVotes, Long commentCount) {
+    public PostWithVotesDTO(Long id, String title, String content, String mediaUrl, String mediaType, String linkUrl,
+                            String communityName, String communityIconUrl, LocalDateTime createdAt,
+                            Long upVotes, Long downVotes, Long commentCount) {
         this.id = id;
         this.title = title;
         this.content = content;
         this.mediaUrl = mediaUrl;
+        this.mediaType = mediaType;
+        this.linkUrl = linkUrl;
         this.communityName = communityName;
         this.communityIconUrl = communityIconUrl;
-        this.voteCount = (upVotes - downVotes);
         this.createdAt = createdAt;
-        this.showTime = com.mb.reddit.utils.TimeAgoUtils.getTimeAgo(createdAt);
+        this.voteCount = (upVotes - downVotes);
         this.commentCount = commentCount != null ? commentCount : 0L;
+        this.showTime = com.mb.reddit.utils.TimeAgoUtils.getTimeAgo(createdAt);
         this.isLiked = null;
-        this.mediaType = mediaType;
     }
 }

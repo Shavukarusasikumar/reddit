@@ -42,11 +42,7 @@ public class PostController {
     private final CommentVoteService commentVoteService;
     private final CommentVoteRepository commentVoteRepository;
 
-    public PostController(PostService postService, UserService userService,
-                          CommunityService communityService, FlairService flairService,
-                          CommentService commentService, PostVoteService postVoteService,
-                          NotificationService notificationService, UserServiceImpl userServiceImpl,
-                          CommentVoteService commentVoteService, CommentVoteRepository commentVoteRepository) {
+    public PostController(PostService postService, UserService userService, CommunityService communityService, FlairService flairService, CommentService commentService, PostVoteService postVoteService, NotificationService notificationService, UserServiceImpl userServiceImpl, CommentVoteService commentVoteService, CommentVoteRepository commentVoteRepository) {
         this.postService = postService;
         this.commentService = commentService;
         this.postVoteService = postVoteService;
@@ -82,20 +78,14 @@ public class PostController {
     }
 
     @PostMapping("/new-post")
-    public String createPost(@ModelAttribute("post") Post post, @RequestParam Long communityId,
-                             @RequestParam(value = "file", required = false) MultipartFile file) {
+    public String createPost(@ModelAttribute("post") Post post, @RequestParam Long communityId, @RequestParam(value = "file", required = false) MultipartFile file) {
         postService.createPost(post, communityId, file);
 
         return "redirect:/";
     }
+
     @GetMapping("/")
-    public String getAllPosts(
-            @RequestParam(defaultValue = "0") int pageNumber,
-            @RequestParam(defaultValue = "10") int pageSize,
-            @RequestParam(required = false) String sort,
-            @RequestParam(required = false) String time,
-            @RequestParam(required = false) String keyword,
-            Model model) {
+    public String getAllPosts(@RequestParam(defaultValue = "0") int pageNumber, @RequestParam(defaultValue = "10") int pageSize, @RequestParam(required = false) String sort, @RequestParam(required = false) String time, @RequestParam(required = false) String keyword, Model model) {
 
         long start = System.currentTimeMillis();
 
@@ -104,7 +94,7 @@ public class PostController {
         System.out.println("Controller : DB fetch time: " + (System.currentTimeMillis() - start) + " ms");
 
         List<Community> joinedCommunities = communityService.findUserJoinedCommunities();
-        List<Community> recentCommunities = joinedCommunities.stream().limit(5).toList();
+        List<Community> recentCommunities = joinedCommunities.stream().limit(5).toList().reversed();
         List<PostWithVotesDTO> latest10Posts = posts.getContent();
         Integer notificationCount = notificationService.getNotificationCount();
 
@@ -123,13 +113,7 @@ public class PostController {
     }
 
     @GetMapping("/scroll")
-    public String getMorePosts(
-            @RequestParam(defaultValue = "0") int pageNumber,
-            @RequestParam(defaultValue = "10") int pageSize,
-            @RequestParam(required = false) String sort,
-            @RequestParam(required = false) String time,
-            @RequestParam(required = false) String keyword,
-            Model model) {
+    public String getMorePosts(@RequestParam(defaultValue = "0") int pageNumber, @RequestParam(defaultValue = "10") int pageSize, @RequestParam(required = false) String sort, @RequestParam(required = false) String time, @RequestParam(required = false) String keyword, Model model) {
 
         Page<PostWithVotesDTO> posts = postService.getAllPost(pageNumber, pageSize, sort, time, keyword);
 
@@ -151,7 +135,7 @@ public class PostController {
         int commentCount = topLevelComments.size();
 
         Boolean currentUserVote = null;
-        if (authentication != null && authentication.isAuthenticated()) {
+        if(authentication != null && authentication.isAuthenticated()) {
             currentUserVote = postVoteService.getVoteStatusByPostId(postId);
         }
         Community community = post.getCommunity();
@@ -161,26 +145,25 @@ public class PostController {
         Map<Long, Integer> commentVotes = new HashMap<>();
         Map<Long, Boolean> userCommentVotes = new HashMap<>();
 
-        boolean isAuthenticated = authentication != null && authentication.isAuthenticated()
-                && !(authentication.getPrincipal() instanceof String);
+        boolean isAuthenticated = authentication != null && authentication.isAuthenticated() && !(authentication.getPrincipal() instanceof String);
 
         model.addAttribute("isAuthenticated", isAuthenticated);
         boolean isJoined = false;
-        if (isAuthenticated) {
+        if(isAuthenticated) {
             CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-            isJoined = community.getMembers().stream()
-                    .anyMatch(member -> member.getId().equals(userDetails.getId()));
+            isJoined = community.getMembers().stream().anyMatch(member -> member.getId().equals(userDetails.getId()));
         }
         boolean isSaved = false;
-        if (isAuthenticated) {
+        if(isAuthenticated) {
             CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-            if (userDetails != null) {
+            if(userDetails != null) {
                 isSaved = userService.isPostSavedByUser(postId, userDetails.getId());
             }
             // Populate both vote counts and user vote status for ALL comments (including nested)
             populateCommentVotes(topLevelComments, commentVotes);
             populateUserCommentVotes(topLevelComments, userCommentVotes, userDetails.getId());
-        } else {
+        }
+        else {
             // Even if not authenticated, we still need to populate vote counts
             populateCommentVotes(topLevelComments, commentVotes);
         }
@@ -220,23 +203,16 @@ public class PostController {
     }
 
     @PostMapping("/posts/edit/{postId}")
-    public String editPost(
-            @ModelAttribute("currentPost") PostWithVotesDTO updatedPost,
-            @RequestParam(name = "file", required = false) MultipartFile file,
-            @RequestParam(name = "removeMedia", defaultValue = "false") boolean removeMedia) {
+    public String editPost(@ModelAttribute("currentPost") PostWithVotesDTO updatedPost, @RequestParam(name = "file", required = false) MultipartFile file, @RequestParam(name = "removeMedia", defaultValue = "false") boolean removeMedia) {
 
         postService.updatePost(updatedPost, file, removeMedia);
         return "redirect:/";
     }
 
     @GetMapping("/user/{userId}/posts")
-    public String getUserPosts(@PathVariable Long userId,
-                               @RequestParam(defaultValue = "0") int page,
-                               @RequestParam(defaultValue = "20") int size,
-                               Model model) {
+    public String getUserPosts(@PathVariable Long userId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "20") int size, Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated() ||
-                authentication.getPrincipal() instanceof String) {
+        if(authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal() instanceof String) {
             return "redirect:/user/login";
         }
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
@@ -248,21 +224,16 @@ public class PostController {
     }
 
     @GetMapping("/user/{userId}/upvoted")
-    public String getUserUpVotedPosts(@PathVariable Long userId,
-                               @RequestParam(defaultValue = "0") int page,
-                               @RequestParam(defaultValue = "10") int size,
-                               Model model) {
+    public String getUserUpVotedPosts(@PathVariable Long userId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, Model model) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (authentication == null || !authentication.isAuthenticated() ||
-                authentication.getPrincipal() instanceof String) {
+        if(authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal() instanceof String) {
             return "redirect:/user/login";
         }
 
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        Page<PostWithVotesDTO> posts = postService.getUpvotedPostsByUserId(userDetails.getId(),
-                page, size);
+        Page<PostWithVotesDTO> posts = postService.getUpvotedPostsByUserId(userDetails.getId(), page, size);
 
         model.addAttribute("posts", posts.getContent());
         model.addAttribute("hasNext", posts.hasNext());
@@ -270,13 +241,9 @@ public class PostController {
     }
 
     @GetMapping("/user/{userId}/downvoted")
-    public String getUserDownVotedPosts(@PathVariable Long userId,
-                                      @RequestParam(defaultValue = "0") int page,
-                                      @RequestParam(defaultValue = "10") int size,
-                                      Model model) {
+    public String getUserDownVotedPosts(@PathVariable Long userId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated() ||
-                authentication.getPrincipal() instanceof String) {
+        if(authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal() instanceof String) {
             return "redirect:/user/login";
         }
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
@@ -288,13 +255,9 @@ public class PostController {
     }
 
     @GetMapping("/user/{userId}/saved")
-    public String getUserSavedPosts(@PathVariable Long userId,
-                                    @RequestParam(defaultValue = "0") int page,
-                                    @RequestParam(defaultValue = "10") int size,
-                                    Model model) {
+    public String getUserSavedPosts(@PathVariable Long userId, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated() ||
-                authentication.getPrincipal() instanceof String) {
+        if(authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal() instanceof String) {
             return "redirect:/user/login";
         }
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
@@ -309,8 +272,7 @@ public class PostController {
     @PostMapping("/save/{postId}")
     @ResponseBody
     public ResponseEntity<String> savePost(@PathVariable("postId") Long postId, Authentication authentication) {
-        if (authentication == null || !authentication.isAuthenticated() ||
-                authentication.getPrincipal() instanceof String) {
+        if(authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal() instanceof String) {
             return ResponseEntity.status(401).body("Authentication required");
         }
 
@@ -318,7 +280,7 @@ public class PostController {
             CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
             userService.addPostToUserSavedPosts(postId, userDetails.getId());
             return ResponseEntity.ok("Post saved successfully");
-        } catch (Exception e) {
+        } catch(Exception e) {
             return ResponseEntity.badRequest().body("Error saving post: " + e.getMessage());
         }
     }
@@ -326,8 +288,7 @@ public class PostController {
     @PostMapping("/unsave/{postId}")
     @ResponseBody
     public ResponseEntity<String> unsavePost(@PathVariable("postId") Long postId, Authentication authentication) {
-        if (authentication == null || !authentication.isAuthenticated() ||
-                authentication.getPrincipal() instanceof String) {
+        if(authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal() instanceof String) {
             return ResponseEntity.status(401).body("Authentication required");
         }
 
@@ -335,7 +296,7 @@ public class PostController {
             CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
             userService.removePostFromUserSavedPosts(postId, userDetails.getId());
             return ResponseEntity.ok("Post unsaved successfully");
-        } catch (Exception e) {
+        } catch(Exception e) {
             return ResponseEntity.badRequest().body("Error unsaving post: " + e.getMessage());
         }
     }
@@ -344,55 +305,54 @@ public class PostController {
 
     // Add this helper method to PostController:
     private void populateCommentVotes(List<Comment> comments, Map<Long, Integer> commentVotes) {
-        if (comments == null || comments.isEmpty()) {
+        if(comments == null || comments.isEmpty()) {
             return;
         }
 
-        for (Comment comment : comments) {
+        for(Comment comment : comments) {
             int voteCount = commentService.getVoteCountForComment(comment.getId());
             commentVotes.put(comment.getId(), voteCount);
 
             // Recursively populate votes for replies
-            if (comment.getReplies() != null && !comment.getReplies().isEmpty()) {
+            if(comment.getReplies() != null && !comment.getReplies().isEmpty()) {
                 populateCommentVotes(comment.getReplies(), commentVotes);
             }
         }
     }
 
 
-//    private void populateUserCommentVotes(List<Comment> comments, Map<Long, Boolean> userCommentVotes, Long userId) {
-//        for (Comment comment : comments) {
-//            Boolean voteStatus = commentVoteService.getVoteStatusByCommentIdAndCurrentUser(comment.getId());
-//            if (voteStatus != null) {
-//                userCommentVotes.put(comment.getId(), voteStatus);
-//            }
-//
-//            if (comment.getReplies() != null && !comment.getReplies().isEmpty()) {
-//                populateUserCommentVotes(comment.getReplies(), userCommentVotes, userId);
-//            }
-//        }
-//    }
+    //    private void populateUserCommentVotes(List<Comment> comments, Map<Long, Boolean> userCommentVotes, Long userId) {
+    //        for (Comment comment : comments) {
+    //            Boolean voteStatus = commentVoteService.getVoteStatusByCommentIdAndCurrentUser(comment.getId());
+    //            if (voteStatus != null) {
+    //                userCommentVotes.put(comment.getId(), voteStatus);
+    //            }
+    //
+    //            if (comment.getReplies() != null && !comment.getReplies().isEmpty()) {
+    //                populateUserCommentVotes(comment.getReplies(), userCommentVotes, userId);
+    //            }
+    //        }
+    //    }
 
     // Add this to PostController
     private void populateUserCommentVotes(List<Comment> comments, Map<Long, Boolean> userCommentVotes, Long userId) {
-        if (comments == null || comments.isEmpty()) {
+        if(comments == null || comments.isEmpty()) {
             return;
         }
 
-        for (Comment comment : comments) {
+        for(Comment comment : comments) {
             // Get vote status for current comment
             Optional<CommentVote> vote = commentVoteRepository.findByUserIdAndCommentId(userId, comment.getId());
-            if (vote.isPresent()) {
+            if(vote.isPresent()) {
                 userCommentVotes.put(comment.getId(), vote.get().getIsLike());
             }
 
             // Recursively populate votes for replies
-            if (comment.getReplies() != null && !comment.getReplies().isEmpty()) {
+            if(comment.getReplies() != null && !comment.getReplies().isEmpty()) {
                 populateUserCommentVotes(comment.getReplies(), userCommentVotes, userId);
             }
         }
     }
-
 
 
 }
