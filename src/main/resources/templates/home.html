@@ -115,7 +115,7 @@
                     <form id="filterForm" class="filter-form" onsubmit="return false;">
                         <label for="sortOption">Sort by:</label>
                         <select id="sortOption" class="filter-dropdown" onchange="applyFilters(); toggleTimeFilter();">
-                            <option value="" th:selected="${selectedSort == ''}">Best</option>
+                            <option value="" th:selected="${selectedSort == ''}">New</option>
                             <option value="hot" th:selected="${selectedSort == 'hot'}">Hot</option>
                             <option value="top" th:selected="${selectedSort == 'top'}">Top</option>
                             <option value="rising" th:selected="${selectedSort == 'rising'}">Rising</option>

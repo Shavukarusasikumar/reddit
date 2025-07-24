@@ -229,8 +229,9 @@ public class PostController {
         if(authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal() instanceof String) {
             return "redirect:/user/login";
         }
+        System.out.println(userId + "===========================");
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        Page<PostWithVotesDTO> posts = postService.getPostsByUserId(userDetails.getId(), page, size);
+        Page<PostWithVotesDTO> posts = postService.getPostsByUserId(userId, page, size);
 
         model.addAttribute("posts", posts);
         model.addAttribute("hasNext", posts.hasNext());

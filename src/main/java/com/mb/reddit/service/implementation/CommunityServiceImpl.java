@@ -1,6 +1,5 @@
 package com.mb.reddit.service.implementation;
 
-import com.mb.reddit.dto.CommunityBasicDTO;
 import com.mb.reddit.entity.Community;
 import com.mb.reddit.entity.CustomUserDetails;
 import com.mb.reddit.entity.User;
@@ -20,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 @Service
@@ -138,14 +138,13 @@ public class CommunityServiceImpl implements CommunityService {
                 authentication.getPrincipal() instanceof String) {
             return new ArrayList<>();
         }
-
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         Long userId = userDetails.getId();
 
-        List<CommunityBasicDTO> result = new ArrayList<>(communityRepository.findPublicCommunities());
-        result.addAll(communityRepository.findUserJoinedCommunities(userId));
+        HashSet<Community> result = new HashSet<>(communityRepository.findPublicCommunities());
+        result.addAll(communityRepository.findUserCommunities(userId));
 
-        return result;
+        return new ArrayList<>(result);
     }
 
     @Transactional

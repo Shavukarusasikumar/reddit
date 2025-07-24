@@ -514,7 +514,7 @@
 </div>
 
 <script>
-    const userId = /*[[${user.id}]]*/ '2'; // Thymeleaf userId
+    const userId = [[${user.id}]];    // Thymeleaf userId
 
     function bindVoteButtons() {
       console.log("Binding vote buttons");
