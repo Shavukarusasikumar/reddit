@@ -1,5 +1,6 @@
 package com.mb.reddit.service.implementation;
 
+import com.mb.reddit.dto.CommunityBasicDTO;
 import com.mb.reddit.entity.Community;
 import com.mb.reddit.entity.CustomUserDetails;
 import com.mb.reddit.entity.User;
@@ -141,8 +142,8 @@ public class CommunityServiceImpl implements CommunityService {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         Long userId = userDetails.getId();
 
-        HashSet<Community> result = new HashSet<>(communityRepository.findPublicCommunities());
-        result.addAll(communityRepository.findUserCommunities(userId));
+        HashSet<CommunityBasicDTO> result = new HashSet<>(communityRepository.findPublicCommunities());
+        result.addAll(communityRepository.findUserJoinedCommunities(userId));
 
         return new ArrayList<>(result);
     }

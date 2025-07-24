@@ -109,8 +109,7 @@
     <div th:each="notification : ${notifications.content}">
         <!-- Notification with post -->
         <div th:if="${notification.postId != null}"
-             class="notification-card"
-             th:classappend="${notification.read} ? ' read' : ' unread'">
+             class="notification-card unread">
             <div class="message">
                 <a th:href="@{/user/{id}(id=${notification.senderId})}"
                    th:text="${notification.senderName}">Sender</a>
