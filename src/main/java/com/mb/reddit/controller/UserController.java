@@ -1,8 +1,10 @@
 package com.mb.reddit.controller;
 
 import com.mb.reddit.dto.UserKarmaDTO;
+import com.mb.reddit.entity.Community;
 import com.mb.reddit.entity.User;
 import com.mb.reddit.repository.UserRepository;
+import com.mb.reddit.service.CommunityService;
 import com.mb.reddit.service.NotificationService;
 import com.mb.reddit.service.UserService;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -29,13 +31,15 @@ public class UserController {
     private final PasswordEncoder passwordEncoder;
     private final UserService userService;
     private final NotificationService notificationService;
+    private final CommunityService communityService;
 
     public UserController(UserRepository userRepository, PasswordEncoder passwordEncoder,
-                          UserService userService, NotificationService notificationService) {
+                          UserService userService, NotificationService notificationService, CommunityService communityService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.userService = userService;
         this.notificationService = notificationService;
+        this.communityService = communityService;
     }
 
     @GetMapping("/login")
@@ -95,7 +99,12 @@ public class UserController {
         UserKarmaDTO karmaDTO = userService.getKarmaDto(user.getId());
         Integer notificationCount = notificationService.getNotificationCount();
         System.out.println(karmaDTO);
-        
+
+        List<Community> joinedCommunities = communityService.findUserJoinedCommunities();
+        List<Community> recentCommunities = joinedCommunities.stream().limit(5).toList();
+
+        model.addAttribute("communities", joinedCommunities);
+        model.addAttribute("recentCommunities", recentCommunities);
         model.addAttribute("notificationCount", notificationCount);
         model.addAttribute("karma", karmaDTO);
         model.addAttribute("user", user);

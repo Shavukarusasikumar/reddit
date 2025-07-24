@@ -182,7 +182,10 @@
                      th:onclick="|window.location.href='/posts/${post.id}'|">
                     <div class="post-content">
                         <div class="post-header">
-                            <img th:src="${post.communityIconUrl}" alt="Community Icon"
+                            <img th:src="${post.communityIconUrl != null and !post.communityIconUrl.isEmpty()} ?
+                                 @{${post.communityIconUrl}} :
+                                 @{/images/profile-icon.png}"
+                                 alt="Community Icon"
                                  class="community-icon"
                                  onerror="this.onerror=null;this.src='https://via.placeholder.com/24x24/ff4500/ffffff?text=r';">
                             <span class="community-name"

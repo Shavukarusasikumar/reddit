@@ -240,8 +240,12 @@
                 </div>
                 <div class="section-content">
                     <div th:each="comm : ${recentCommunities}" class="community-item">
-                        <img th:src="${comm.iconUrl}" alt="community icon"
+                        <img th:src="${comm.iconUrl != null and !comm.iconUrl.isEmpty()} ?
+                             @{${comm.iconUrl}} :
+                             @{/images/profile-icon.png}"
+                             alt="community icon"
                              onerror="this.onerror=null;this.src='https://via.placeholder.com/20x20/ff4500/ffffff?text=r';">
+
                         <a th:href="@{/r/{id}(id=${comm.name})}"
                            class="community-link"
                            th:text="'r/' + ${comm.name}"
