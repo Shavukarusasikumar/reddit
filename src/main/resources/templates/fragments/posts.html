@@ -34,13 +34,13 @@
 
                 <!-- Link URL rendering -->
                 <div th:if="${post.linkUrl != null}" class="post-link" style="margin-top: 8px;">
-                    🔗 <a th:href="${post.linkUrl}" th:text="${post.linkUrl}" target="_blank" style="word-break: break-all;"></a>
+                    <a th:href="${post.linkUrl}" th:text="${post.linkUrl}" target="_blank" style="word-break: break-all;"></a>
                 </div>
             </div>
 
             <div class="post-text"
                  th:if="${post.mediaUrl == null and post.content != null}"
-                 th:text="${post.content}">
+                 th:utext="${post.content}">
             </div>
 
             <div class="post-actions">
