@@ -5,6 +5,7 @@ import com.mb.reddit.entity.Notification;
 import com.mb.reddit.repository.NotificationRepository;
 import com.mb.reddit.service.NotificationService;
 import com.mb.reddit.service.UserService;
+import jakarta.servlet.ServletOutputStream;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -59,6 +60,12 @@ public class NotificationServiceImpl implements NotificationService {
         notifications.forEach(notification -> {
             if (notification.getPost() != null) {
                 notification.setPostId(notification.getPost().getId());
+                System.out.println("=====================++++++++ " + notification.getSenderId() +"+++++++++++++===============");
+
+                System.out.println("=====================++++++++ NULL NHI HAI BHAI +++++++++++++===============");
+
+            }else{
+                System.out.println("=====================++++++++ NULL HAI BHAI +++++++++++++===============");
             }
         });
         return notifications;

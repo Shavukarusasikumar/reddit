@@ -2,6 +2,7 @@ package com.mb.reddit.controller;
 
 import com.mb.reddit.dto.UserKarmaDTO;
 import com.mb.reddit.entity.Community;
+import com.mb.reddit.entity.CustomUserDetails;
 import com.mb.reddit.entity.User;
 import com.mb.reddit.repository.UserRepository;
 import com.mb.reddit.service.CommunityService;
@@ -103,6 +104,7 @@ public class UserController {
         List<Community> joinedCommunities = communityService.findUserJoinedCommunities();
         List<Community> recentCommunities = joinedCommunities.stream().limit(5).toList();
 
+        model.addAttribute("showAllTabs", true);
         model.addAttribute("communities", joinedCommunities);
         model.addAttribute("recentCommunities", recentCommunities);
         model.addAttribute("notificationCount", notificationCount);
@@ -123,5 +125,40 @@ public class UserController {
         model.addAttribute("username", user.getUsername());
         model.addAttribute("connectedUsers", connectedUsers);
         return "chat";
+    }
+
+   @GetMapping("/{userId}")
+    public String getUserProfile(@PathVariable Long userId, Model model) {
+       Boolean showAllTab = false;
+
+       Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+       if (authentication != null && authentication.isAuthenticated() &&
+               !(authentication.getPrincipal() instanceof String)) {
+           CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+           System.out.println(userDetails.getId() + "=============== USER DETAIL CID=====================");
+           System.out.println(userId + "================= PATHVARIABLE ID===================");
+
+           if(userDetails.getId().equals(userId)){
+               showAllTab = true;
+               System.out.println(showAllTab + "====================================");
+           }
+       }
+
+       User user = userService.getUserById(userId);
+
+       UserKarmaDTO karmaDTO = userService.getKarmaDto(user.getId());
+       Integer notificationCount = notificationService.getNotificationCount();
+
+       List<Community> joinedCommunities = communityService.findUserJoinedCommunities();
+       List<Community> recentCommunities = joinedCommunities.stream().limit(5).toList();
+
+       model.addAttribute("showAllTabs", showAllTab);
+       model.addAttribute("communities", joinedCommunities);
+       model.addAttribute("recentCommunities", recentCommunities);
+       model.addAttribute("notificationCount", notificationCount);
+       model.addAttribute("karma", karmaDTO);
+       model.addAttribute("user", user);
+
+       return "fragments/user-profile-middle";
     }
 }

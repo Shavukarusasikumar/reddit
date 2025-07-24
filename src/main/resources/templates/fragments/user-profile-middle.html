@@ -400,9 +400,9 @@
         <!-- Action Buttons -->
         <div class="user-actions">
             <button class="section-btn active" data-section="posts">Posts</button>
-            <button class="section-btn" data-section="saved">Saved</button>
-            <button class="section-btn" data-section="upvoted">Upvoted</button>
-            <button class="section-btn" data-section="downvoted">Downvoted</button>
+            <button th:if="${showAllTabs}" class="section-btn" data-section="saved">Saved</button>
+            <button th:if="${showAllTabs}" class="section-btn" data-section="upvoted">Upvoted</button>
+            <button th:if="${showAllTabs}" class="section-btn" data-section="downvoted">Downvoted</button>
         </div>
 
         <!-- Content Area for dynamic loading -->

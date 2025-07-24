@@ -41,6 +41,8 @@ public class NotificationController {
 
 
         Page<Notification> notifications = notificationService.getAllNotifications(pageNumber, pageSize, userId);
+
+
         //notificationService.markAllAsReadForUser(userId);
         notificationService.deleteAllReadNotificationForUser(userId);
 

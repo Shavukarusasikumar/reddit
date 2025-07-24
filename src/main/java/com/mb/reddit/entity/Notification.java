@@ -29,6 +29,8 @@ public class Notification {
     @Transient
     private Long postId;
 
+    private Long senderId;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User recipient;
