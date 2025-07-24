@@ -23,10 +23,12 @@ public class CloudinaryService {
     private static final int MAX_HEIGHT = 500;
 
     // Size limits
-    private static final long MAX_IMAGE_SIZE = 5 * 1024 * 1024;   // 5 MB
-    private static final long MAX_VIDEO_SIZE = 50 * 1024 * 1024;  // 50 MB
-    private static final long MIN_IMAGE_SIZE = 10 * 1024;         // 10 KB
-    private static final long MIN_VIDEO_SIZE = 100 * 1024;        // 100 KB
+    private static final long MIN_IMAGE_SIZE = 10 * 1024;              // 10 KB
+    private static final long MAX_IMAGE_SIZE = 20L * 1024 * 1024;      // 10 MB
+
+    private static final long MIN_VIDEO_SIZE = 100 * 1024;             // 100 KB
+    private static final long MAX_VIDEO_SIZE = 50L * 1024 * 1024;      // 30 MB
+
 
     public CloudinaryService(Cloudinary cloudinary) {
         this.cloudinary = cloudinary;
@@ -36,40 +38,32 @@ public class CloudinaryService {
         String contentType = file.getContentType();
         long fileSize = file.getSize();
 
-        if (contentType == null) throw new IOException("File has no content type.");
+        if(contentType == null) {
+            throw new IOException("File has no content type.");
+        }
         System.out.println("File type: " + contentType);
         System.out.println("File size: " + (fileSize / 1024) + " KB");
 
         Map<?, ?> uploadResult;
 
-        if (contentType.startsWith("image/")) {
+        if(contentType.startsWith("image/")) {
             validateImage(fileSize, contentType);
-            byte[] imageData = contentType.equalsIgnoreCase("image/svg+xml")
-                    ? file.getBytes()
-                    : resizeWithoutLoss(file);
+            byte[] imageData = contentType.equalsIgnoreCase("image/svg+xml") ? file.getBytes() : resizeWithoutLoss(file);
 
-            uploadResult = cloudinary.uploader().upload(imageData, ObjectUtils.asMap(
-                    "resource_type", "image",
-                    "format", "webp",
-                    "quality", "auto:best"
-            ));
+            uploadResult = cloudinary.uploader().upload(imageData, ObjectUtils.asMap("resource_type", "image", "format", "webp", "quality", "auto:best"));
 
-        } else if (contentType.startsWith("video/")) {
+        }
+        else if(contentType.startsWith("video/")) {
             validateVideo(fileSize, contentType);
 
-            uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap(
-                    "resource_type", "video",
-                    "format", "mp4",                  // Convert to mp4
+            uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap("resource_type", "video", "format", "mp4",                  // Convert to mp4
                     "quality", "auto",                // Auto bitrate optimization
-                    "eager", List.of(
-                            new com.cloudinary.Transformation()
-                                    .quality("auto")
-                                    .fetchFormat("mp4")
-                    )
+                    "eager", List.of(new com.cloudinary.Transformation().quality("auto").fetchFormat("mp4"))
 
             ));
 
-        } else {
+        }
+        else {
             throw new IOException("Unsupported media type: " + contentType);
         }
 
@@ -79,7 +73,7 @@ public class CloudinaryService {
     private byte[] resizeWithoutLoss(MultipartFile file) throws IOException {
         BufferedImage image = ImageIO.read(file.getInputStream());
 
-        if (image == null) {
+        if(image == null) {
             throw new IOException("Invalid image file.");
         }
 
@@ -90,7 +84,7 @@ public class CloudinaryService {
         int targetWidth = originalWidth;
         int targetHeight = originalHeight;
 
-        if (originalWidth > MAX_WIDTH || originalHeight > MAX_HEIGHT) {
+        if(originalWidth > MAX_WIDTH || originalHeight > MAX_HEIGHT) {
             float widthRatio = (float) MAX_WIDTH / originalWidth;
             float heightRatio = (float) MAX_HEIGHT / originalHeight;
             float ratio = Math.min(widthRatio, heightRatio);
@@ -98,44 +92,42 @@ public class CloudinaryService {
             targetHeight = Math.round(originalHeight * ratio);
         }
 
-        if (originalSizeKB < 100 && targetWidth == originalWidth && targetHeight == originalHeight) {
+        if(originalSizeKB < 100 && targetWidth == originalWidth && targetHeight == originalHeight) {
             return file.getBytes(); // Already optimized
         }
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-        Thumbnails.of(image)
-                .size(targetWidth, targetHeight)
-                .outputFormat("webp")     // Lossless format
+        Thumbnails.of(image).size(targetWidth, targetHeight).outputFormat("webp")     // Lossless format
                 .toOutputStream(outputStream);
 
         return outputStream.toByteArray();
     }
 
     private void validateImage(long fileSize, String contentType) throws IOException {
-        if (!contentType.startsWith("image/")) {
+        if(!contentType.startsWith("image/")) {
             throw new IOException("Invalid image format.");
         }
 
-        if (fileSize < MIN_IMAGE_SIZE) {
+        if(fileSize < MIN_IMAGE_SIZE) {
             throw new IOException("Image is too small. Must be at least 10 KB.");
         }
 
-        if (fileSize > MAX_IMAGE_SIZE) {
+        if(fileSize > MAX_IMAGE_SIZE) {
             throw new IOException("Image is too large. Must be under 5 MB.");
         }
     }
 
     private void validateVideo(long fileSize, String contentType) throws IOException {
-        if (!contentType.startsWith("video/")) {
+        if(!contentType.startsWith("video/")) {
             throw new IOException("Invalid video format.");
         }
 
-        if (fileSize < MIN_VIDEO_SIZE) {
+        if(fileSize < MIN_VIDEO_SIZE) {
             throw new IOException("Video is too small. Must be at least 100 KB.");
         }
 
-        if (fileSize > MAX_VIDEO_SIZE) {
+        if(fileSize > MAX_VIDEO_SIZE) {
             throw new IOException("Video is too large. Must be under 50 MB.");
         }
     }

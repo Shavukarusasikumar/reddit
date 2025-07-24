@@ -17,6 +17,7 @@ public class PostWithVotesDTO {
     private String title;
     private String content;
     private String mediaUrl;
+    private String mediaType;
     private String communityName;
     private Long voteCount;
     private LocalDateTime createdAt;
@@ -24,11 +25,8 @@ public class PostWithVotesDTO {
     private Long commentCount;
     private Boolean isLiked;
     private String communityIconUrl;
-    private String mediaType;
 
-    public PostWithVotesDTO(Long id, String title, String content, String mediaUrl,String mediaType,
-                            String communityName, String communityIconUrl, LocalDateTime createdAt,
-                            Long upVotes, Long downVotes, Long commentCount) {
+    public PostWithVotesDTO(Long id, String title, String content, String mediaUrl, String mediaType, String communityName, String communityIconUrl, LocalDateTime createdAt, Long upVotes, Long downVotes, Long commentCount) {
         this.id = id;
         this.title = title;
         this.content = content;
@@ -40,5 +38,6 @@ public class PostWithVotesDTO {
         this.showTime = com.mb.reddit.utils.TimeAgoUtils.getTimeAgo(createdAt);
         this.commentCount = commentCount != null ? commentCount : 0L;
         this.isLiked = null;
+        this.mediaType = mediaType;
     }
 }

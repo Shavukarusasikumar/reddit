@@ -13,6 +13,15 @@
             height: 100%;
             overflow: hidden;
         }
+            video::-webkit-media-controls-play-button {
+        display: none !important;
+    }
+
+    video::-webkit-media-controls-timeline,
+    video::-webkit-media-controls-volume-slider,
+    video::-webkit-media-controls-fullscreen-button {
+        display: none !important;
+    }
 
         .page-layout-container {
             height: 100vh;
@@ -146,14 +155,24 @@
                             <a th:href="@{/posts/{id}(id=${post.id})}" class="post-link">
                                 <div class="post-title" th:text="${post.title}">Post title</div>
                             </a>
-                            <div th:if="${post.mediaUrl != null}" class="post-media">
-                                <img class="post-image" th:src="${post.mediaUrl}" alt="Post image">
-                            </div>
+                            <div class="post-media">
+                                <div th:switch="${post.mediaType}">
+                                    <!-- Image rendering -->
+                                    <img th:case="'image'" th:src="${post.mediaUrl}" alt="Post Image"
+                                         style="max-width: 100%; height: auto; border-radius: 8px;"/>
 
+                                    <!-- Video rendering -->
+                                    <video th:case="'video'" th:src="${post.mediaUrl}"
+                                           autoplay muted loop controls
+                                           style="max-width: 100%; border-radius: 8px;">
+                                        Your browser does not support the video tag.
+                                    </video>
+                                </div>
+                            </div>
                             <div class="post-text"
                                  th:if="${post.mediaUrl == null and post.content != null}"
-                                 th:text="${post.content}">
-                            </div>
+                                 th:utext="${post.content}"
+                        </div>
 
                             <div class="post-actions"
                                  th:data-post-id="${post.id}">
