@@ -101,4 +101,19 @@ public ResponseEntity<String> downvoteComment(@PathVariable Long commentId) {
 
 	return ResponseEntity.ok("Vote updated successfully");
 }
+
+	@PostMapping("/{commentId}/remove-vote")
+	@ResponseBody
+	public ResponseEntity<String> removeVote(@PathVariable Long commentId) {
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication == null || !authentication.isAuthenticated()
+				|| authentication.getPrincipal() instanceof String) {
+			return ResponseEntity.status(401).body("User not authenticated");
+		}
+
+		CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+		commentVoteService.removeVoteByCommentId(commentId, userDetails.getId());
+
+		return ResponseEntity.ok("Vote removed successfully");
+	}
 }

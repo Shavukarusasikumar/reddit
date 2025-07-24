@@ -41,11 +41,13 @@ public class PostController {
     public final FlairService flairService;
     public final NotificationService notificationService;
     public final UserServiceImpl userServiceImpl;
+    private final CommentVoteService commentVoteService;
 
     public PostController(PostService postService, UserService userService,
                           CommunityService communityService, FlairService flairService,
                           CommentService commentService, PostVoteService postVoteService,
-                          NotificationService notificationService, UserServiceImpl userServiceImpl) {
+                          NotificationService notificationService, UserServiceImpl userServiceImpl,
+                          CommentVoteService commentVoteService) {
         this.postService = postService;
         this.commentService = commentService;
         this.postVoteService = postVoteService;
@@ -54,6 +56,7 @@ public class PostController {
         this.flairService = flairService;
         this.userServiceImpl = userServiceImpl;
         this.notificationService = notificationService;
+        this.commentVoteService = commentVoteService;
     }
 
     @GetMapping("/new-post")
@@ -164,6 +167,11 @@ public class PostController {
             commentVotes.put(comment.getId(), voteCount);
         }
 
+        Map<Long, Boolean> userCommentVotes = new HashMap<>();
+
+
+
+
         boolean isAuthenticated = authentication != null && authentication.isAuthenticated()
                 && !(authentication.getPrincipal() instanceof String);
 
@@ -180,10 +188,12 @@ public class PostController {
             if (userDetails != null) {
                 isSaved = userService.isPostSavedByUser(postId, userDetails.getId());
             }
+            populateUserCommentVotes(topLevelComments, userCommentVotes, userDetails.getId());
         }
 
         boolean isOwner = post.getAuthor().getUsername().equals(authentication.getName());
 
+        model.addAttribute("userCommentVotes", userCommentVotes);
         model.addAttribute("isOwner", isOwner);
         model.addAttribute("isSaved", isSaved);
         model.addAttribute("community", community);
@@ -333,6 +343,34 @@ public class PostController {
             return ResponseEntity.ok("Post unsaved successfully");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error unsaving post: " + e.getMessage());
+        }
+    }
+
+    // In PostController.getPostById method, replace the commentVotes logic with:
+
+    // Add this helper method to PostController:
+    private void populateCommentVotes(List<Comment> comments, Map<Long, Integer> commentVotes) {
+        for (Comment comment : comments) {
+            int voteCount = commentService.getVoteCountForComment(comment.getId());
+            commentVotes.put(comment.getId(), voteCount);
+
+            // Recursively populate votes for replies
+            if (comment.getReplies() != null && !comment.getReplies().isEmpty()) {
+                populateCommentVotes(comment.getReplies(), commentVotes);
+            }
+        }
+    }
+
+    private void populateUserCommentVotes(List<Comment> comments, Map<Long, Boolean> userCommentVotes, Long userId) {
+        for (Comment comment : comments) {
+            Boolean voteStatus = commentVoteService.getVoteStatusByCommentIdAndCurrentUser(comment.getId());
+            if (voteStatus != null) {
+                userCommentVotes.put(comment.getId(), voteStatus);
+            }
+
+            if (comment.getReplies() != null && !comment.getReplies().isEmpty()) {
+                populateUserCommentVotes(comment.getReplies(), userCommentVotes, userId);
+            }
         }
     }
 
