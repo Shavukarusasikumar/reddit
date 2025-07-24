@@ -24,8 +24,9 @@ public class PostWithVotesDTO {
     private Long commentCount;
     private Boolean isLiked;
     private String communityIconUrl;
+    private String mediaType;
 
-    public PostWithVotesDTO(Long id, String title, String content, String mediaUrl,
+    public PostWithVotesDTO(Long id, String title, String content, String mediaUrl,String mediaType,
                             String communityName, String communityIconUrl, LocalDateTime createdAt,
                             Long upVotes, Long downVotes, Long commentCount) {
         this.id = id;

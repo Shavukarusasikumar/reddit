@@ -127,7 +127,9 @@ public class PostServiceImpl implements PostService {
 
         if(media != null && !media.isEmpty()) {
             try {
-                String mediaUrl = cloudinaryService.uploadFile(media);
+                String mediaUrl = cloudinaryService.uploadMedia(media);
+                String mediaType = media.getContentType().startsWith("video/") ? "video" : "image";
+                post.setMediaType(mediaType);
                 post.setMediaUrl(mediaUrl);
                 post.setCreatedAt(LocalDateTime.now());
                 post.setIsPublished(true);
@@ -167,11 +169,12 @@ public class PostServiceImpl implements PostService {
         if(removeMedia) {
             oldPost.setMediaUrl(null);
         }
-        // If removeMedia checkbox is checked
 
         if(media != null && !media.isEmpty()) {
             try {
-                String mediaUrl = cloudinaryService.uploadFile(media);
+                String mediaUrl = cloudinaryService.uploadMedia(media);
+                String mediaType = media.getContentType().startsWith("video/") ? "video" : "image";
+                oldPost.setMediaType(mediaType);
                 oldPost.setMediaUrl(mediaUrl);
             } catch(IOException exception) {
                 throw new MediaUploadError("Failed to upload media"+ exception.getMessage());

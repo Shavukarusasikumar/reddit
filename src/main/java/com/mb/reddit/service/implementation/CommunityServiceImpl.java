@@ -44,7 +44,7 @@ public class CommunityServiceImpl implements CommunityService {
         community.setCreatedAt(LocalDateTime.now());
         if(fileIcon != null) {
             try {
-                String iconUrl = cloudinaryService.uploadFile(fileIcon);
+                String iconUrl = cloudinaryService.uploadMedia(fileIcon);
                 community.setIconUrl(iconUrl);
             } catch(IOException exception) {
                 throw new MediaUploadError("Failed to upload media"+ exception.getMessage());
@@ -53,7 +53,7 @@ public class CommunityServiceImpl implements CommunityService {
 
         if(fileBanner != null) {
             try {
-                String bannerUrl = cloudinaryService.uploadFile(fileBanner);
+                String bannerUrl = cloudinaryService.uploadMedia(fileBanner);
                 community.setBannerUrl(bannerUrl);
             } catch(IOException exception) {
                 throw new MediaUploadError("Failed to upload media"+ exception.getMessage());

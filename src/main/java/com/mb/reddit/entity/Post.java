@@ -31,6 +31,12 @@ public class Post {
     @Column(name = "media_url", columnDefinition = "TEXT")
     private String mediaUrl;
 
+    @Column(name = "media_type")
+    private String mediaType;
+
+    @Column(name = "link_url")
+    private String linkUrl;
+
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 

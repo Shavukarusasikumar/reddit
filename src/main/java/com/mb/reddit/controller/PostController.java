@@ -88,8 +88,6 @@ public class PostController {
 
         return "redirect:/";
     }
-
-
     @GetMapping("/")
     public String getAllPosts(
             @RequestParam(defaultValue = "0") int pageNumber,
@@ -124,7 +122,6 @@ public class PostController {
         return "home";
     }
 
-
     @GetMapping("/scroll")
     public String getMorePosts(
             @RequestParam(defaultValue = "0") int pageNumber,
@@ -145,7 +142,6 @@ public class PostController {
 
         return "home";
     }
-
 
     @GetMapping("/posts/{postId}")
     public String getPostById(@PathVariable Long postId, Model model, Authentication authentication) {
@@ -206,7 +202,6 @@ public class PostController {
         model.addAttribute("notificationCount", 0);
         return "view-post";
     }
-
 
     @PostMapping("/posts/delete/{postId}")
     public String deletePostById(@PathVariable("postId") Long postId) {

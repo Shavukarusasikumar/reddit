@@ -237,275 +237,8 @@
             color: #878A8C;
         }
 
-        /* New Flair Chips Styles */
+        /* Flair Chips Styles */
         .flair-chips-container {
-            margin-bottom: 16px;
-        }
-
-        .flair-chips-header {
-            font-size: 14px;
-            font-weight: 500;
-            color: #1c1c1c;
-            margin-bottom: 8px;
-        }
-
-        .flair-chips {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .flair-chip {
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 500;
-            cursor: pointer;
-            border: 1px solid #EDEFF1;
-            background-color: #F6F7F8;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-        }
-
-        .flair-chip:hover {
-            background-color: #EDEFF1;
-        }
-
-        .flair-chip.selected {
-            border-color: #0079D3;
-            background-color: #E8F4FF;
-            color: #0079D3;
-        }
-
-        .flair-chip.selected .flair-chip-color {
-            border-color: #0079D3;
-        }
-
-        .flair-chip-color {
-            width: 12px;
-            height: 12px;
-            border-radius: 2px;
-            margin-right: 4px;
-            border: 1px solid #EDEFF1;
-        }
-
-        .flair-chip-limit {
-            color: #878A8C;
-            font-size: 12px;
-            margin-top: 8px;
-        }
-
-        .editor-section {
-            margin-bottom: 16px;
-        }
-
-        .toolbar {
-            display: flex;
-            align-items: center;
-            gap: 2px;
-            padding: 8px 12px;
-            border: 1px solid #EDEFF1;
-            border-bottom: none;
-            border-radius: 4px 4px 0 0;
-            background: #F6F7F8;
-            flex-wrap: wrap;
-        }
-
-        .toolbar-btn {
-            background: none;
-            border: none;
-            padding: 6px 8px;
-            cursor: pointer;
-            border-radius: 2px;
-            color: #878A8C;
-            font-size: 14px;
-            font-weight: bold;
-            min-width: 28px;
-            height: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .toolbar-btn:hover {
-            background: #E9ECEF;
-            color: #1c1c1c;
-        }
-
-        .toolbar-separator {
-            width: 1px;
-            height: 20px;
-            background: #EDEFF1;
-            margin: 0 4px;
-        }
-
-        .markdown-switch {
-            margin-left: auto;
-            font-size: 14px;
-            color: #0079D3;
-            text-decoration: none;
-            font-weight: 500;
-        }
-
-        .markdown-switch:hover {
-            text-decoration: underline;
-        }
-
-        .text-editor {
-            width: 100%;
-            min-height: 200px;
-            padding: 12px 16px;
-            border: 1px solid #EDEFF1;
-            border-radius: 0 0 4px 4px;
-            font-size: 14px;
-            font-family: inherit;
-            resize: vertical;
-            outline: none;
-        }
-
-        .text-editor::placeholder {
-            color: #878A8C;
-        }
-
-        .text-editor:focus {
-            border-color: #0079D3;
-            box-shadow: 0 0 0 1px #0079D3;
-        }
-
-        .media-upload {
-            border: 2px dashed #EDEFF1;
-            border-radius: 4px;
-            padding: 60px 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            background: #FAFAFA;
-            margin-bottom: 16px;
-        }
-
-        .media-upload:hover {
-            border-color: #0079D3;
-            background: #F6F9FF;
-        }
-
-        .media-upload.dragover {
-            border-color: #0079D3;
-            background: #F6F9FF;
-        }
-
-        .upload-text {
-            color: #878A8C;
-            font-size: 14px;
-            margin-bottom: 8px;
-        }
-
-        .upload-icon {
-            color: #878A8C;
-            font-size: 24px;
-            margin-bottom: 8px;
-        }
-
-        .media-upload input[type="file"] {
-            display: none;
-        }
-
-        .panel {
-            display: none;
-        }
-
-        .panel.active {
-            display: block;
-        }
-
-        .footer-buttons {
-            display: flex;
-            justify-content: flex-end;
-            gap: 12px;
-            padding: 16px;
-            border-top: 1px solid #EDEFF1;
-            background: #F6F7F8;
-        }
-
-        .btn {
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-            border: 1px solid;
-            transition: all 0.2s ease;
-        }
-
-        .btn-secondary {
-            background: white;
-            color: #0079D3;
-            border-color: #0079D3;
-        }
-
-        .btn-secondary:hover:not(:disabled) {
-            background: #F6F9FF;
-        }
-
-        .btn-primary {
-            background: #0079D3;
-            color: white;
-            border-color: #0079D3;
-        }
-
-        .btn-primary:hover:not(:disabled) {
-            background: #0066CC;
-        }
-
-        .btn:disabled {
-            background: #F6F7F8;
-            color: #878A8C;
-            border-color: #EDEFF1;
-            cursor: not-allowed;
-        }
-
-        .footer {
-            text-align: center;
-            padding: 24px 20px;
-            color: #878A8C;
-            font-size: 12px;
-        }
-
-        .footer-links {
-            display: flex;
-            justify-content: center;
-            gap: 24px;
-            margin-bottom: 12px;
-            flex-wrap: wrap;
-        }
-
-        .footer-links a {
-            color: #878A8C;
-            text-decoration: none;
-        }
-
-        .footer-links a:hover {
-            text-decoration: underline;
-        }
-
-        .sr-only {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            white-space: nowrap;
-            border: 0;
-        }
-
-        /* Custom scrollbar for dropdown */
-        .flair-dropdown::-webkit-scrollbar {
-            width: 8px;
-        }
-
-                .flair-chips-container {
             margin-bottom: 16px;
         }
 
@@ -561,6 +294,365 @@
             margin-top: 8px;
         }
 
+        /* Link Section Styles */
+        .link-input-container {
+            margin-bottom: 16px;
+        }
+
+        .link-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #EDEFF1;
+            border-radius: 4px;
+            font-size: 14px;
+            background: white;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .link-input::placeholder {
+            color: #878A8C;
+        }
+
+        .link-input:focus {
+            border-color: #0079D3;
+            box-shadow: 0 0 0 1px #0079D3;
+        }
+
+        .link-preview {
+            margin-top: 16px;
+            border: 1px solid #EDEFF1;
+            border-radius: 4px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .link-preview.active {
+            display: block;
+        }
+
+        .link-preview-image {
+            width: 100%;
+            height: 200px;
+            background-color: #F6F7F8;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .link-preview-content {
+            padding: 12px;
+        }
+
+        .link-preview-title {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 4px;
+            color: #1c1c1c;
+        }
+
+        .link-preview-url {
+            font-size: 12px;
+            color: #787C7E;
+            margin-bottom: 8px;
+            word-break: break-all;
+        }
+
+        .link-preview-description {
+            font-size: 14px;
+            color: #1c1c1c;
+            line-height: 1.4;
+        }
+
+        /* Editor Styles */
+        .editor-section {
+            margin-bottom: 16px;
+        }
+
+        .toolbar {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            padding: 8px 12px;
+            border: 1px solid #EDEFF1;
+            border-bottom: none;
+            border-radius: 4px 4px 0 0;
+            background: #F6F7F8;
+            flex-wrap: wrap;
+        }
+
+        .toolbar-btn {
+            background: none;
+            border: none;
+            padding: 6px 8px;
+            cursor: pointer;
+            border-radius: 2px;
+            color: #878A8C;
+            font-size: 14px;
+            font-weight: bold;
+            min-width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .toolbar-btn:hover {
+            background: #E9ECEF;
+            color: #1c1c1c;
+        }
+
+        .toolbar-btn.active {
+            background: #E9ECEF;
+            color: #1c1c1c;
+        }
+
+        .toolbar-separator {
+            width: 1px;
+            height: 20px;
+            background: #EDEFF1;
+            margin: 0 4px;
+        }
+
+        .text-editor {
+            width: 100%;
+            min-height: 200px;
+            padding: 12px 16px;
+            border: 1px solid #EDEFF1;
+            border-radius: 0 0 4px 4px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+            outline: none;
+            line-height: 1.5;
+        }
+
+        .text-editor::placeholder {
+            color: #878A8C;
+        }
+
+        .text-editor:focus {
+            border-color: #0079D3;
+            box-shadow: 0 0 0 1px #0079D3;
+        }
+
+        /* Rich Text Editor Styles */
+        .rich-text-editor {
+            width: 100%;
+            min-height: 200px;
+            padding: 12px 16px;
+            border: 1px solid #EDEFF1;
+            border-radius: 0 0 4px 4px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+            outline: none;
+            background: white;
+        }
+
+        .rich-text-editor:focus {
+            border-color: #0079D3;
+            box-shadow: 0 0 0 1px #0079D3;
+        }
+
+        .rich-text-editor p {
+            margin: 0 0 1em 0;
+        }
+
+        .rich-text-editor ul,
+        .rich-text-editor ol {
+            padding-left: 2em;
+            margin: 0 0 1em 0;
+        }
+
+        .rich-text-editor h1,
+        .rich-text-editor h2,
+        .rich-text-editor h3,
+        .rich-text-editor h4,
+        .rich-text-editor h5,
+        .rich-text-editor h6 {
+            margin: 1em 0 0.5em 0;
+        }
+
+        /* Media Upload Styles */
+        .media-upload {
+            border: 2px dashed #EDEFF1;
+            border-radius: 4px;
+            padding: 60px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: #FAFAFA;
+            margin-bottom: 16px;
+        }
+
+        .media-upload:hover {
+            border-color: #0079D3;
+            background: #F6F9FF;
+        }
+
+        .media-upload.dragover {
+            border-color: #0079D3;
+            background: #F6F9FF;
+        }
+
+        .upload-text {
+            color: #878A8C;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .upload-icon {
+            color: #878A8C;
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .media-upload input[type="file"] {
+            display: none;
+        }
+
+        .panel {
+            display: none;
+        }
+
+        .panel.active {
+            display: block;
+        }
+
+        /* Media Preview Styles */
+        .media-preview-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .media-preview-item {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            border-radius: 4px;
+            overflow: hidden;
+            background: #F6F7F8;
+        }
+
+        .media-preview-item img,
+        .media-preview-item video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .media-preview-remove {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .media-preview-remove:hover {
+            background: rgba(0,0,0,0.9);
+        }
+
+        /* Footer Buttons */
+        .footer-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            padding: 16px;
+            border-top: 1px solid #EDEFF1;
+            background: #F6F7F8;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            border: 1px solid;
+            transition: all 0.2s ease;
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #0079D3;
+            border-color: #0079D3;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: #F6F9FF;
+        }
+
+        .btn-primary {
+            background: #0079D3;
+            color: white;
+            border-color: #0079D3;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            background: #0066CC;
+        }
+
+        .btn:disabled {
+            background: #F6F7F8;
+            color: #878A8C;
+            border-color: #EDEFF1;
+            cursor: not-allowed;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 24px 20px;
+            color: #878A8C;
+            font-size: 12px;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: #878A8C;
+            text-decoration: none;
+        }
+
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        /* Custom scrollbar */
+        .flair-dropdown::-webkit-scrollbar {
+            width: 8px;
+        }
+
         .flair-dropdown::-webkit-scrollbar-track {
             background: #F6F7F8;
             border-radius: 4px;
@@ -583,7 +675,6 @@
 
     <div class="headline">
         <h1>Create post</h1>
-
     </div>
 
     <!-- Error Message -->
@@ -641,7 +732,8 @@
             <!-- Tabs -->
             <div class="tabs">
                 <button type="button" class="tab active" data-type="TEXT" id="tab-text">Text</button>
-                <button type="button" class="tab" data-type="MEDIA" id="tab-media">Images</button>
+                <button type="button" class="tab" data-type="LINK" id="tab-link">Link</button>
+                <button type="button" class="tab" data-type="MEDIA" id="tab-media">Image & Video</button>
             </div>
 
             <!-- Form Content -->
@@ -672,27 +764,54 @@
                 <div class="editor-section">
                     <!-- Text Panel -->
                     <div class="panel active" id="panel-text">
-                        <textarea id="bodyInput" class="text-editor" placeholder="Body text (optional)"
+                        <div class="toolbar" id="textToolbar">
+                            <button type="button" class="toolbar-btn" data-command="bold" title="Bold (Ctrl+B)"><b>B</b></button>
+                            <button type="button" class="toolbar-btn" data-command="italic" title="Italic (Ctrl+I)"><i>I</i></button>
+                            <button type="button" class="toolbar-btn" data-command="underline" title="Underline (Ctrl+U)"><u>U</u></button>
+                            <div class="toolbar-separator"></div>
+                            <button type="button" class="toolbar-btn" data-command="insertUnorderedList" title="Bulleted list"><span>•</span></button>
+                            <button type="button" class="toolbar-btn" data-command="insertOrderedList" title="Numbered list"><span>1.</span></button>
+                            <div class="toolbar-separator"></div>
+                            <button type="button" class="toolbar-btn" data-command="undo" title="Undo (Ctrl+Z)"><span>↩</span></button>
+                            <button type="button" class="toolbar-btn" data-command="redo" title="Redo (Ctrl+Y)"><span>↪</span></button>
+                        </div>
+                        <div id="richTextEditor" class="rich-text-editor" contenteditable="true" placeholder="Body text (optional)"></div>
+                        <textarea id="bodyInput" class="text-editor" placeholder="Body text (optional)" style="display: none;"
                                   th:field="*{content}"></textarea>
+                    </div>
+
+                    <!-- Link Panel -->
+                    <div class="panel" id="panel-link">
+                        <div class="link-input-container">
+                            <input type="url" id="linkInput" class="link-input" placeholder="Url*" th:field="*{linkUrl}" />
+                        </div>
+                        <div id="linkPreview" class="link-preview">
+                            <div class="link-preview-image" id="linkPreviewImage"></div>
+                            <div class="link-preview-content">
+                                <div class="link-preview-title" id="linkPreviewTitle"></div>
+                                <div class="link-preview-url" id="linkPreviewUrl"></div>
+                                <div class="link-preview-description" id="linkPreviewDescription"></div>
+                            </div>
+                        </div>
+                        <textarea class="text-editor" placeholder="Body text (optional)"></textarea>
                     </div>
 
                     <!-- Media Panel -->
                     <div class="panel" id="panel-media">
                         <div class="media-upload" id="mediaDropzone">
                             <div class="upload-icon">⬆</div>
-                            <div class="upload-text">Drag and Drop or upload media</div>
-                            <input type="file" id="mediaFileInput" name="file" multiple accept="image/*">
+                            <div class="upload-text">Drag and Drop or upload images/videos</div>
+                            <input type="file" id="mediaFileInput" name="file" multiple accept="image/*,video/*">
                         </div>
-
+                        <div id="mediaPreview" class="media-preview-container"></div>
                         <textarea class="text-editor" placeholder="Body text (optional)"></textarea>
-                        <div id="mediaPreview" style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;"></div>
                     </div>
                 </div>
             </div>
 
             <!-- Footer Buttons -->
             <div class="footer-buttons">
-               <button type="submit" id="postBtn" class="btn btn-primary" disabled>Post</button>
+                <button type="submit" id="postBtn" class="btn btn-primary" disabled>Post</button>
             </div>
         </form>
     </div>
@@ -708,7 +827,6 @@
         <div>❤️‍🔥 Team Reddit <span th:text="${#temporals.format(#temporals.createNow(), 'yyyy')}"></span> @ 33.4</div>
     </div>
 </div>
-
 
 <script>
     (function(){
@@ -729,16 +847,27 @@
         const tabs = document.querySelectorAll('.tab');
         const panels = {
             TEXT: document.getElementById('panel-text'),
+            LINK: document.getElementById('panel-link'),
             MEDIA: document.getElementById('panel-media')
         };
         const postTypeInp = document.getElementById('postTypeInput');
         const titleInput = document.getElementById('titleInput');
         const titleChars = document.getElementById('titleChars');
         const postBtn = document.getElementById('postBtn');
-        const saveBtn = document.getElementById('saveDraftBtn');
         const dropzone = document.getElementById('mediaDropzone');
         const fileInput = document.getElementById('mediaFileInput');
         const preview = document.getElementById('mediaPreview');
+        const linkInput = document.getElementById('linkInput');
+        const linkPreview = document.getElementById('linkPreview');
+        const linkPreviewImage = document.getElementById('linkPreviewImage');
+        const linkPreviewTitle = document.getElementById('linkPreviewTitle');
+        const linkPreviewUrl = document.getElementById('linkPreviewUrl');
+        const linkPreviewDescription = document.getElementById('linkPreviewDescription');
+
+        // Text editor elements
+        const richTextEditor = document.getElementById('richTextEditor');
+        const bodyInput = document.getElementById('bodyInput');
+        const textToolbar = document.getElementById('textToolbar');
 
         // Community picker toggle
         if (communityBtn) {
@@ -812,11 +941,12 @@
 
             if (postTypeInp.value === 'MEDIA') {
                 hasContent = fileInput && fileInput.files && fileInput.files.length > 0;
+            } else if (postTypeInp.value === 'LINK') {
+                hasContent = linkInput.value.trim().length > 0;
             }
 
             const valid = hasTitle && hasCommunity && hasContent;
             postBtn.disabled = !valid;
-            saveBtn.disabled = !hasTitle;
         }
 
         // Title character count and validation
@@ -861,32 +991,89 @@
             if (!preview) return;
 
             preview.innerHTML = '';
-            [...fileList].forEach(file => {
+            [...fileList].forEach((file, index) => {
                 const url = URL.createObjectURL(file);
-                let element;
+                const previewItem = document.createElement('div');
+                previewItem.className = 'media-preview-item';
 
+                let element;
                 if (file.type.startsWith('image/')) {
                     element = document.createElement('img');
                     element.src = url;
-                    element.style.maxWidth = '100px';
-                    element.style.maxHeight = '100px';
-                    element.style.objectFit = 'cover';
                 } else if (file.type.startsWith('video/')) {
                     element = document.createElement('video');
                     element.src = url;
                     element.controls = true;
-                    element.style.maxWidth = '140px';
-                    element.style.maxHeight = '100px';
                 } else {
                     // unsupported file type; skip
                     return;
                 }
 
-                preview.appendChild(element);
+                // Create remove button
+                const removeBtn = document.createElement('button');
+                removeBtn.className = 'media-preview-remove';
+                removeBtn.innerHTML = '×';
+                removeBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    previewItem.remove();
+
+                    // Create new FileList without the removed file
+                    const dataTransfer = new DataTransfer();
+                    [...fileInput.files].forEach((f, i) => {
+                        if (i !== index) dataTransfer.items.add(f);
+                    });
+                    fileInput.files = dataTransfer.files;
+
+                    validate();
+                });
+
+                previewItem.appendChild(element);
+                previewItem.appendChild(removeBtn);
+                preview.appendChild(previewItem);
             });
         }
 
-        // Flair chips selection - enhanced with better visual feedback
+        // Link preview functionality
+        if (linkInput) {
+            linkInput.addEventListener('input', debounce(updateLinkPreview, 500));
+            linkInput.addEventListener('change', validate);
+        }
+
+        function updateLinkPreview() {
+            const url = linkInput.value.trim();
+            if (!url) {
+                linkPreview.classList.remove('active');
+                return;
+            }
+
+            // Simple URL validation
+            try {
+                new URL(url);
+            } catch (e) {
+                linkPreview.classList.remove('active');
+                return;
+            }
+
+            // In a real app, you would fetch link metadata from your backend
+            // For demo purposes, we'll simulate it with some basic info
+            linkPreviewTitle.textContent = 'Example Website Title';
+            linkPreviewUrl.textContent = url;
+            linkPreviewDescription.textContent = 'This is an example description of the linked website. In a real implementation, this would be fetched from the URL.';
+            linkPreviewImage.style.backgroundImage = 'url(https://via.placeholder.com/600x400)';
+            linkPreview.classList.add('active');
+
+            validate();
+        }
+
+        function debounce(func, timeout = 300) {
+            let timer;
+            return (...args) => {
+                clearTimeout(timer);
+                timer = setTimeout(() => { func.apply(this, args); }, timeout);
+            };
+        }
+
+        // Flair chips selection
         if (flairChips) {
             flairChips.addEventListener('click', e => {
                 const chip = e.target.closest('.flair-chip');
@@ -948,6 +1135,87 @@
             });
         }
 
+        // Rich text editor functionality
+        if (richTextEditor && textToolbar) {
+            // Handle toolbar button clicks
+            textToolbar.addEventListener('click', e => {
+                const btn = e.target.closest('.toolbar-btn');
+                if (!btn) return;
+
+                const command = btn.dataset.command;
+                if (command === 'createLink') {
+                    const url = prompt('Enter the URL:');
+                    if (url) document.execCommand(command, false, url);
+                } else {
+                    document.execCommand(command, false, null);
+                }
+
+                // Update button active state for style commands
+                if (['bold', 'italic', 'underline'].includes(command)) {
+                    btn.classList.toggle('active', document.queryCommandState(command));
+                }
+
+                richTextEditor.focus();
+            });
+
+            // Handle keyboard shortcuts
+            richTextEditor.addEventListener('keydown', e => {
+                if (e.ctrlKey || e.metaKey) {
+                    switch (e.key.toLowerCase()) {
+                        case 'b':
+                            e.preventDefault();
+                            document.execCommand('bold', false, null);
+                            break;
+                        case 'i':
+                            e.preventDefault();
+                            document.execCommand('italic', false, null);
+                            break;
+                        case 'u':
+                            e.preventDefault();
+                            document.execCommand('underline', false, null);
+                            break;
+                        case 'z':
+                            if (!e.shiftKey) document.execCommand('undo', false, null);
+                            break;
+                        case 'y':
+                            if (e.shiftKey) document.execCommand('redo', false, null);
+                            break;
+                    }
+                }
+            });
+
+            // Sync content with hidden textarea before form submission
+            const form = document.getElementById('createPostForm');
+            if (form) {
+                form.addEventListener('submit', () => {
+                    bodyInput.value = richTextEditor.innerHTML;
+                });
+            }
+
+            // Handle markdown mode switch
+            const markdownSwitch = textToolbar.querySelector('.markdown-switch');
+            if (markdownSwitch) {
+                markdownSwitch.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    isMarkdownMode = !isMarkdownMode;
+
+                    if (isMarkdownMode) {
+                        // Switch to markdown mode
+                        bodyInput.value = richTextEditor.innerHTML;
+                        richTextEditor.style.display = 'none';
+                        bodyInput.style.display = 'block';
+                        markdownSwitch.textContent = 'Rich Text Mode';
+                    } else {
+                        // Switch to rich text mode
+                        richTextEditor.innerHTML = bodyInput.value;
+                        richTextEditor.style.display = 'block';
+                        bodyInput.style.display = 'none';
+                        markdownSwitch.textContent = 'Markdown Mode';
+                    }
+                });
+            }
+        }
+
         /* ----- initial setup ----- */
         document.addEventListener('DOMContentLoaded', () => {
             // initialize char count + validation in case model pre-populated
@@ -972,6 +1240,21 @@
                         }
                     });
                 }
+            }
+
+            // Initialize link preview if URL is pre-populated
+            if (linkInput && linkInput.value) {
+                updateLinkPreview();
+            }
+
+            // Initialize media preview if files are pre-populated
+            if (fileInput && fileInput.files && fileInput.files.length > 0) {
+                previewFiles(fileInput.files);
+            }
+
+            // Initialize rich text editor with any existing content
+            if (richTextEditor && bodyInput) {
+                richTextEditor.innerHTML = bodyInput.value || '';
             }
         });
     })();
