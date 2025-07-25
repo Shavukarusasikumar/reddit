@@ -713,12 +713,12 @@
 
 <div class="container">
     <!-- Posts Section -->
-    <div class="main-content">
+    <div  class="main-content" th:if="${showContent}">
         <div class="posts-header">
             <h3>Community Posts</h3>
         </div>
 
-        <div th:if="${posts.empty}" class="empty-state">
+        <div th:if="${posts.empty}" class="empty-state" >
             <h4>🌟 Be the first to post!</h4>
             <p>This community is waiting for its first post. Share something interesting to get the conversation
                 started!</p>
@@ -753,6 +753,14 @@
                 <a th:href="@{'/r/' + ${community.name} + '?page=' + (${currentPage} + 1) + '&size=' + ${size}}"
                    th:class="${currentPage == totalPages - 1} ? 'disabled' : ''">Next →</a>
             </div>
+        </div>
+    </div>
+
+    <!-- Message if not allowed -->
+    <div class="main-content" th:unless="${showContent}">
+        <div class="private-message">
+            <h3>🔒 This is a private community</h3>
+            <p>Join this community to view its posts.</p>
         </div>
     </div>
 

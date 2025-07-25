@@ -104,11 +104,15 @@ public class CommunityController {
         boolean isAdmin = community.getCreator().equals(currentUser);
         boolean isMember = currentUser.getJoinedCommunities().contains(community);
 
+        boolean showContent = !(community.getIsPrivate() && !isMember);
+
         Page<Post> postsPage = postService.getPostsByCommunityId(community.getId(), page, size);
 
         model.addAllAttributes(Map.of("community", community, "isCreator", isCreator, "hasJoined", hasJoined, "posts", postsPage.getContent(), "currentPage", postsPage.getNumber(), "totalPages", postsPage.getTotalPages(), "size", size));
         model.addAttribute("isAdmin", isAdmin);
         model.addAttribute("isMember",isMember);
+        model.addAttribute("showContent", showContent);
+
         return "community-profile";
     }
 
@@ -118,10 +122,10 @@ public class CommunityController {
         if (currentUser != null) {
             System.out.println(currentUser.getId());
             communityService.addMemberByCommunityId(currentUser, communityId);
-            System.out.println("---------------------------user joined----------------------------");
+
         }else{
             System.out.println(currentUser.getId());
-            System.out.println("-----------------------------user not joined-----------------------");
+
         }
         return "redirect:/r/" + communityService.getCommunityById(communityId).getName();
     }
