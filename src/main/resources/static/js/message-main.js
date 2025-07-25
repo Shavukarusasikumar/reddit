@@ -15,6 +15,18 @@ function connectToSocket() {
 
     stompClient.connect({}, () => {
         stompClient.subscribe(`/user/${username}/queue/messages`, onMessageReceived);
+
+        if (Notification.permission !== 'granted' && Notification.permission !== 'denied') {
+            Notification.requestPermission().then(permission => {
+                if (permission === 'granted') {
+                    console.log('✅ Notification permission granted.');
+                } else {
+                    console.warn('🚫 Notification permission denied.');
+                }
+            });
+        } else {
+            console.log(`🔔 Notification permission status: ${Notification.permission}`);
+        }
     }, () => console.error('WebSocket connection failed'));
 }
 
@@ -69,13 +81,24 @@ function displayMessage(senderId, content) {
     chatArea.appendChild(messageContainer);
 }
 
+
 function onMessageReceived(payload) {
     const message = JSON.parse(payload.body);
-    if (selectedUser === message.senderId || message.senderId === username) {
+
+    if (selectedUser === message.senderId) {
         displayMessage(message.senderId, message.content);
         chatArea.scrollTop = chatArea.scrollHeight;
     }
+    else if (message.senderId !== username) {
+        if (Notification.permission === 'granted') {
+            new Notification(`New message from ${message.senderId}`, {
+                body: message.content
+            });
+        }
+        console.log(`📨 New message notification from ${message.senderId}: ${message.content}`);
+    }
 }
+
 
 messageForm.addEventListener('submit', sendMessage, true);
 connectToSocket();
