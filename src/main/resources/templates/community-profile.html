@@ -694,14 +694,14 @@
                 <button th:if="${isMember}" class="create-post">Create Post</button>
 
                 <!-- Show Join/Joined button only if not the creator -->
-                <button
+                <button th:if="${!isAdmin}"
                         th:id="joinStatus"
                         th:class="${hasJoined} ? 'leave-button' : 'join-button'"
                         th:text="${hasJoined} ? 'Leave' : 'Join'">
                     Join
                 </button>
 
-                <a th:href="@{'/join-requests/' + ${community.id}}">
+                <a th:href="@{'/join-requests/' + ${community.id}}" th:if="${community.isPrivate}">
                     <button th:if="${isAdmin}" class="request-button">Join Requests</button>
                 </a>
 
@@ -835,11 +835,11 @@
                     <span class="detail-value" style="color: #ff4500; font-weight: 700;"
                           th:text="${community.topics != null ? #lists.size(community.topics) : 0}">5</span>
                 </div>
-                <div class="detail-row">
+               <!-- <div class="detail-row">
                     <span class="detail-label">⭐ Flairs</span>
                     <span class="detail-value" style="color: gray; font-weight: 700;"
                           th:text="${community.flairs != null ? #lists.size(community.flairs) : 0}">8</span>
-                </div>
+                </div>-->
             </div>
         </div>
     </div>
