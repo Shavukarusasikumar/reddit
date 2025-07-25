@@ -122,10 +122,16 @@ public class PostServiceImpl implements PostService {
     @Transactional
     @Override
     public Post createPost(Post post, Long communityId, MultipartFile media) {
+        long start = System.currentTimeMillis(); // Start total timer
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = userRepository.findUserByUsername(authentication.getName());
 
-        if(media != null && !media.isEmpty()) {
+        long userFetchEnd = System.currentTimeMillis();
+        System.out.println("⏱️ User fetch time: " + (userFetchEnd - start) + " ms");
+
+        if (media != null && !media.isEmpty()) {
+            long mediaStart = System.currentTimeMillis();
             try {
                 String mediaUrl = cloudinaryService.uploadMedia(media);
                 String mediaType = media.getContentType().startsWith("video/") ? "video" : "image";
@@ -133,22 +139,35 @@ public class PostServiceImpl implements PostService {
                 post.setMediaUrl(mediaUrl);
                 post.setCreatedAt(LocalDateTime.now());
                 post.setIsPublished(true);
-            } catch(IOException exception) {
-                throw new MediaUploadError("Failed to upload media" + exception.getMessage());
+            } catch (IOException exception) {
+                throw new MediaUploadError("Failed to upload media: " + exception.getMessage());
             }
+            long mediaEnd = System.currentTimeMillis();
+            System.out.println("⏱️ Media upload + processing time: " + (mediaEnd - mediaStart) + " ms");
         }
 
         post.setCreatedAt(LocalDateTime.now());
         post.setIsPublished(true);
 
-        Community community = communityRepository.findById(communityId).orElseThrow(() -> new RuntimeException("Community not found " + communityId));
+        long communityStart = System.currentTimeMillis();
+        Community community = communityRepository.findById(communityId)
+                .orElseThrow(() -> new RuntimeException("Community not found " + communityId));
+        long communityEnd = System.currentTimeMillis();
+        System.out.println("⏱️ Community fetch time: " + (communityEnd - communityStart) + " ms");
 
         post.setAuthor(currentUser);
-        post.setCreatedAt(LocalDateTime.now());
         post.setUpdatedAt(LocalDateTime.now());
         post.setCommunity(community);
 
-        return postRepository.save(post);
+        long saveStart = System.currentTimeMillis();
+        Post savedPost = postRepository.save(post);
+        long saveEnd = System.currentTimeMillis();
+        System.out.println("⏱️ DB save time: " + (saveEnd - saveStart) + " ms");
+
+        long totalEnd = System.currentTimeMillis();
+        System.out.println("✅ Total createPost time: " + (totalEnd - start) + " ms");
+
+        return savedPost;
     }
 
     @Override

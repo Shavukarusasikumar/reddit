@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8"/>
     <title>Reddit Clone - Home</title>
+    <link rel="icon" href="images/reddit-logo.webp" type="image/webp">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 
     <style>
@@ -111,7 +112,7 @@
 
         <main class="home-main-scroll-wrapper">
             <div class="home-main">
-                <div class="filter-row">
+                <div class="filter-row" th:if="${!hideFilters}">
                     <form id="filterForm" class="filter-form" onsubmit="return false;">
                         <label for="sortOption">Sort by:</label>
                         <select id="sortOption" class="filter-dropdown" onchange="applyFilters(); toggleTimeFilter();">
@@ -746,7 +747,7 @@ function loadMorePosts() {
         // Build the link to copy
         // Requirement: literal "localhost:8080/posts/{postId}"
         // If you later want env-aware, swap to window.location.origin.
-        const urlToCopy = `localhost:8080/posts/${postId}`;
+        const urlToCopy = `${window.location.origin}/posts/${postId}`;
 
         copyTextToClipboard(urlToCopy)
             .then(() => showCopyToast('Link Copied!'))

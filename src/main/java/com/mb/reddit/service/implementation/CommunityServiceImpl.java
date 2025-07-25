@@ -142,10 +142,7 @@ public class CommunityServiceImpl implements CommunityService {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         Long userId = userDetails.getId();
 
-        HashSet<CommunityBasicDTO> result = new HashSet<>(communityRepository.findPublicCommunities());
-        result.addAll(communityRepository.findUserJoinedCommunities(userId));
-
-        return new ArrayList<>(result);
+        return communityRepository.findUserJoinedCommunities(userId);
     }
 
     @Transactional

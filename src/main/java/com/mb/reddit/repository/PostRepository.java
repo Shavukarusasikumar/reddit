@@ -88,32 +88,31 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 
     // for top
     @Query("""
-        SELECT new com.mb.reddit.dto.PostWithVotesDTO(
-            p.id,
-            p.title,
-            p.content,
-            p.mediaUrl,
-            p.mediaType,
-            p.linkUrl,
-            p.community.name,
-            p.community.iconUrl,
-            p.createdAt,
-            (SELECT COUNT(v1) FROM PostVote v1 WHERE v1.post = p AND v1.isLike = true),
-            (SELECT COUNT(v2) FROM PostVote v2 WHERE v2.post = p AND v2.isLike = false),
-            (SELECT COUNT(c) FROM Comment c WHERE c.post = p)
-        )
-        FROM Post p
-        WHERE p.isPublished = true 
-          AND p.community.isPrivate = false
-          AND (COALESCE(:startDate, p.createdAt) = p.createdAt OR p.createdAt >= :startDate)
-          AND (COALESCE(:endDate, p.createdAt) = p.createdAt OR p.createdAt <= :endDate)
-        ORDER BY 
-            (SELECT COUNT(v1) FROM PostVote v1 WHERE v1.post = p AND v1.isLike = true) -
-            (SELECT COUNT(v2) FROM PostVote v2 WHERE v2.post = p AND v2.isLike = false) DESC
-        """)
-    Page<PostWithVotesDTO> findTopPosts(@Param("startDate") LocalDateTime startDate,
-                                        @Param("endDate") LocalDateTime endDate,
-                                        Pageable pageable);
+            SELECT new com.mb.reddit.dto.PostWithVotesDTO(
+                p.id,
+                p.title,
+                p.content,
+                p.mediaUrl,
+                p.mediaType,
+                p.linkUrl,
+                p.community.name,
+                p.community.iconUrl,
+                p.createdAt,
+                (SELECT COUNT(v1) FROM PostVote v1 WHERE v1.post = p AND v1.isLike = true),
+                (SELECT COUNT(v2) FROM PostVote v2 WHERE v2.post = p AND v2.isLike = false),
+                (SELECT COUNT(c) FROM Comment c WHERE c.post = p)
+            )
+            FROM Post p
+            WHERE p.isPublished = true 
+              AND p.community.isPrivate = false
+              AND (COALESCE(:startDate, p.createdAt) = p.createdAt OR p.createdAt >= :startDate)
+              AND (COALESCE(:endDate, p.createdAt) = p.createdAt OR p.createdAt <= :endDate)
+            ORDER BY 
+                (SELECT COUNT(v1) FROM PostVote v1 WHERE v1.post = p AND v1.isLike = true) -
+                (SELECT COUNT(v2) FROM PostVote v2 WHERE v2.post = p AND v2.isLike = false) DESC
+            """)
+    Page<PostWithVotesDTO> findTopPosts(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate, Pageable pageable);
+
     //for raising
     @Query("""
             SELECT new com.mb.reddit.dto.PostWithVotesDTO(
@@ -178,22 +177,32 @@ public interface PostRepository extends JpaRepository<Post, Long> {
                     p.community.name,
                     p.community.iconUrl,
                     p.createdAt,
-                    (SELECT COUNT(v1) FROM PostVote v1 WHERE v1.post = p AND v1.isLike = true),
-                    (SELECT COUNT(v2) FROM PostVote v2 WHERE v2.post = p AND v2.isLike = false),
-                    (SELECT COUNT(c1) FROM Comment c1 WHERE c1.post = p)
+                    COALESCE(v.upvotes, 0),
+                    COALESCE(v.downvotes, 0),
+                    COALESCE(c.commentCount, 0)
                 )
                 FROM Post p
+                LEFT JOIN (
+                    SELECT 
+                        pv.post.id as postId,
+                        SUM(CASE WHEN pv.isLike = true THEN 1 ELSE 0 END) as upvotes,
+                        SUM(CASE WHEN pv.isLike = false THEN 1 ELSE 0 END) as downvotes
+                    FROM PostVote pv
+                    GROUP BY pv.post.id
+                ) v ON p.id = v.postId
+                LEFT JOIN (
+                    SELECT 
+                        c1.post.id as postId,
+                        COUNT(*) as commentCount
+                    FROM Comment c1
+                    GROUP BY c1.post.id
+                ) c ON p.id = c.postId
                 WHERE p.isPublished = true AND p.community.isPrivate = false
-                ORDER BY 
-                  (LOG10(GREATEST(ABS(
-                        (SELECT COUNT(v1) FROM PostVote v1 WHERE v1.post = p AND v1.isLike = true) - 
-                        (SELECT COUNT(v2) FROM PostVote v2 WHERE v2.post = p AND v2.isLike = false)
-                  ), 1)) +
-                   SIGN(
-                        (SELECT COUNT(v1) FROM PostVote v1 WHERE v1.post = p AND v1.isLike = true) - 
-                        (SELECT COUNT(v2) FROM PostVote v2 WHERE v2.post = p AND v2.isLike = false)
-                   ) * (EXTRACT(EPOCH FROM p.createdAt) - 1134028003) / 45000
-                  ) DESC
+                ORDER BY (
+                    LOG10(GREATEST(ABS(COALESCE(v.upvotes, 0) - COALESCE(v.downvotes, 0)), 1)) +
+                    SIGN(COALESCE(v.upvotes, 0) - COALESCE(v.downvotes, 0)) * 
+                    (EXTRACT(EPOCH FROM p.createdAt) - 1134028003) / 45000
+                ) DESC
             """)
     Page<PostWithVotesDTO> findPopularPosts(Pageable pageable);
 
@@ -247,31 +256,29 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     PostWithVotesDTO getPostWithVotesByPostId(@Param("postId") Long postId);
 
     @Query("""
-    SELECT new com.mb.reddit.dto.PostWithVotesDTO(
-        p.id,
-        p.title,
-        p.content,
-        p.mediaUrl,
-        p.mediaType,
-        p.linkUrl,
-        p.community.name,
-        p.community.iconUrl,
-        p.createdAt,
-        (SELECT COUNT(v1) FROM PostVote v1 WHERE v1.post = p AND v1.isLike = true),
-        (SELECT COUNT(v2) FROM PostVote v2 WHERE v2.post = p AND v2.isLike = false),
-        (SELECT COUNT(c1) FROM Comment c1 WHERE c1.post = p)
-    )
-    FROM Post p
-    WHERE p.isPublished = true 
-      AND p.community.isPrivate = false
-      AND (COALESCE(:startDate, p.createdAt) = p.createdAt OR p.createdAt >= :startDate)
-      AND (COALESCE(:endDate, p.createdAt) = p.createdAt OR p.createdAt <= :endDate)
-    ORDER BY (
-        (SELECT COUNT(v1) FROM PostVote v1 WHERE v1.post = p AND v1.isLike = true) + 
-        (SELECT COUNT(c1) FROM Comment c1 WHERE c1.post = p)
-    ) DESC
-""")
-    Page<PostWithVotesDTO> findHotPosts(@Param("startDate") LocalDateTime startDate,
-                                        @Param("endDate") LocalDateTime endDate,
-                                        Pageable pageable);
+                SELECT new com.mb.reddit.dto.PostWithVotesDTO(
+                    p.id,
+                    p.title,
+                    p.content,
+                    p.mediaUrl,
+                    p.mediaType,
+                    p.linkUrl,
+                    p.community.name,
+                    p.community.iconUrl,
+                    p.createdAt,
+                    (SELECT COUNT(v1) FROM PostVote v1 WHERE v1.post = p AND v1.isLike = true),
+                    (SELECT COUNT(v2) FROM PostVote v2 WHERE v2.post = p AND v2.isLike = false),
+                    (SELECT COUNT(c1) FROM Comment c1 WHERE c1.post = p)
+                )
+                FROM Post p
+                WHERE p.isPublished = true 
+                  AND p.community.isPrivate = false
+                  AND (COALESCE(:startDate, p.createdAt) = p.createdAt OR p.createdAt >= :startDate)
+                  AND (COALESCE(:endDate, p.createdAt) = p.createdAt OR p.createdAt <= :endDate)
+                ORDER BY (
+                    (SELECT COUNT(v1) FROM PostVote v1 WHERE v1.post = p AND v1.isLike = true) + 
+                    (SELECT COUNT(c1) FROM Comment c1 WHERE c1.post = p)
+                ) DESC
+            """)
+    Page<PostWithVotesDTO> findHotPosts(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate, Pageable pageable);
 }

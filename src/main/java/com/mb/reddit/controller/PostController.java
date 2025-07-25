@@ -59,25 +59,15 @@ public class PostController {
     @GetMapping("/new-post")
     public String getCreatePostForm(@RequestParam(name = "c", required = false) Long communityId, Model model) {
 
-        long startAll = System.currentTimeMillis(); // Total start time
-
-        // ⏱️ Timer for community list
-        long startCommunities = System.currentTimeMillis();
         List<CommunityBasicDTO> communities = communityService.findCommunitiesUserCanPost();
-        long endCommunities = System.currentTimeMillis();
-        System.out.println("⏱️ Time to fetch communities: " + (endCommunities - startCommunities) + " ms");
 
         model.addAttribute("communities", communities);
 
         Community selectedCommunity = null;
         List<Flair> flairs = List.of();
 
-        if (communityId != null) {
-            // ⏱️ Timer for selected community
-            long startSelected = System.currentTimeMillis();
+        if(communityId != null) {
             selectedCommunity = communityService.getCommunityById(communityId);
-            long endSelected = System.currentTimeMillis();
-            System.out.println("⏱️ Time to fetch selected community: " + (endSelected - startSelected) + " ms");
         }
 
         model.addAttribute("notificationCount", 0);
@@ -85,8 +75,6 @@ public class PostController {
         model.addAttribute("flairs", flairs);
         model.addAttribute("postForm", new Post());
 
-        long endAll = System.currentTimeMillis(); // Total end time
-        System.out.println("⏱️ Total time to process /new-post: " + (endAll - startAll) + " ms");
 
         return "create-post";
     }
@@ -105,7 +93,6 @@ public class PostController {
 
         Page<PostWithVotesDTO> posts = postService.getAllPost(pageNumber, pageSize, sort, time, keyword);
 
-        System.out.println("Controller : DB fetch time: " + (System.currentTimeMillis() - start) + " ms");
 
         List<Community> joinedCommunities = communityService.findUserJoinedCommunities();
         List<Community> recentCommunities = joinedCommunities.stream().limit(5).toList().reversed();
@@ -122,7 +109,7 @@ public class PostController {
         model.addAttribute("selectedSort", sort != null ? sort : "");
         model.addAttribute("time", time != null ? time : "");
         model.addAttribute("keyword", keyword != null ? keyword : "");
-
+        model.addAttribute("hideFilters", "popular".equalsIgnoreCase(sort));
         return "home";
     }
 
@@ -137,6 +124,7 @@ public class PostController {
         model.addAttribute("selectedSort", sort != null ? sort : "");
         model.addAttribute("time", time != null ? time : "");
         model.addAttribute("keyword", keyword != null ? keyword : "");
+        model.addAttribute("hideFilters", "popular".equalsIgnoreCase(sort));
 
         return "home";
     }
@@ -155,7 +143,7 @@ public class PostController {
         Community community = post.getCommunity();
         User owner = community.getCreator();
 
-        // Initialize maps for comment votes and user votes
+
         Map<Long, Integer> commentVotes = new HashMap<>();
         Map<Long, Boolean> userCommentVotes = new HashMap<>();
 
@@ -173,12 +161,10 @@ public class PostController {
             if(userDetails != null) {
                 isSaved = userService.isPostSavedByUser(postId, userDetails.getId());
             }
-            // Populate both vote counts and user vote status for ALL comments (including nested)
             populateCommentVotes(topLevelComments, commentVotes);
             populateUserCommentVotes(topLevelComments, userCommentVotes, userDetails.getId());
         }
         else {
-            // Even if not authenticated, we still need to populate vote counts
             populateCommentVotes(topLevelComments, commentVotes);
         }
 

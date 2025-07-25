@@ -35,32 +35,51 @@ public class CloudinaryService {
         String contentType = file.getContentType();
         long fileSize = file.getSize();
 
-        if(contentType == null) {
+        if (contentType == null) {
             throw new IOException("File has no content type.");
         }
+
         System.out.println("File type: " + contentType);
         System.out.println("File size: " + (fileSize / 1024) + " KB");
 
         Map<?, ?> uploadResult;
 
-        if(contentType.startsWith("image/")) {
+        if (contentType.startsWith("image/")) {
             validateImage(fileSize, contentType);
-            byte[] imageData = contentType.equalsIgnoreCase("image/svg+xml") ? file.getBytes() : resizeWithoutLoss(file);
 
-            uploadResult = cloudinary.uploader().upload(imageData, ObjectUtils.asMap("resource_type", "image", "format", "webp", "quality", "auto:best"));
+            byte[] imageData = contentType.equalsIgnoreCase("image/svg+xml") ?
+                    file.getBytes() :
+                    resizeWithoutLoss(file);
 
-        }
-        else if(contentType.startsWith("video/")) {
+            uploadResult = cloudinary.uploader().upload(
+                    imageData,
+                    ObjectUtils.asMap(
+                            "resource_type", "image",
+                            "format", "webp",
+                            "quality", "auto:best",
+                            "eager_async", true
+                    )
+            );
+
+        } else if (contentType.startsWith("video/")) {
             validateVideo(fileSize, contentType);
 
-            uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.asMap("resource_type", "video", "format", "mp4",                  // Convert to mp4
-                    "quality", "auto",                // Auto bitrate optimization
-                    "eager", List.of(new com.cloudinary.Transformation().quality("auto").fetchFormat("mp4"))
+            uploadResult = cloudinary.uploader().upload(
+                    file.getBytes(),
+                    ObjectUtils.asMap(
+                            "resource_type", "video",
+                            "format", "mp4",
+                            "quality", "auto:best",       // ✅ Best video quality
+                            "eager", List.of(
+                                    new com.cloudinary.Transformation()
+                                            .quality("auto:best")
+                                            .fetchFormat("mp4")
+                            ),
+                            "eager_async", true            // ✅ Don’t block for transformation
+                    )
+            );
 
-            ));
-
-        }
-        else {
+        } else {
             throw new IOException("Unsupported media type: " + contentType);
         }
 
