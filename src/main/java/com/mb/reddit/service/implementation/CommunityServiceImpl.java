@@ -31,7 +31,9 @@ public class CommunityServiceImpl implements CommunityService {
     public final UserRepository userRepository;
     public final UserServiceImpl userService;
 
-    public CommunityServiceImpl(CommunityRepository communityRepository, CloudinaryService cloudinaryService, UserRepository userRepository, UserServiceImpl userService) {
+    public CommunityServiceImpl(CommunityRepository communityRepository,
+                                CloudinaryService cloudinaryService, UserRepository userRepository,
+                                UserServiceImpl userService) {
         this.userRepository = userRepository;
         this.communityRepository = communityRepository;
         this.userService = userService;
@@ -44,6 +46,7 @@ public class CommunityServiceImpl implements CommunityService {
         User user = userService.getCurrentUser();
         community.setCreator(user);
         community.setCreatedAt(LocalDateTime.now());
+
         if(fileIcon != null) {
             try {
                 String iconUrl = cloudinaryService.uploadMedia(fileIcon);
@@ -64,6 +67,7 @@ public class CommunityServiceImpl implements CommunityService {
 
         user.getCreatedCommunities().add(community);
         user.getJoinedCommunities().add(community);
+
         return communityRepository.save(community);
     }
 
@@ -74,12 +78,17 @@ public class CommunityServiceImpl implements CommunityService {
 
     @Override
     public List<User> getCommunityMembers(Long communityId) {
-        return communityRepository.findById(communityId).orElseThrow(() -> new CommunityNotFoundException("Community Not found" + communityId)).getMembers();
+        return communityRepository.findById(communityId)
+                .orElseThrow(() -> new CommunityNotFoundException("Community Not found" + communityId))
+                .getMembers();
     }
 
     @Override
     public Long getMembersCountByCommunityId(Long communityId) {
-        return (long) communityRepository.findById(communityId).orElseThrow(() -> new CommunityNotFoundException("Community Not found" + communityId)).getMembers().size();
+        return (long) communityRepository
+                .findById(communityId)
+                .orElseThrow(() -> new CommunityNotFoundException("Community Not found" + communityId))
+                .getMembers().size();
     }
 
     @Transactional
@@ -91,21 +100,19 @@ public class CommunityServiceImpl implements CommunityService {
         if (!community.getMembers().contains(member) && !community.getIsPrivate()) {
             community.getMembers().add(member);
             member.getJoinedCommunities().add(community);
-
-            System.out.println("------------success-------------------");
-        } else {
-            System.out.println("-----------failure---------------");
         }
     }
 
     @Override
     public User getCreatorByCommunityId(Long communityId) {
-        return communityRepository.findById(communityId).orElseThrow(() -> new CommunityNotFoundException("Community Not found" + communityId)).getCreator();
+        return communityRepository.findById(communityId)
+                .orElseThrow(() -> new CommunityNotFoundException("Community Not found" + communityId)).getCreator();
     }
 
     @Override
     public Community getCommunityById(Long communityId) {
-        return communityRepository.findById(communityId).orElseThrow(() -> new CommunityNotFoundException("Community Not found" + communityId));
+        return communityRepository.findById(communityId)
+                .orElseThrow(() -> new CommunityNotFoundException("Community Not found" + communityId));
     }
 
     @Override
@@ -121,13 +128,14 @@ public class CommunityServiceImpl implements CommunityService {
     @Override
     public List<Community> findUserJoinedCommunities() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
         if (authentication == null || !authentication.isAuthenticated() ||
                 authentication.getPrincipal() instanceof String) {
             return new ArrayList<>();
         }
+
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         Long userId = userDetails.getId();
-
 
         return communityRepository.findUserCommunities(userId);
     }
@@ -135,10 +143,12 @@ public class CommunityServiceImpl implements CommunityService {
     @Override
     public List<CommunityBasicDTO> findCommunitiesUserCanPost() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
         if (authentication == null || !authentication.isAuthenticated() ||
                 authentication.getPrincipal() instanceof String) {
             return new ArrayList<>();
         }
+
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         Long userId = userDetails.getId();
 

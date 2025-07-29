@@ -6,6 +6,7 @@ import com.mb.reddit.entity.User;
 import com.mb.reddit.repository.CommunityRepository;
 import com.mb.reddit.repository.JoinRequestRepository;
 import com.mb.reddit.service.JoinRequestService;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,7 +21,8 @@ public class JoinRequestServiceImpl implements JoinRequestService {
     private final CommunityRepository communityRepository;
 
 
-    public JoinRequestServiceImpl(JoinRequestRepository joinRequestRepository, CommunityRepository communityRepository) {
+    public JoinRequestServiceImpl(JoinRequestRepository joinRequestRepository,
+                                  CommunityRepository communityRepository) {
         this.joinRequestRepository = joinRequestRepository;
         this.communityRepository = communityRepository;
     }
@@ -63,6 +65,7 @@ public class JoinRequestServiceImpl implements JoinRequestService {
 
         communityRepository.save(community);
         joinRequestRepository.delete(request);
+
         return community.getId();
     }
 
@@ -73,6 +76,7 @@ public class JoinRequestServiceImpl implements JoinRequestService {
 
         Community community = request.getCommunity();
         joinRequestRepository.deleteById(requestId);
+
         return community.getId();
     }
 }

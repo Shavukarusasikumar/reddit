@@ -19,7 +19,6 @@
             color: #1c1c1c;
         }
 
-        /* Community Header */
         .header-section {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
@@ -192,7 +191,6 @@
             box-shadow: 0 8px 25px rgba(70, 209, 96, 0.6);
         }
 
-        /* Main Container */
         .container {
             max-width: 1400px;
             margin: 0 auto;
@@ -237,7 +235,6 @@
             justify-content: center;
         }
 
-        /* Posts Section */
         .main-content {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
@@ -375,7 +372,6 @@
             content: '💬';
         }
 
-        /* Sidebar */
         .sidebar {
             display: flex;
             flex-direction: column;
@@ -564,7 +560,6 @@
             box-shadow: 0 2px 8px rgba(70, 209, 96, 0.4);
         }
 
-        /* Pagination */
         .pagination {
             display: flex;
             justify-content: center;
@@ -612,7 +607,6 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
-        /* Empty State */
         .empty-state {
             text-align: center;
             padding: 60px 20px;
@@ -630,7 +624,6 @@
             line-height: 1.6;
         }
 
-        /* Mobile Responsive */
         @media (max-width: 768px) {
             .container {
                 grid-template-columns: 1fr;
@@ -741,7 +734,6 @@
                 </div>
             </div>
 
-            <!-- Simplified Pagination -->
             <div class="pagination" th:if="${totalPages > 1}">
                 <a th:href="@{'/r/' + ${community.name} + '?page=' + (${currentPage} - 1) + '&size=' + ${size}}"
                    th:class="${currentPage == 0} ? 'disabled' : ''">← Previous</a>
@@ -756,7 +748,6 @@
         </div>
     </div>
 
-    <!-- Message if not allowed -->
     <div class="main-content" th:unless="${showContent}">
         <div class="private-message">
             <h3>🔒 This is a private community</h3>
@@ -764,22 +755,18 @@
         </div>
     </div>
 
-    <!-- Sidebar -->
     <div class="sidebar">
-        <!-- Community Details Card -->
         <div class="community-details-card">
             <div class="details-header">
                 🏠 About Community
             </div>
             <div class="details-content">
-                <!-- Description -->
                 <div th:if="${community.description}" class="description-section">
                     <p class="description-text" th:text="${community.description}">
                         Community description goes here...
                     </p>
                 </div>
 
-                <!-- Stats -->
                 <div class="detail-row">
                         <span class="detail-label">
                             👥 Members
@@ -796,7 +783,6 @@
                     </div>
                 </div>
 
-                <!-- Privacy Status -->
                 <div class="detail-row">
                         <span class="detail-label">
                             🔒 Privacy
@@ -806,7 +792,6 @@
                         </span>
                 </div>
 
-                <!-- Moderators -->
                 <div class="moderator-section">
                     <div class="detail-label" style="margin-bottom: 12px;">👑 Moderators</div>
                     <div class="moderator-item">
@@ -819,7 +804,6 @@
             </div>
         </div>
 
-        <!-- Community Stats Card -->
         <div class="community-details-card">
             <div class="details-header">
                 📊 Community Stats
@@ -835,60 +819,14 @@
                     <span class="detail-value" style="color: #ff4500; font-weight: 700;"
                           th:text="${community.topics != null ? #lists.size(community.topics) : 0}">5</span>
                 </div>
-               <!-- <div class="detail-row">
-                    <span class="detail-label">⭐ Flairs</span>
-                    <span class="detail-value" style="color: gray; font-weight: 700;"
-                          th:text="${community.flairs != null ? #lists.size(community.flairs) : 0}">8</span>
-                </div>-->
             </div>
         </div>
     </div>
 </div>
 
-<!--<script th:inline="javascript">
-    /*<![CDATA[*/
-    document.addEventListener('DOMContentLoaded', function() {
-        const joinButton = document.getElementById('joinStatus');
-        if (joinButton) {
-            joinButton.addEventListener('click', function() {
-                const isCurrentlyJoined = this.textContent === 'Joined';
-                const endpoint = isCurrentlyJoined ? 'leave' : 'join';
 
-                fetch('/api/communities/' + /*[[${community.id}]]*/ + '/' + endpoint, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    }
-                })
-                    .then(response => {
-                        if (response.ok) {
-                            if (isCurrentlyJoined) {
-                                this.textContent = 'Join';
-                                this.className = 'join-button';
-                            } else {
-                                this.textContent = 'Joined';
-                                this.className = 'joined-button';
-                            }
-                        } else {
-                            throw new Error('Failed to update join status');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        alert('Failed to update join status');
-                    });
-            });
-        }
-
-        document.querySelector('.create-post')?.addEventListener('click', function() {
-            console.log('Create post clicked');
-        });
-    });
-    /*]]>*/
-</script>-->
 
 <script th:inline="javascript">
-    /*<![CDATA[*/
     document.addEventListener('DOMContentLoaded', function () {
         const joinButton = document.getElementById('joinStatus');
         const isPrivate = /*[[${community.isPrivate}]]*/ false;

@@ -401,7 +401,6 @@
     </aside>
 
     <div class="user-fragment">
-        <!-- User Profile Row -->
         <div class="user-profile">
             <img th:src="${user.profilePicture != null ? user.profilePicture : '/images/default-avatar.png'}"
                  alt="User Profile" onerror="this.onerror=null;this.src='/images/profile-icon.png';">
@@ -411,7 +410,6 @@
             </div>
         </div>
 
-        <!-- Action Buttons -->
         <div class="user-actions">
             <button class="section-btn active" data-section="posts">Posts</button>
             <button th:if="${showAllTabs}" class="section-btn" data-section="saved">Saved</button>
@@ -419,10 +417,8 @@
             <button th:if="${showAllTabs}" class="section-btn" data-section="downvoted">Downvoted</button>
         </div>
 
-        <!-- Content Area for dynamic loading -->
         <div style="margin-top: 20px;">
             <div id="section-content">
-                <!-- Default posts content will be loaded here -->
                 <div class="empty-state" th:if="${user.posts == null || user.posts.isEmpty()}">
                     <p>No posts yet. Start sharing your thoughts!</p>
                 </div>
@@ -431,15 +427,12 @@
     </div>
 
     <aside class="right-sidebar">
-        <!-- User Profile Card -->
         <div class="sidebar-card profile-card">
             <div class="card-title" th:text="'u/' + ${user.username}">u/username</div>
             <p th:text="${user.bio != null && !user.bio.isEmpty() ? user.bio : 'No bio available.'}">
                 User's bio goes here.
             </p>
         </div>
-
-        <!-- Karma Card -->
 
         <div class="sidebar-card karma-card"
              style="background-color: #e9f3fc; border: 1px solid #d8eafc; border-radius: 12px; padding: 16px; margin-bottom: 16px; width: 100%; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);">
@@ -464,57 +457,12 @@
             </div>
         </div>
 
-        <!--        &lt;!&ndash; About Reddit Section &ndash;&gt;-->
-<!--        <div class="sidebar-card">-->
-<!--            <h3 class="card-title">About Reddit</h3>-->
-<!--            <p>Reddit is a social news aggregation, discussion, and content sharing platform where registered-->
-<!--                users can post content such as text, links, images, and videos, which are then upvoted-->
-<!--                or downvoted by other users.</p>-->
-<!--        </div>-->
 
-<!--        &lt;!&ndash; Community Rules &ndash;&gt;-->
-<!--        <div class="sidebar-card">-->
-<!--            <h3 class="card-title">Community Rules</h3>-->
-<!--            <ul>-->
-<!--                <li>Be respectful</li>-->
-<!--                <li>No spam</li>-->
-<!--                <li>Stay on topic</li>-->
-<!--                <li>Follow Reddit's content policy</li>-->
-<!--            </ul>-->
-<!--        </div>-->
-
-<!--        &lt;!&ndash; Community Role &ndash;&gt;-->
-<!--        <div class="sidebar-card">-->
-<!--            <h3 class="card-title">Community Role</h3>-->
-<!--            <ul class="role-list">-->
-<!--                <li>Contributor</li>-->
-<!--                <li>Active Member</li>-->
-<!--            </ul>-->
-<!--        </div>-->
-
-<!--        &lt;!&ndash; User Stats &ndash;&gt;-->
-<!--        <div class="sidebar-card">-->
-<!--            <h3 class="card-title">User Stats</h3>-->
-<!--            <div class="user-meta-card">-->
-<!--                <div class="user-meta-item">-->
-<!--                    <span class="meta-label">Posts</span>-->
-<!--                    <span class="meta-value" th:text="${user.posts != null ? user.posts.size() : 0}">0</span>-->
-<!--                </div>-->
-<!--                <div class="user-meta-item">-->
-<!--                    <span class="meta-label">Comments</span>-->
-<!--                    <span class="meta-value" th:text="${user.comments != null ? user.comments.size() : 0}">0</span>-->
-<!--                </div>-->
-<!--                <div class="user-meta-item">-->
-<!--                    <span class="meta-label">Communities</span>-->
-<!--                    <span class="meta-value" th:text="${user.joinedCommunities != null ? user.joinedCommunities.size() : 0}">0</span>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </div>-->
     </aside>
 </div>
 
 <script>
-    const userId = [[${user.id}]];    // Thymeleaf userId
+    const userId = [[${user.id}]];
 
     function bindVoteButtons() {
       console.log("Binding vote buttons");
@@ -569,7 +517,6 @@
               const container = document.getElementById('section-content');
               container.innerHTML = html;
 
-              // Wait until DOM updates, then bind votes
               setTimeout(bindVoteButtons, 0);
             })
             .catch(error => {
@@ -581,7 +528,6 @@
       });
     }
 
-    // Load initial posts content
     function loadInitialContent() {
       fetch(`/user/${userId}/posts`)
         .then(res => res.text())
@@ -595,10 +541,9 @@
         });
     }
 
-    // First page load
     document.addEventListener('DOMContentLoaded', () => {
       bindSectionTabs();
-      loadInitialContent(); // Load posts by default
+      loadInitialContent();
     });
 </script>
 </body>

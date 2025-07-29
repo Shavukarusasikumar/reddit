@@ -1,11 +1,9 @@
-<!-- File: src/main/resources/templates/fragments/right-sidebar-fragment.html -->
-<!--suppress HtmlUnknownAttribute -->
 <th:block xmlns:th="http://www.thymeleaf.org" th:fragment="rightSidebar (posts)">
     <style>
         .right-sidebar-container {
             font-family: 'Noto Sans', sans-serif;
             font-size: 16px;
-            background-color: #f0f8ff; /* Very light blue */
+            background-color: #f0f8ff;
             height: 100%;
         }
 
@@ -13,7 +11,7 @@
             width: 100%;
             padding: 1.5rem;
             margin-top: 0;
-            background-color: #f8fbff; /* Light blue tint */
+            background-color: #f8fbff;
             border-radius: 8px;
             height: 100%;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -21,20 +19,17 @@
             box-sizing: border-box;
             max-height: calc(100vh - 76px);
 
-            /* Hide scrollbar by default */
-            scrollbar-width: none; /* Firefox */
+            scrollbar-width: none;
             overflow-y: hidden;
         }
 
-        /* Chrome/Safari: hide scrollbar */
         .post-sidebar::-webkit-scrollbar {
             width: 0;
             background: transparent;
         }
 
-        /* Show scrollbar on hover */
         .post-sidebar:hover {
-            scrollbar-width: thin; /* Firefox */
+            scrollbar-width: thin;
             scrollbar-color: #c1c1c1 transparent;
             overflow-y: auto;
         }

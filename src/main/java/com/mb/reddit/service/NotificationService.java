@@ -6,12 +6,8 @@ import org.springframework.data.domain.Page;
 public interface NotificationService {
 
     void addNotification(Notification notification);
-
     Integer getNotificationCount();
-
     Page<Notification> getAllNotifications(int pageNumber, int pageSize, Long userId);
-
     void markAllAsReadForUser(Long userId);
-
     void deleteAllReadNotificationForUser(Long userId);
 }

@@ -28,10 +28,11 @@ public class TopicController {
 		model.addAttribute("topics", topics);
 
 		if (topicId != null) {
-			Topic selectedTopic = topicService.getTopicById(topicId); // Add this method to TopicService
+			Topic selectedTopic = topicService.getTopicById(topicId);
 
 			if (selectedTopic != null) {
 				List<Community> communities = communityService.getCommunitiesByTopicId(topicId);
+
 				model.addAttribute("selectedTopic", selectedTopic);
 				model.addAttribute("communities", communities);
 			}

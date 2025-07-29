@@ -46,6 +46,7 @@ public class CommunityController {
 
         model.addAttribute("allTopics", allTopics);
         model.addAttribute("notificationCount",0);
+
         return "create-community";
     }
 
@@ -65,12 +66,10 @@ public class CommunityController {
         community.setCreatedAt(LocalDateTime.now());
         community.setCreator(userService.getCurrentUser());
 
-        // Get topics before creating community
         List<Topic> selectedTopics = topicService.getAllTopicsByIds(topics);
-        community.setTopics(selectedTopics); // Set topics to community
+        community.setTopics(selectedTopics);
 
-        // Create community with topics
-        community = communityService.createCommunity(community, iconFile, bannerFile);
+        communityService.createCommunity(community, iconFile, bannerFile);
 
         return "redirect:/";
     }
@@ -123,19 +122,21 @@ public class CommunityController {
             System.out.println(currentUser.getId());
             communityService.addMemberByCommunityId(currentUser, communityId);
 
-        }else{
+        } else{
             System.out.println(currentUser.getId());
 
         }
+
         return "redirect:/r/" + communityService.getCommunityById(communityId).getName();
     }
 
     @PostMapping("/user/leave-community/{communityId}")
     public String leaveCommunity(@PathVariable Long communityId) {
         User currentUser = userService.getCurrentUser();
-        if(currentUser != null) {
+        if (currentUser != null) {
             communityService.removeMemberByCommunityId(currentUser, communityId);
         }
+
         return "redirect:/r/" + communityService.getCommunityById(communityId).getName();
     }
 
@@ -145,10 +146,11 @@ public class CommunityController {
     public ResponseEntity<?> joinNewCommunity(@PathVariable Long id){
         System.out.println("WAS HERE NC");
         User currentUser = userService.getCurrentUser();
-        if(currentUser == null){
+        if (currentUser == null){
             return ResponseEntity.badRequest().build();
-        }else{
+        } else{
             communityService.addMemberByCommunityId(currentUser, id);
+
             return ResponseEntity.ok().build();
         }
     }
@@ -156,25 +158,28 @@ public class CommunityController {
     @PostMapping("/api/communities/{id}/request")
     @ResponseBody
     public ResponseEntity<?> requestToJoinCommunity(@PathVariable Long id) {
-        System.out.println("---------------------------WAS HERE NRTJC---------------------------");
         User user = userService.getCurrentUser();
-        if(user == null){
+
+        if (user == null){
             return ResponseEntity.badRequest().build();
         } else {
             Community community = communityService.getCommunityById(id);
+
             joinRequestService.sendJoinRequest(community, user);
         }
+
         return ResponseEntity.ok().build();
     }
 
     @PostMapping("/api/communities/{id}/leave")
     public ResponseEntity<?> leaveCommunityRB(@PathVariable Long id) {
         User currentUser = userService.getCurrentUser();
+
         if (currentUser != null) {
             communityService.removeMemberByCommunityId(currentUser, id);
-            System.out.println("LEAVE community: " + id);
+
             return ResponseEntity.ok().build();
-        }else{
+        } else{
             return ResponseEntity.badRequest().build();
         }
     }

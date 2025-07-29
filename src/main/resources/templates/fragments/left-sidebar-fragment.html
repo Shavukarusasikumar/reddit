@@ -1,6 +1,4 @@
-<!-- File: src/main/resources/templates/fragments/left-sidebar-fragment.html -->
 <th:block xmlns:th="http://www.thymeleaf.org" th:fragment="leftSidebar (communities, recentCommunities)">
-    <!-- Font Awesome (needed for the icons) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 
     <style>
@@ -142,7 +140,6 @@
             font-size: 14px;
         }
 
-        /* Custom scrollbar for the sidebar */
         .sidebar::-webkit-scrollbar {
             width: 6px;
         }
@@ -160,23 +157,19 @@
             background: #a8a8a8;
         }
 
-        /* Firefox scrollbar */
         .sidebar {
             scrollbar-width: thin;
             scrollbar-color: #c1c1c1 transparent;
         }
 
-        /* Ensure proper spacing */
         .sidebar > *:last-child {
             margin-bottom: 0;
         }
 
-        /* Smooth scrolling behavior */
         .sidebar {
             scroll-behavior: smooth;
         }
 
-        /* Prevent text selection on interactive elements */
         .sidebar-link,
         .community-item {
             -webkit-user-select: none;
@@ -185,7 +178,6 @@
             user-select: none;
         }
 
-        /* Links should allow text selection */
         .community-link,
         .create-community-btn {
             -webkit-user-select: text;
@@ -194,7 +186,6 @@
             user-select: text;
         }
 
-        /* Focus states for accessibility */
         .sidebar-link:focus,
         .community-link:focus,
         .create-community-btn:focus {
@@ -202,7 +193,6 @@
             outline-offset: 2px;
         }
 
-        /* Active state for better feedback */
         .sidebar-link:active,
         .community-item:active {
             transform: scale(0.98);
@@ -211,7 +201,6 @@
 
     <div class="left-sidebar-container">
         <div class="sidebar">
-            <!-- Top Navigation -->
             <a href="/" class="sidebar-link">
                 <i class="fas fa-home"></i>
                 <span>Home</span>
@@ -225,7 +214,6 @@
                 <span>Explore</span>
             </a>
 
-            <!-- Recent Section -->
             <div class="sidebar-section">
                 <div class="section-header">
                     <span>Recent</span>
@@ -246,7 +234,6 @@
                 </div>
             </div>
 
-            <!-- Communities Section -->
             <div class="sidebar-section">
                 <div class="section-header">
                     <span>Communities</span>

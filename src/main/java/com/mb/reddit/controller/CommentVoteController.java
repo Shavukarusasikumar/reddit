@@ -25,28 +25,11 @@ public class CommentVoteController {
 		this.userServiceImpl = userServiceImpl;
 	}
 
-//	@PostMapping("/{commentId}/upvote")
-//	public void upvoteComment(@PathVariable Long commentId, Authentication authentication) {
-//		if(authentication == null || !authentication.isAuthenticated()) {
-//			return;
-//		}
-//
-//		User user = userServiceImpl.getLoggedInUser();
-//
-//		Boolean currentVote = commentVoteService.getVoteStatusByCommentId(commentId);
-//
-//		if(currentVote != null && currentVote) {
-//			commentVoteService.removeVoteByCommentId(commentId, user);
-//		}
-//		else {
-//			commentVoteService.addUpVoteByCommentId(commentId,  user);
-//		}
-//	}
-
 	@PostMapping("/{commentId}/upvote")
 	@ResponseBody
 	public ResponseEntity<String> upvoteComment(@PathVariable Long commentId) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
 		if (authentication == null || !authentication.isAuthenticated()
 				|| authentication.getPrincipal() instanceof String) {
 			return ResponseEntity.status(401).body("User not authenticated");
@@ -63,28 +46,12 @@ public class CommentVoteController {
 
 		return ResponseEntity.ok("Vote updated successfully");
 	}
-//	@PostMapping("/{commentId}/downvote")
-//	public void downvoteComment(@PathVariable Long commentId, Authentication authentication) {
-//		User user = userServiceImpl.getLoggedInUser();
-////
-////		if (user == null) {
-//////			return "redirect:/user/login";
-////		}
-//
-//		Boolean currentVote = commentVoteService.getVoteStatusByCommentId(commentId);
-//
-//		if(currentVote != null && !currentVote) {
-//			commentVoteService.removeVoteByCommentId(commentId,  user);
-//		}
-//		else {
-//			commentVoteService.addDownVoteByCommentId(commentId,   user);
-//		}
-//	}
 
 @PostMapping("/{commentId}/downvote")
 @ResponseBody
 public ResponseEntity<String> downvoteComment(@PathVariable Long commentId) {
 	Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
 	if (authentication == null || !authentication.isAuthenticated()
 			|| authentication.getPrincipal() instanceof String) {
 		return ResponseEntity.status(401).body("User not authenticated");
@@ -106,6 +73,7 @@ public ResponseEntity<String> downvoteComment(@PathVariable Long commentId) {
 	@ResponseBody
 	public ResponseEntity<String> removeVote(@PathVariable Long commentId) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
 		if (authentication == null || !authentication.isAuthenticated()
 				|| authentication.getPrincipal() instanceof String) {
 			return ResponseEntity.status(401).body("User not authenticated");

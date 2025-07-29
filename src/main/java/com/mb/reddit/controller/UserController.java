@@ -29,15 +29,14 @@ import java.util.List;
 public class UserController {
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
     private final UserService userService;
     private final NotificationService notificationService;
     private final CommunityService communityService;
 
-    public UserController(UserRepository userRepository, PasswordEncoder passwordEncoder,
-                          UserService userService, NotificationService notificationService, CommunityService communityService) {
+    public UserController(UserRepository userRepository,
+                          UserService userService, NotificationService notificationService,
+                          CommunityService communityService) {
         this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
         this.userService = userService;
         this.notificationService = notificationService;
         this.communityService = communityService;
@@ -53,6 +52,7 @@ public class UserController {
         if (principal != null) {
             model.addAttribute("username", principal.getName());
         }
+
         return "home";
     }
 
@@ -70,11 +70,13 @@ public class UserController {
             Model model) {
         if (userRepository.existsByUsername(username)) {
             model.addAttribute("errorMessage", "Username already taken");
+
             return "register";
         }
 
         if (userRepository.existsByEmail(email)) {
             model.addAttribute("errorMessage", "Email already registered");
+
             return "register";
         }
 
@@ -85,6 +87,7 @@ public class UserController {
                 null,
                 Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
         );
+
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         return "redirect:/user/login";
@@ -97,9 +100,9 @@ public class UserController {
         if (user == null) {
             return "redirect:/user/login";
         }
+
         UserKarmaDTO karmaDTO = userService.getKarmaDto(user.getId());
         Integer notificationCount = notificationService.getNotificationCount();
-        System.out.println(karmaDTO);
 
         List<Community> joinedCommunities = communityService.findUserJoinedCommunities();
         List<Community> recentCommunities = joinedCommunities.stream().limit(5).toList();
@@ -127,6 +130,7 @@ public class UserController {
         model.addAttribute("notificationCount", notificationCount);
         model.addAttribute("username", user.getUsername());
         model.addAttribute("connectedUsers", connectedUsers);
+
         return "chat";
     }
 
@@ -138,12 +142,9 @@ public class UserController {
        if (authentication != null && authentication.isAuthenticated() &&
                !(authentication.getPrincipal() instanceof String)) {
            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-           System.out.println(userDetails.getId() + "=============== USER DETAIL CID=====================");
-           System.out.println(userId + "================= PATHVARIABLE ID===================");
 
            if(userDetails.getId().equals(userId)){
                showAllTab = true;
-               System.out.println(showAllTab + "====================================");
            }
        }
 

@@ -5,8 +5,9 @@ import com.mb.reddit.entity.Notification;
 import com.mb.reddit.repository.NotificationRepository;
 import com.mb.reddit.service.NotificationService;
 import com.mb.reddit.service.UserService;
-import jakarta.servlet.ServletOutputStream;
+
 import jakarta.transaction.Transactional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,11 +20,9 @@ import org.springframework.stereotype.Service;
 public class NotificationServiceImpl implements NotificationService {
 
     private final NotificationRepository notificationRepository;
-    private final UserService userService;
 
-    public NotificationServiceImpl(NotificationRepository notificationRepository, UserService userService) {
+    public NotificationServiceImpl(NotificationRepository notificationRepository) {
         this.notificationRepository = notificationRepository;
-        this.userService = userService;
     }
 
     @Override
@@ -44,10 +43,8 @@ public class NotificationServiceImpl implements NotificationService {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         Long userId = userDetails.getId();
         long getUserTimeStop = System.currentTimeMillis();
-
-        System.out.println("Fetch User Time : " + (getUserTimeStop - getUserTimeStart ) + " ms" );
-
         int notificationCount = notificationRepository.countUnreadNotificationsByUserId(userId);
+
         return notificationCount;
     }
 
@@ -60,14 +57,9 @@ public class NotificationServiceImpl implements NotificationService {
         notifications.forEach(notification -> {
             if (notification.getPost() != null) {
                 notification.setPostId(notification.getPost().getId());
-                System.out.println("=====================++++++++ " + notification.getSenderId() +"+++++++++++++===============");
-
-                System.out.println("=====================++++++++ NULL NHI HAI BHAI +++++++++++++===============");
-
-            }else{
-                System.out.println("=====================++++++++ NULL HAI BHAI +++++++++++++===============");
             }
         });
+
         return notifications;
     }
 

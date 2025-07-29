@@ -104,7 +104,6 @@ public class CommentController {
             notificationService.addNotification(notification);
         }
 
-        // Check if it's an AJAX request
         String ajaxHeader = request.getHeader("X-Requested-With");
         if ("XMLHttpRequest".equals(ajaxHeader) ||
                 "application/json".equals(request.getHeader("Accept")) ||
@@ -115,23 +114,12 @@ public class CommentController {
 
         return "redirect:/posts/" + postId;
     }
-//    @PostMapping("/add-comment/{postId}/")
-//    public void createComment(@PathVariable Long postId, @RequestParam String content,
-//                              @RequestParam(required = false) Long parentCommentId, Authentication authentication) {
-//
-//        if(authentication == null || !authentication.isAuthenticated()) {
-//            return;
-//        }
-//
-//        Comment comment = new Comment();
-//        comment.setContent(content);
-//        commentService.createComment(comment, postId, parentCommentId);
-//    }
 
     @GetMapping("/api/comments/{commentId}/vote-count")
     @ResponseBody
     public String getCommentVoteCount(@PathVariable Long commentId) {
         int voteCount = commentService.getVoteCountForComment(commentId);
+
         return String.valueOf(voteCount);
     }
 }

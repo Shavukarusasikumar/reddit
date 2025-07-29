@@ -32,7 +32,9 @@ public class PostServiceImpl implements PostService {
     private final CommunityRepository communityRepository;
     private final UserRepository userRepository;
 
-    public PostServiceImpl(PostRepository postRepository, CommentRepository commentRepository, CloudinaryService cloudinaryService, PostVoteRepository postVoteRepository, CommunityRepository communityRepository, UserRepository userRepository) {
+    public PostServiceImpl(PostRepository postRepository, CommentRepository commentRepository,
+                           CloudinaryService cloudinaryService, PostVoteRepository postVoteRepository,
+                           CommunityRepository communityRepository, UserRepository userRepository) {
         this.postRepository = postRepository;
         this.commentRepository = commentRepository;
         this.cloudinaryService = cloudinaryService;
@@ -74,15 +76,18 @@ public class PostServiceImpl implements PostService {
         }
 
         Long userId = getLoggedInUserId(authentication);
+
         if (userId == null) return page;
 
         List<PostWithVotesDTO> postList = page.getContent();
         List<Long> postIds = postList.stream().map(PostWithVotesDTO::getId).toList();
+
         if (postIds.isEmpty()) return page;
 
         List<PostVote> userVotes = postVoteRepository.findByUserIdAndPostIds(userId, postIds);
 
         Map<Long, Boolean> voteMap = new HashMap<>();
+
         for (PostVote vote : userVotes) {
             voteMap.put(vote.getPost().getId(), vote.getIsLike());
         }
@@ -98,7 +103,9 @@ public class PostServiceImpl implements PostService {
         if(authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getName())) {
             return null;
         }
+
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+
         return userDetails != null ? userDetails.getId() : null;
     }
 
@@ -122,16 +129,14 @@ public class PostServiceImpl implements PostService {
     @Transactional
     @Override
     public Post createPost(Post post, Long communityId, MultipartFile media) {
-        long start = System.currentTimeMillis(); // Start total timer
+        long start = System.currentTimeMillis();
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = userRepository.findUserByUsername(authentication.getName());
 
-        long userFetchEnd = System.currentTimeMillis();
-        System.out.println("⏱️ User fetch time: " + (userFetchEnd - start) + " ms");
-
         if (media != null && !media.isEmpty()) {
             long mediaStart = System.currentTimeMillis();
+
             try {
                 String mediaUrl = cloudinaryService.uploadMedia(media);
                 String mediaType = media.getContentType().startsWith("video/") ? "video" : "image";
@@ -142,30 +147,21 @@ public class PostServiceImpl implements PostService {
             } catch (IOException exception) {
                 throw new MediaUploadError("Failed to upload media: " + exception.getMessage());
             }
+
             long mediaEnd = System.currentTimeMillis();
-            System.out.println("⏱️ Media upload + processing time: " + (mediaEnd - mediaStart) + " ms");
         }
 
         post.setCreatedAt(LocalDateTime.now());
         post.setIsPublished(true);
 
-        long communityStart = System.currentTimeMillis();
         Community community = communityRepository.findById(communityId)
                 .orElseThrow(() -> new RuntimeException("Community not found " + communityId));
-        long communityEnd = System.currentTimeMillis();
-        System.out.println("⏱️ Community fetch time: " + (communityEnd - communityStart) + " ms");
 
         post.setAuthor(currentUser);
         post.setUpdatedAt(LocalDateTime.now());
         post.setCommunity(community);
 
-        long saveStart = System.currentTimeMillis();
         Post savedPost = postRepository.save(post);
-        long saveEnd = System.currentTimeMillis();
-        System.out.println("⏱️ DB save time: " + (saveEnd - saveStart) + " ms");
-
-        long totalEnd = System.currentTimeMillis();
-        System.out.println("✅ Total createPost time: " + (totalEnd - start) + " ms");
 
         return savedPost;
     }
@@ -234,9 +230,7 @@ public class PostServiceImpl implements PostService {
         Boolean isLike = true;
         Page<PostWithVotesDTO> postsPage = postRepository.getVotedPostsDTO(userId, isLike, pageable);
 
-        System.out.println(postsPage);
         postsPage.forEach(post -> {
-            System.out.println(post);
             String showTime = TimeAgoUtils.getTimeAgo(post.getCreatedAt());
             post.setShowTime(showTime);
         });
@@ -315,6 +309,4 @@ public class PostServiceImpl implements PostService {
             };
         };
     }
-
-
 }

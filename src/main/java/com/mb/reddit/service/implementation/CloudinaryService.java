@@ -18,13 +18,12 @@ public class CloudinaryService {
 
     private final Cloudinary cloudinary;
 
-    // Image resizing dimensions
     private static final int MAX_WIDTH = 792;
     private static final int MAX_HEIGHT = 500;
 
-    private static final long MAX_IMAGE_SIZE = 20L * 1024 * 1024;      // 10 MB
+    private static final long MAX_IMAGE_SIZE = 20L * 1024 * 1024;
 
-    private static final long MAX_VIDEO_SIZE = 50L * 1024 * 1024;      // 30 MB
+    private static final long MAX_VIDEO_SIZE = 50L * 1024 * 1024;
 
 
     public CloudinaryService(Cloudinary cloudinary) {
@@ -38,9 +37,6 @@ public class CloudinaryService {
         if (contentType == null) {
             throw new IOException("File has no content type.");
         }
-
-        System.out.println("File type: " + contentType);
-        System.out.println("File size: " + (fileSize / 1024) + " KB");
 
         Map<?, ?> uploadResult;
 
@@ -60,7 +56,6 @@ public class CloudinaryService {
                             "eager_async", true
                     )
             );
-
         } else if (contentType.startsWith("video/")) {
             validateVideo(fileSize, contentType);
 
@@ -69,13 +64,13 @@ public class CloudinaryService {
                     ObjectUtils.asMap(
                             "resource_type", "video",
                             "format", "mp4",
-                            "quality", "auto:best",       // ✅ Best video quality
+                            "quality", "auto:best",
                             "eager", List.of(
                                     new com.cloudinary.Transformation()
                                             .quality("auto:best")
                                             .fetchFormat("mp4")
                             ),
-                            "eager_async", true            // ✅ Don’t block for transformation
+                            "eager_async", true
                     )
             );
 
@@ -96,7 +91,6 @@ public class CloudinaryService {
         int originalWidth = image.getWidth();
         int originalHeight = image.getHeight();
         long originalSizeKB = file.getSize() / 1024;
-
         int targetWidth = originalWidth;
         int targetHeight = originalHeight;
 
@@ -109,7 +103,7 @@ public class CloudinaryService {
         }
 
         if(originalSizeKB < 100 && targetWidth == originalWidth && targetHeight == originalHeight) {
-            return file.getBytes(); // Already optimized
+            return file.getBytes();
         }
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

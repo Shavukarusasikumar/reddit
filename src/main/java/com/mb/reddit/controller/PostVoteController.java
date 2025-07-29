@@ -19,6 +19,7 @@ public class PostVoteController {
     public ResponseEntity<String> upvotePost(@PathVariable Long postId) {
         try {
             postVoteService.addVoteByPostId(postId, true);
+
             return ResponseEntity.ok("Upvoted successfully");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Failed to upvote");
@@ -30,6 +31,7 @@ public class PostVoteController {
     public ResponseEntity<String> downvotePost(@PathVariable Long postId) {
         try {
             postVoteService.addVoteByPostId(postId, false);
+
             return ResponseEntity.ok("Downvoted successfully");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Failed to downvote");
@@ -41,6 +43,7 @@ public class PostVoteController {
     public ResponseEntity<String> removeVote(@PathVariable Long postId) {
         try {
             postVoteService.removeVoteByPostId(postId);
+
             return ResponseEntity.ok("Vote removed successfully");
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Failed to remove vote");

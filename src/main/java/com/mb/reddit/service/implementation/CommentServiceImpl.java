@@ -139,10 +139,8 @@ public class CommentServiceImpl implements CommentService {
         }
 
         for (Comment comment : comments) {
-            // Initialize the replies collection
             Hibernate.initialize(comment.getReplies());
             if (comment.getReplies() != null && !comment.getReplies().isEmpty()) {
-                // Recursively load nested replies
                 List<Comment> replies = new ArrayList<>(comment.getReplies());
                 comment.setReplies(loadNestedReplies(replies));
             }
@@ -153,6 +151,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public int getVoteCountForComment(Long commentId) {
         List<CommentVote> votes = commentVoteRepository.getCommentVotesByCommentId(commentId);
+
         if (votes == null || votes.isEmpty()) {
             return 0;
         }
@@ -161,6 +160,4 @@ public class CommentServiceImpl implements CommentService {
                 .mapToInt(vote -> Boolean.TRUE.equals(vote.getIsLike()) ? 1 : -1)
                 .sum();
     }
-
-
 }

@@ -6,6 +6,7 @@ import com.mb.reddit.exception.custom.CommunityNotFoundException;
 import com.mb.reddit.repository.CommunityRepository;
 import com.mb.reddit.repository.FlairRepository;
 import com.mb.reddit.service.FlairService;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

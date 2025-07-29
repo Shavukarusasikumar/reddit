@@ -2,9 +2,9 @@ package com.mb.reddit.controller;
 
 import com.mb.reddit.entity.CustomUserDetails;
 import com.mb.reddit.entity.Notification;
-import com.mb.reddit.entity.User;
 import com.mb.reddit.service.NotificationService;
 import com.mb.reddit.service.UserService;
+
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -29,25 +29,24 @@ public class NotificationController {
                                       @RequestParam(defaultValue = "20") int pageSize,
                                       Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
         if (authentication == null || !authentication.isAuthenticated() ||
                 authentication.getPrincipal() instanceof String) {
             return "redirect:/user/login";
         }
+
         long getUserTimeStart = System.currentTimeMillis();
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         Long userId = userDetails.getId();
         long getUserTimeStop = System.currentTimeMillis();
-        System.out.println("Fetch User Time : " + (getUserTimeStop - getUserTimeStart ) + " ms" );
-
 
         Page<Notification> notifications = notificationService.getAllNotifications(pageNumber, pageSize, userId);
 
-
-        //notificationService.markAllAsReadForUser(userId);
         notificationService.deleteAllReadNotificationForUser(userId);
 
         model.addAttribute("notifications", notifications);
         model.addAttribute("totalPages", notifications.getTotalPages());
+
         return "notifications";
     }
 }

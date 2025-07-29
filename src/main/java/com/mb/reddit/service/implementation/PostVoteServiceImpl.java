@@ -39,8 +39,6 @@ public class PostVoteServiceImpl implements PostVoteService {
     @Override
     @Transactional
     public void addVoteByPostId(Long postId, Boolean isLike) {
-        System.out.println("----------------------------Starting Vote Process for Post: " + postId + " IsLike: " + isLike + "-------------------------------------");
-
         Post post = postRepository.findById(postId).orElseThrow(() -> new PostNotFoundException("Post not found " + postId));
 
         User currentUser = userServiceImpl.getCurrentUser();
@@ -48,12 +46,11 @@ public class PostVoteServiceImpl implements PostVoteService {
         PostVote postVote = postVoteRepository.getPostVoteByUserIdAndPostId(currentUser.getId(),
                 postId).orElse(new PostVote());
 
-        System.out.println("----------------------------Found existing vote: " + (postVote.getId() != null) + "-------------------------------------");
-
         postVote.setPost(post);
         postVote.setUser(currentUser);
         postVote.setIsLike(isLike);
         postVote.setLikedAt(LocalDateTime.now());
+
         postVoteRepository.save(postVote);
 
         if(postVote.getIsLike() && !currentUser.equals(post.getAuthor())){
@@ -81,16 +78,16 @@ public class PostVoteServiceImpl implements PostVoteService {
     @Transactional
     public void removeVoteByPostId(Long postId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
         if (authentication == null || !authentication.isAuthenticated() ||
                 authentication.getPrincipal() instanceof String) {
-        }else{
+        } else{
             CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
             Long userId = userDetails.getId();
 
             postVoteRepository.findByUserIdAndPostId(userId, postId)
                     .ifPresent(vote -> {
                         postVoteRepository.delete(vote);
-                        System.out.println("----------------------------Vote Removed ---------------------------------------------");
                     });
         }
     }
