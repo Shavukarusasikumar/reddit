@@ -1,7 +1,5 @@
 package com.mb.reddit.service;
 
-import com.mb.reddit.entity.User;
-
 public interface CommentVoteService {
 	void addUpVoteByCommentId(Long commentId, Long userId);
 	void addDownVoteByCommentId(Long commentId, Long userId);

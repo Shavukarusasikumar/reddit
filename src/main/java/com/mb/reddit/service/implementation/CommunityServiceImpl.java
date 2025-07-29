@@ -10,7 +10,6 @@ import com.mb.reddit.repository.CommunityRepository;
 import com.mb.reddit.repository.UserRepository;
 import com.mb.reddit.service.CommunityService;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;

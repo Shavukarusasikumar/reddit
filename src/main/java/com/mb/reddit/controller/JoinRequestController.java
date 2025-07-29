@@ -2,6 +2,7 @@ package com.mb.reddit.controller;
 
 import com.mb.reddit.entity.JoinRequest;
 import com.mb.reddit.service.JoinRequestService;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;

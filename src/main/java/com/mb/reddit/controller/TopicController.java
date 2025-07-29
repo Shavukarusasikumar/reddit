@@ -4,6 +4,7 @@ import com.mb.reddit.entity.Community;
 import com.mb.reddit.entity.Topic;
 import com.mb.reddit.service.CommunityService;
 import com.mb.reddit.service.TopicService;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;

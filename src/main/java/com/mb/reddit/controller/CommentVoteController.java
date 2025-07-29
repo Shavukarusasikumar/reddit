@@ -1,9 +1,9 @@
 package com.mb.reddit.controller;
 
 import com.mb.reddit.entity.CustomUserDetails;
-import com.mb.reddit.entity.User;
 import com.mb.reddit.service.CommentVoteService;
 import com.mb.reddit.service.implementation.UserServiceImpl;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;

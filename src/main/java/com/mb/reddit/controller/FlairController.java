@@ -2,6 +2,7 @@ package com.mb.reddit.controller;
 
 import com.mb.reddit.entity.Flair;
 import com.mb.reddit.service.FlairService;
+
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;

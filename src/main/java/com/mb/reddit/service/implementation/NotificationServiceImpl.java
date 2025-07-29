@@ -4,7 +4,6 @@ import com.mb.reddit.entity.CustomUserDetails;
 import com.mb.reddit.entity.Notification;
 import com.mb.reddit.repository.NotificationRepository;
 import com.mb.reddit.service.NotificationService;
-import com.mb.reddit.service.UserService;
 
 import jakarta.transaction.Transactional;
 

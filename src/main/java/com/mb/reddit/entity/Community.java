@@ -40,7 +40,7 @@ public class Community {
     @ManyToOne
     private User creator;
 
-    @OneToMany(mappedBy = "community")
+    @OneToMany(mappedBy = "community", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
     private List<Post> posts;
 
     @OneToMany(mappedBy = "community")
@@ -49,7 +49,7 @@ public class Community {
     @OneToMany(mappedBy = "community")
     private List<Flair> flairs;
 
-    @ManyToMany(mappedBy = "joinedCommunities", cascade = CascadeType.ALL)
+    @ManyToMany(mappedBy = "joinedCommunities", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<User> members;
 
     @ManyToMany

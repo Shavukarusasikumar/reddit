@@ -1,7 +1,5 @@
 package com.mb.reddit.service;
 
-
-
 import com.mb.reddit.entity.Community;
 import com.mb.reddit.entity.JoinRequest;
 import com.mb.reddit.entity.User;

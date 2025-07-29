@@ -7,10 +7,9 @@ import com.mb.reddit.exception.custom.PostNotFoundException;
 import com.mb.reddit.exception.custom.UnauthorizedAccessException;
 import com.mb.reddit.repository.*;
 import com.mb.reddit.service.PostService;
-
 import com.mb.reddit.utils.TimeAgoUtils;
-import jakarta.transaction.Transactional;
 
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,7 +19,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class PostServiceImpl implements PostService {

@@ -37,10 +37,11 @@ public class Comment {
 	@JoinColumn(name = "parent_comment_id")
 	private Comment parentComment;
 
-	@OneToMany(mappedBy = "parentComment", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "parentComment", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE},
+				fetch = FetchType.LAZY)
 	private List<Comment> replies = new ArrayList<>();
 
-	@OneToMany(mappedBy = "comment", cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "comment", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE})
 	private List<CommentVote> likes;
 }
 
