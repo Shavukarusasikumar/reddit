@@ -22,7 +22,7 @@ public interface CommunityRepository  extends JpaRepository<Community, Long> {
     SELECT new com.mb.reddit.dto.CommunityBasicDTO(c.id, c.name, c.iconUrl)
     FROM Community c
     WHERE c.isPrivate = false
-""")
+        """)
     List<CommunityBasicDTO> findPublicCommunities();
 
     @Query("""
@@ -30,6 +30,6 @@ public interface CommunityRepository  extends JpaRepository<Community, Long> {
     FROM Community c
     JOIN c.members m
     WHERE m.id = :userId
-""")
+        """)
     List<CommunityBasicDTO> findUserJoinedCommunities(@Param("userId") Long userId);
 }

@@ -5,6 +5,4 @@ public interface CommentVoteService {
 	void addDownVoteByCommentId(Long commentId, Long userId);
 	void removeVoteByCommentId(Long commentId, Long userId);
 	Boolean getVoteStatusByCommentId(Long commentId);
-	Long getPostIdForComment(Long commentId);
-	Boolean getVoteStatusByCommentIdAndCurrentUser(Long commentId);
 }

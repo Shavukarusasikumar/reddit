@@ -1,4 +1,4 @@
-package com.mb.reddit.message.chat;
+package com.mb.reddit.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -10,7 +10,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
-
 
 @Entity
 @Data

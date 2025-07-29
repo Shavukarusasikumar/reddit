@@ -27,11 +27,6 @@ public class CommentController {
         this.notificationService = notificationService;
     }
 
-    public Comment getCommentById(long commentId) {
-        return commentService.getCommentById(commentId);
-
-    }
-
     @PostMapping("/delete-comment/{commentId}")
     public String deleteCommentById(@PathVariable Long commentId) {
         Long postId = commentService.getCommentById(commentId).getPost().getId();

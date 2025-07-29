@@ -70,26 +70,6 @@ public class CommunityServiceImpl implements CommunityService {
         return communityRepository.save(community);
     }
 
-    @Override
-    public void deleteCommunity(Long communityId) {
-        communityRepository.deleteById(communityId);
-    }
-
-    @Override
-    public List<User> getCommunityMembers(Long communityId) {
-        return communityRepository.findById(communityId)
-                .orElseThrow(() -> new CommunityNotFoundException("Community Not found" + communityId))
-                .getMembers();
-    }
-
-    @Override
-    public Long getMembersCountByCommunityId(Long communityId) {
-        return (long) communityRepository
-                .findById(communityId)
-                .orElseThrow(() -> new CommunityNotFoundException("Community Not found" + communityId))
-                .getMembers().size();
-    }
-
     @Transactional
     @Override
     public void addMemberByCommunityId(User member, Long communityId) {
@@ -103,12 +83,6 @@ public class CommunityServiceImpl implements CommunityService {
     }
 
     @Override
-    public User getCreatorByCommunityId(Long communityId) {
-        return communityRepository.findById(communityId)
-                .orElseThrow(() -> new CommunityNotFoundException("Community Not found" + communityId)).getCreator();
-    }
-
-    @Override
     public Community getCommunityById(Long communityId) {
         return communityRepository.findById(communityId)
                 .orElseThrow(() -> new CommunityNotFoundException("Community Not found" + communityId));
@@ -117,11 +91,6 @@ public class CommunityServiceImpl implements CommunityService {
     @Override
     public Community getCommunityByName(String communityName) {
         return communityRepository.findCommunityByName(communityName);
-    }
-
-    @Override
-    public List<Community> getAllCommunities() {
-        return communityRepository.findAll();
     }
 
     @Override

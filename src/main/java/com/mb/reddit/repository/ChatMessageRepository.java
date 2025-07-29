@@ -1,5 +1,6 @@
-package com.mb.reddit.message.chat;
+package com.mb.reddit.repository;
 
+import com.mb.reddit.entity.ChatMessage;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

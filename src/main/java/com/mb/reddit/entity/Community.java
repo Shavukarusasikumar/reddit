@@ -2,7 +2,6 @@ package com.mb.reddit.entity;
 
 import jakarta.persistence.*;
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -45,9 +44,6 @@ public class Community {
 
     @OneToMany(mappedBy = "community")
     private List<JoinRequest> joinRequests;
-
-    @OneToMany(mappedBy = "community")
-    private List<Flair> flairs;
 
     @ManyToMany(mappedBy = "joinedCommunities", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<User> members;

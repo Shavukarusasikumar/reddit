@@ -107,12 +107,4 @@ public class PostVoteServiceImpl implements PostVoteService {
                 .map(PostVote::getIsLike)
                 .orElse(null);
     }
-
-
-    @Override
-    public Integer getPostVotesByPostId(Long postId) {
-        Integer upVotes = postVoteRepository.countUpvoteByPostId(postId);
-        Integer downVotes = postVoteRepository.countDownvoteByPostId(postId);
-        return (upVotes != null ? upVotes : 0) - (downVotes != null ? downVotes : 0);
-    }
 }

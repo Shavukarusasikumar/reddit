@@ -12,29 +12,9 @@ import java.util.List;
 
 public interface UserService {
 
-    void addPostToUserSavedPosts(Long postId);
-    void adduserToCommunityByCommunityId(Long communityId);
-    void removeUserFromCommunityByCommunityId(Long communityId);
-    User addUser(User user);
     List<User> getAllUsers();
-    Page<Post> getAllPostsByUserId(long userId, int pageNo, int pageSize);
-    Page<Post> getSavedPostsByUserId(long userId, int pageNo, int pageSize);
-    List<Comment> getCommentsByUserId(long userId);
-    List<User> getFollowersByUserId(long userId);
-    List<User> getFollowingByUserId(long userId);
-    Page<Post> getUpVotedPostsByUserId(long userId);
-    Page<Post> getDownVotedPostsByUserId(long userId);
-    List<Community> getJoinedCommunitiesByUserId(long userId);
-    List<Community> getCreatedCommunitiesByUserId(long userId);
     User getUserById(long userId);
-    void addFollowingById(long id);
-    void addFollowerById(long id);
-    void deleteFollowerById(long id);
-    void deleteFollowingById(long id);
     User getCurrentUser();
-    boolean hasUserJoinedCommunity(Community community);
-    boolean isUsernameTaken(String username);
-    boolean isEmailRegistered(String email);
     User registerUser(String username, String email, String password, String bio);
     void addPostToUserSavedPosts(Long postId, Long userId);
     void removePostFromUserSavedPosts(Long postId, Long userId);

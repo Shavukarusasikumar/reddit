@@ -700,21 +700,6 @@
                     <div class="char-count"><span id="titleChars">0</span>/300</div>
                 </div>
 
-                <!-- Flair Chips Selector -->
-                <div class="flair-chips-container" th:if="${selectedCommunity != null and not #lists.isEmpty(flairs)}">
-                    <div class="flair-chips-header">Select Flair (optional)</div>
-                    <div class="flair-chips" id="flairChips">
-                        <div th:each="flair : ${flairs}"
-                             class="flair-chip"
-                             th:data-id="${flair.id}"
-                             th:attr="data-color=${flair.color}"
-                             th:style="'background-color: ' + ${flair.color} + ';'">
-                            <span th:text="${flair.label}"></span>
-                        </div>
-                    </div>
-                    <div class="flair-chip-limit">Select up to 3 flairs</div>
-                </div>
-
                 <div class="editor-section">
                     <!-- Text Panel -->
                     <div class="panel active" id="panel-text">

@@ -1,19 +1,22 @@
-package com.mb.reddit.message.chat;
+package com.mb.reddit.service.implementation;
 
-import com.mb.reddit.message.chatRoom.ChatRoomService;
-import lombok.RequiredArgsConstructor;
+import com.mb.reddit.entity.ChatMessage;
+import com.mb.reddit.repository.ChatMessageRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
-
 @Service
-@RequiredArgsConstructor
 public class ChatMessageService {
 
     private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomService chatRoomService;
+
+    public ChatMessageService(ChatMessageRepository chatMessageRepository, ChatRoomService chatRoomService) {
+        this.chatMessageRepository = chatMessageRepository;
+        this.chatRoomService = chatRoomService;
+    }
 
     public ChatMessage save(ChatMessage chatMessage) {
         String chatId = chatRoomService.getChatRoomId(
@@ -28,11 +31,8 @@ public class ChatMessageService {
         return chatMessage;
     }
 
-    public List<ChatMessage> findChatMessages(
-            String senderId, String recipientId) {
+    public List<ChatMessage> findChatMessages(String senderId, String recipientId) {
         var chatId = chatRoomService.getChatRoomId(senderId, recipientId, false);
-
         return chatId.map(chatMessageRepository::findByChatId).orElse(new ArrayList<>());
     }
 }
-

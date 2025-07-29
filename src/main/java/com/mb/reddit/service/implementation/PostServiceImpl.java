@@ -108,11 +108,6 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<Comment> getCommentsByPostId(Long postId) {
-        return commentRepository.getCommentsByPostId(postId);
-    }
-
-    @Override
     @Transactional
     public void deletePost(Long postId) {
         Post post = postRepository.findById(postId).orElseThrow(() -> new RuntimeException("Post not found"));

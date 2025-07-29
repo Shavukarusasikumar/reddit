@@ -106,16 +106,6 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
-    public List<CommentVote> getCommentVotesByCommentId(Long commentId) {
-        return commentVoteRepository.getCommentVotesByCommentId(commentId);
-    }
-
-    @Override
-    public List<Comment> getRepliesByCommentId(Long commentId) {
-        return commentRepository.findByParentCommentId(commentId);
-    }
-
-    @Override
     public Comment getCommentById(Long commentId) {
         Optional<Comment> optionalComment = commentRepository.findById(commentId);
 

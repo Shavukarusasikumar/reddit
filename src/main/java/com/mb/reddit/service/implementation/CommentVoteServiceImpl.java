@@ -97,27 +97,4 @@ public class CommentVoteServiceImpl implements CommentVoteService {
 				.map(CommentVote::getIsLike)
 				.orElse(null);
 	}
-
-	@Override
-	public Long getPostIdForComment(Long commentId) {
-		return commentRepository.findById(commentId)
-				.map(comment -> comment.getPost().getId())
-				.orElseThrow(() -> new CommentNotFoundException("Comment not found" + commentId));
-	}
-
-	@Override
-	public Boolean getVoteStatusByCommentIdAndCurrentUser(Long commentId) {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-		if (authentication == null || !authentication.isAuthenticated() ||
-				authentication.getPrincipal() instanceof String) {
-			return null;
-		}
-
-		CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-
-		return commentVoteRepository.findByUserIdAndCommentId(userDetails.getId(), commentId)
-				.map(CommentVote::getIsLike)
-				.orElse(null);
-	}
 }

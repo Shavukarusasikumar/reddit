@@ -7,7 +7,6 @@ import com.mb.reddit.repository.CommentVoteRepository;
 import com.mb.reddit.service.*;
 import com.mb.reddit.entity.User;
 import com.mb.reddit.service.CommunityService;
-import com.mb.reddit.service.FlairService;
 import com.mb.reddit.service.PostService;
 import com.mb.reddit.service.PostVoteService;
 import com.mb.reddit.service.implementation.UserServiceImpl;
@@ -34,13 +33,12 @@ public class PostController {
     private final PostVoteService postVoteService;
     private final UserService userService;
     private final CommunityService communityService;
-    public final FlairService flairService;
     public final NotificationService notificationService;
     public final UserServiceImpl userServiceImpl;
     private final CommentVoteRepository commentVoteRepository;
 
     public PostController(PostService postService, UserService userService,
-                          CommunityService communityService, FlairService flairService,
+                          CommunityService communityService,
                           CommentService commentService, PostVoteService postVoteService,
                           NotificationService notificationService, UserServiceImpl userServiceImpl,
                           CommentVoteRepository commentVoteRepository) {
@@ -49,7 +47,6 @@ public class PostController {
         this.postVoteService = postVoteService;
         this.userService = userService;
         this.communityService = communityService;
-        this.flairService = flairService;
         this.userServiceImpl = userServiceImpl;
         this.notificationService = notificationService;
         this.commentVoteRepository = commentVoteRepository;
@@ -63,7 +60,6 @@ public class PostController {
         model.addAttribute("communities", communities);
 
         Community selectedCommunity = null;
-        List<Flair> flairs = List.of();
 
         if(communityId != null) {
             selectedCommunity = communityService.getCommunityById(communityId);
@@ -71,9 +67,7 @@ public class PostController {
 
         model.addAttribute("notificationCount", 0);
         model.addAttribute("selectedCommunity", selectedCommunity);
-        model.addAttribute("flairs", flairs);
         model.addAttribute("postForm", new Post());
-
 
         return "create-post";
     }
@@ -87,9 +81,6 @@ public class PostController {
 
     @GetMapping("/")
     public String getAllPosts(@RequestParam(defaultValue = "0") int pageNumber, @RequestParam(defaultValue = "10") int pageSize, @RequestParam(required = false) String sort, @RequestParam(required = false) String time, @RequestParam(required = false) String keyword, Model model) {
-
-        long start = System.currentTimeMillis();
-
         Page<PostWithVotesDTO> posts = postService.getAllPost(pageNumber, pageSize, sort, time, keyword);
 
         List<Community> joinedCommunities = communityService.findUserJoinedCommunities();

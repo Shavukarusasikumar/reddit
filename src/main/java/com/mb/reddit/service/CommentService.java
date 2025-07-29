@@ -10,8 +10,6 @@ public interface CommentService {
 	Comment createComment(Comment comment,Long postId, Long parentCommentId);
 	void deleteCommentById(Long id);
 	Comment updateComment(Long commentId, String updatedContent);
-	List<CommentVote> getCommentVotesByCommentId(Long commentId);
-	List<Comment> getRepliesByCommentId(Long commentId);
 	Comment getCommentById(Long id);
 	List<Comment> getTopLevelComments(Long postId);
 	int getVoteCountForComment(Long commentId);

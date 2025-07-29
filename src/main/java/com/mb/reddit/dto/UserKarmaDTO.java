@@ -15,14 +15,4 @@ public class UserKarmaDTO {
     private String username;
     private Long postKarma;
     private Long commentKarma;
-
-    @Override
-    public String toString() {
-        return "UserKarmaDTO{" +
-                "userId=" + userId +
-                ", username='" + username + '\'' +
-                ", postKarma=" + postKarma +
-                ", commentKarma=" + commentKarma +
-                '}';
-    }
 }
