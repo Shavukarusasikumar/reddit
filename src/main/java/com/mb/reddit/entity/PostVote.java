@@ -3,7 +3,6 @@ package com.mb.reddit.entity;
 import jakarta.persistence.*;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
@@ -13,7 +12,6 @@ import java.time.LocalDateTime;
         @UniqueConstraint(columnNames = {"user_id", "post_id"})})
 @Getter
 @Setter
-@NoArgsConstructor
 public class PostVote {
 
     @Id

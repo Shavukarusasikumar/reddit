@@ -1,7 +1,6 @@
 package com.mb.reddit.entity;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import org.springframework.security.core.GrantedAuthority;
@@ -14,7 +13,6 @@ import java.util.Map;
 
 @Getter
 @Setter
-@NoArgsConstructor
 public class CustomUserDetails implements UserDetails, OAuth2User {
 
     private Long id;

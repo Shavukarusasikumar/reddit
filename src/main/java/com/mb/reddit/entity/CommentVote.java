@@ -1,8 +1,8 @@
 package com.mb.reddit.entity;
 
 import jakarta.persistence.*;
+
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Setter
-@NoArgsConstructor
 @Table(name = "comment_votes", uniqueConstraints = {
 		@UniqueConstraint(columnNames = {"user_id", "comment_id"})
 })
