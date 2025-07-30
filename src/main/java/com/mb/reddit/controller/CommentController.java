@@ -105,6 +105,7 @@ public class CommentController {
         }
 
         String ajaxHeader = request.getHeader("X-Requested-With");
+
         if ("XMLHttpRequest".equals(ajaxHeader) ||
                 "application/json".equals(request.getHeader("Accept")) ||
                 request.getHeader("Content-Type") != null &&

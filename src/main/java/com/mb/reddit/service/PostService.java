@@ -10,7 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 public interface PostService {
 
     Post getPostById(Long postId);
-    Post createPost(Post post, Long communityId, MultipartFile media);
+    void createPost(Post post, Long communityId, MultipartFile media);
     Post updatePost(PostWithVotesDTO post, MultipartFile media,boolean removeMedia);
     void deletePost(Long postId);
     Page<PostWithVotesDTO> getAllPost(int pageNumber, int pageSize, String sort, String time, String keyword);

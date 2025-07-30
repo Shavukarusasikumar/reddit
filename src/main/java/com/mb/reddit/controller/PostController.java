@@ -9,7 +9,6 @@ import com.mb.reddit.entity.User;
 import com.mb.reddit.service.CommunityService;
 import com.mb.reddit.service.PostService;
 import com.mb.reddit.service.PostVoteService;
-import com.mb.reddit.service.implementation.UserServiceImpl;
 import com.mb.reddit.service.UserService;
 
 import org.springframework.http.ResponseEntity;
@@ -34,20 +33,17 @@ public class PostController {
     private final UserService userService;
     private final CommunityService communityService;
     public final NotificationService notificationService;
-    public final UserServiceImpl userServiceImpl;
     private final CommentVoteRepository commentVoteRepository;
 
     public PostController(PostService postService, UserService userService,
                           CommunityService communityService,
                           CommentService commentService, PostVoteService postVoteService,
-                          NotificationService notificationService, UserServiceImpl userServiceImpl,
-                          CommentVoteRepository commentVoteRepository) {
+                          NotificationService notificationService, CommentVoteRepository commentVoteRepository) {
         this.postService = postService;
         this.commentService = commentService;
         this.postVoteService = postVoteService;
         this.userService = userService;
         this.communityService = communityService;
-        this.userServiceImpl = userServiceImpl;
         this.notificationService = notificationService;
         this.commentVoteRepository = commentVoteRepository;
     }

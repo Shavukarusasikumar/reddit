@@ -12,16 +12,13 @@ import com.mb.reddit.repository.CommentVoteRepository;
 import com.mb.reddit.repository.PostRepository;
 import com.mb.reddit.service.CommentService;
 
-import org.hibernate.Hibernate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class CommentServiceImpl implements CommentService {
@@ -118,25 +115,33 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public List<Comment> getTopLevelComments(Long postId) {
-        List<Comment> topLevelComments = commentRepository.findByPostIdAndParentCommentIsNull(postId);
-        return loadNestedReplies(topLevelComments);
+        List<Comment> allComments = commentRepository.findAllByPostIdWithUsers(postId);
+
+        return buildCommentTree(allComments);
     }
 
-    private List<Comment> loadNestedReplies(List<Comment> comments) {
-        if (comments == null || comments.isEmpty()) {
-            return comments;
+    private List<Comment> buildCommentTree(List<Comment> allComments) {
+        Map<Long, Comment> commentMap = new HashMap<>();
+        List<Comment> topLevelComments = new ArrayList<>();
+
+        for (Comment comment : allComments) {
+            commentMap.put(comment.getId(), comment);
+            comment.setReplies(new ArrayList<>());
         }
 
-        for (Comment comment : comments) {
-            Hibernate.initialize(comment.getReplies());
+        for (Comment comment : allComments) {
+            if (comment.getParentComment() != null) {
+                Comment parent = commentMap.get(comment.getParentComment().getId());
 
-            if (comment.getReplies() != null && !comment.getReplies().isEmpty()) {
-                List<Comment> replies = new ArrayList<>(comment.getReplies());
-                comment.setReplies(loadNestedReplies(replies));
+                if (parent != null) {
+                    parent.getReplies().add(comment);
+                }
+            } else {
+                topLevelComments.add(comment);
             }
         }
 
-        return comments;
+        return topLevelComments;
     }
 
     @Override

@@ -42,7 +42,8 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public Post getPostById(Long postId) {
-        return postRepository.findById(postId).orElseThrow(() -> new PostNotFoundException("Post not found with id " + postId));
+        return postRepository.findById(postId)
+                .orElseThrow(() -> new PostNotFoundException("Post not found with id " + postId));
     }
 
     public Page<PostWithVotesDTO> getAllPost(int pageNumber, int pageSize, String sort, String time, String keyword) {
@@ -116,16 +117,16 @@ public class PostServiceImpl implements PostService {
     public void deletePost(Long postId) {
         Post post = postRepository.findById(postId).orElseThrow(() -> new RuntimeException("Post not found"));
 
-        for(User user : post.getSavedByUser()) {
-            user.getSavedPosts().remove(post);
-        }
+//        for(User user : post.getSavedByUser()) {
+//            user.getSavedPosts().remove(post);
+//        }
 
         postRepository.delete(post);
     }
 
     @Transactional
     @Override
-    public Post createPost(Post post, Long communityId, MultipartFile media) {
+    public void createPost(Post post, Long communityId, MultipartFile media) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = userRepository.findUserByUsername(authentication.getName());
@@ -153,9 +154,7 @@ public class PostServiceImpl implements PostService {
         post.setUpdatedAt(LocalDateTime.now());
         post.setCommunity(community);
 
-        Post savedPost = postRepository.save(post);
-
-        return savedPost;
+		postRepository.save(post);
     }
 
     @Override
