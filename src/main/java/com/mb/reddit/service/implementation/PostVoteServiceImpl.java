@@ -66,7 +66,6 @@ public class PostVoteServiceImpl implements PostVoteService {
                 notification.setType("UPVOTE");
                 notification.setSenderId(currentUser.getId());
                 notification.setRead(false);
-                notification.setPostId(postId);
                 notification.setSenderName(currentUser.getUsername());
                 notification.setTimestamp(LocalDateTime.now());
                 notificationRepository.save(notification);

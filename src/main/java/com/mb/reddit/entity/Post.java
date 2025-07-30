@@ -49,15 +49,6 @@ public class Post {
     @ManyToOne
     private User author;
 
-    @Transient
-    private int voteCount;
-
-    @Transient
-    private String showTime;
-
-    @Transient
-    private Boolean isLiked;
-
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private Community community;
 

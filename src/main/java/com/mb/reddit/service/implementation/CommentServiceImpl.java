@@ -43,7 +43,7 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     public Comment createComment(Comment comment, Long postId, Long parentCommentId) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new PostNotFoundException("Post not found"+ postId));
+                .orElseThrow(() -> new PostNotFoundException("Post not found" + postId));
 
         User user = userServiceImpl.getCurrentUser();
 

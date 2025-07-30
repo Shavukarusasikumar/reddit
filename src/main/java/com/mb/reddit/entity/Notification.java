@@ -22,12 +22,9 @@ public class Notification {
 
     private boolean read = false;
 
-    private String type; // "COMMENT" or "UPVOTE"
+    private String type;
 
     private LocalDateTime timestamp;
-
-    @Transient
-    private Long postId;
 
     private Long senderId;
 
@@ -40,5 +37,4 @@ public class Notification {
     @ManyToOne
     @JoinColumn(name = "post_id")
     private Post post;
-
 }

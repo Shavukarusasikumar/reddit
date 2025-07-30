@@ -17,11 +17,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class NotificationController {
 
     private final NotificationService notificationService;
-    private final UserService userService;
 
-    public NotificationController(NotificationService notificationService, UserService userService) {
+    public NotificationController(NotificationService notificationService) {
         this.notificationService = notificationService;
-        this.userService = userService;
     }
 
     @GetMapping("notifications")
@@ -35,10 +33,8 @@ public class NotificationController {
             return "redirect:/user/login";
         }
 
-        long getUserTimeStart = System.currentTimeMillis();
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         Long userId = userDetails.getId();
-        long getUserTimeStop = System.currentTimeMillis();
 
         Page<Notification> notifications = notificationService.getAllNotifications(pageNumber, pageSize, userId);
 

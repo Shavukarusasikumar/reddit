@@ -109,13 +109,13 @@
     <!-- Notifications List -->
     <div th:each="notification : ${notifications.content}">
         <!-- Notification with post -->
-        <div th:if="${notification.postId != null}"
+        <div th:if="${notification.post != null}"
              class="notification-card unread">
             <div class="message">
                 <a th:href="@{/user/{id}(id=${notification.senderId})}"
                    th:text="${notification.senderName}">Sender</a>
                 <span> </span>
-                <a th:href="@{/posts/{id}(id=${notification.postId})}"
+                <a th:href="@{/posts/{id}(id=${notification.post.id})}"
                    th:text="${notification.message}"
                    style="color: #222; font-weight: normal;">message</a>
             </div>
@@ -126,7 +126,7 @@
         </div>
 
         <!-- Notification without post -->
-        <div th:if="${notification.postId == null}"
+        <div th:if="${notification.post == null}"
              class="notification-card read">
             <div class="message">
                 <a th:href="@{/user/{id}(id=${notification.senderId})}"

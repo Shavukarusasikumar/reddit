@@ -25,7 +25,6 @@ public class CloudinaryService {
 
     private static final long MAX_VIDEO_SIZE = 50L * 1024 * 1024;
 
-
     public CloudinaryService(Cloudinary cloudinary) {
         this.cloudinary = cloudinary;
     }

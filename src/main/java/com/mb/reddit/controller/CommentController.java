@@ -96,6 +96,7 @@ public class CommentController {
             notification.setMessage(" commented on your post: "  + post.getTitle());
             notification.setType("COMMENT");
             notification.setRead(false);
+            notification.setPost(post);
             notification.setSenderId(userDetails.getId());
             notification.setSenderName(userDetails.getName());
             notification.setTimestamp(LocalDateTime.now());

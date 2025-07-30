@@ -53,11 +53,6 @@ public class NotificationServiceImpl implements NotificationService {
         Pageable pageable = PageRequest.of(pageNumber, pageSize, sort);
 
         Page<Notification> notifications = notificationRepository.getAllNotificationsByUser(userId, pageable);
-        notifications.forEach(notification -> {
-            if (notification.getPost() != null) {
-                notification.setPostId(notification.getPost().getId());
-            }
-        });
 
         return notifications;
     }
