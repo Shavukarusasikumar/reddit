@@ -10,6 +10,7 @@ import com.mb.reddit.service.PostService;
 import com.mb.reddit.utils.TimeAgoUtils;
 
 import jakarta.transaction.Transactional;
+
 import org.springframework.data.domain.*;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -24,15 +25,15 @@ import java.util.*;
 public class PostServiceImpl implements PostService {
 
     private final PostRepository postRepository;
-    private final CommentRepository commentRepository;
     private final CloudinaryService cloudinaryService;
     private final PostVoteRepository postVoteRepository;
     private final CommunityRepository communityRepository;
     private final UserRepository userRepository;
 
-    public PostServiceImpl(PostRepository postRepository, CommentRepository commentRepository, CloudinaryService cloudinaryService, PostVoteRepository postVoteRepository, CommunityRepository communityRepository, UserRepository userRepository) {
+    public PostServiceImpl(PostRepository postRepository, CloudinaryService cloudinaryService,
+                           PostVoteRepository postVoteRepository, CommunityRepository communityRepository,
+                           UserRepository userRepository) {
         this.postRepository = postRepository;
-        this.commentRepository = commentRepository;
         this.cloudinaryService = cloudinaryService;
         this.postVoteRepository = postVoteRepository;
         this.communityRepository = communityRepository;
@@ -127,7 +128,6 @@ public class PostServiceImpl implements PostService {
     public Post createPost(Post post, Long communityId, MultipartFile media) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        System.out.println("loggin user name " + authentication.getName());
         User currentUser = userRepository.findUserByUsername(authentication.getName());
 
         if(media != null && !media.isEmpty()) {
@@ -211,6 +211,7 @@ public class PostServiceImpl implements PostService {
     public Page<PostWithVotesDTO> getPostsByUserId(Long userId, int pageNumber, int size) {
         Pageable pageable = PageRequest.of(pageNumber, size);
         Page<PostWithVotesDTO> postsPage = postRepository.getPostDTOsByUserId(userId, pageable);
+
         postsPage.forEach(post -> {
             String showTime = TimeAgoUtils.getTimeAgo(post.getCreatedAt());
             post.setShowTime(showTime);

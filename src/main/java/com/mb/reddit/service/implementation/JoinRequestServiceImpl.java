@@ -20,7 +20,6 @@ public class JoinRequestServiceImpl implements JoinRequestService {
     private final JoinRequestRepository joinRequestRepository;
     private final CommunityRepository communityRepository;
 
-
     public JoinRequestServiceImpl(JoinRequestRepository joinRequestRepository,
                                   CommunityRepository communityRepository) {
         this.joinRequestRepository = joinRequestRepository;
@@ -30,7 +29,6 @@ public class JoinRequestServiceImpl implements JoinRequestService {
     @Override
     @Transactional
     public void sendJoinRequest(Community community, User user) {
-
         Optional<JoinRequest> existing =
                 joinRequestRepository.findByCommunityAndRequester(community, user);
 
@@ -39,6 +37,7 @@ public class JoinRequestServiceImpl implements JoinRequestService {
         }
 
         JoinRequest request = new JoinRequest();
+
         request.setCommunity(community);
         request.setRequester(user);
         request.setRequestedAt(LocalDateTime.now());

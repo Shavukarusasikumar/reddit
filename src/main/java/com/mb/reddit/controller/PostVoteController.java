@@ -1,6 +1,7 @@
 package com.mb.reddit.controller;
 
 import com.mb.reddit.service.PostVoteService;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;

@@ -20,18 +20,15 @@ public class PostVoteServiceImpl implements PostVoteService {
 
     private final PostVoteRepository postVoteRepository;
     private final PostRepository postRepository;
-    private final UserRepository userRepository;
     private final UserServiceImpl userServiceImpl;
     private final NotificationRepository notificationRepository;
 
     public PostVoteServiceImpl(PostVoteRepository postVoteRepository,
                                PostRepository postRepository,
-                               UserRepository userRepository,
                                NotificationRepository notificationRepository,
                                UserServiceImpl userServiceImpl) {
         this.postVoteRepository = postVoteRepository;
         this.postRepository = postRepository;
-        this.userRepository = userRepository;
         this.userServiceImpl = userServiceImpl;
         this.notificationRepository = notificationRepository;
     }
@@ -39,7 +36,8 @@ public class PostVoteServiceImpl implements PostVoteService {
     @Override
     @Transactional
     public void addVoteByPostId(Long postId, Boolean isLike) {
-        Post post = postRepository.findById(postId).orElseThrow(() -> new PostNotFoundException("Post not found " + postId));
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new PostNotFoundException("Post not found " + postId));
 
         User currentUser = userServiceImpl.getCurrentUser();
 
@@ -55,6 +53,7 @@ public class PostVoteServiceImpl implements PostVoteService {
 
         if(postVote.getIsLike() && !currentUser.equals(post.getAuthor())){
             String type = "UPVOTE";
+
             Notification existing = notificationRepository.findTopByRecipientAndPostAndType(
                     post.getAuthor().getId(), post.getId(), type);
 

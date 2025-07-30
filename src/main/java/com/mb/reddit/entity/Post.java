@@ -1,13 +1,13 @@
 package com.mb.reddit.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.w3c.dom.Text;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @Entity
@@ -63,4 +63,12 @@ public class Post {
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)
     private List<Notification> notifications;
+
+    public String getShowTime() {
+        if (this.createdAt == null) {
+            return "Unknown time";
+        }
+
+        return this.createdAt.format(DateTimeFormatter.ofPattern("MMM d, yyyy 'at' h:mm a"));
+    }
 }

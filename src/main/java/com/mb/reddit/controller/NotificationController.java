@@ -34,6 +34,7 @@ public class NotificationController {
         }
 
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+
         Long userId = userDetails.getId();
 
         Page<Notification> notifications = notificationService.getAllNotifications(pageNumber, pageSize, userId);

@@ -24,15 +24,15 @@ public class CommunityController {
     private final TopicService topicService;
     private final UserService userService;
     private final PostService postService;
-    private final UserServiceImpl userServiceImpl;
     private final JoinRequestService joinRequestService;
 
-    public CommunityController(CommunityService communityService, TopicService topicService, UserService userService, PostService postService, UserServiceImpl userServiceImpl, JoinRequestService joinRequestService) {
+    public CommunityController(CommunityService communityService,
+                               TopicService topicService, UserService userService,
+                               PostService postService, JoinRequestService joinRequestService) {
         this.communityService = communityService;
         this.topicService = topicService;
         this.userService = userService;
         this.postService = postService;
-        this.userServiceImpl = userServiceImpl;
         this.joinRequestService = joinRequestService;
     }
 
@@ -119,9 +119,6 @@ public class CommunityController {
             System.out.println(currentUser.getId());
             communityService.addMemberByCommunityId(currentUser, communityId);
 
-        } else{
-            System.out.println(currentUser.getId());
-
         }
 
         return "redirect:/r/" + communityService.getCommunityById(communityId).getName();
@@ -141,8 +138,8 @@ public class CommunityController {
     @PostMapping("/api/communities/{id}/join")
     @ResponseBody
     public ResponseEntity<?> joinNewCommunity(@PathVariable Long id){
-        System.out.println("WAS HERE NC");
         User currentUser = userService.getCurrentUser();
+
         if (currentUser == null){
             return ResponseEntity.badRequest().build();
         } else{

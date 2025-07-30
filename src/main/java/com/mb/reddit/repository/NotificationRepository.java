@@ -1,6 +1,7 @@
 package com.mb.reddit.repository;
 
 import com.mb.reddit.entity.Notification;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,8 +13,8 @@ import org.springframework.transaction.annotation.Transactional;
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
     @Query("SELECT n FROM Notification n WHERE n.recipient.id = :authorId AND n.post.id = :postId AND n.type = :type")
-    Notification findTopByRecipientAndPostAndType(@Param("authorId") Long authorId,@Param("postId") Long postId,
-                                                  String type);
+    Notification findTopByRecipientAndPostAndType(@Param("authorId") Long authorId,
+                                                  @Param("postId") Long postId, String type);
 
     @Query("SELECT COUNT(n) FROM Notification n WHERE n.recipient.id = :userId")
     int countUnreadNotificationsByUserId(@Param("userId") Long userId);

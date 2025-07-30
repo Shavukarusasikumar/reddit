@@ -1,10 +1,13 @@
 package com.mb.reddit.controller;
 
 import com.mb.reddit.dto.UserKarmaDTO;
+
 import com.mb.reddit.entity.Community;
 import com.mb.reddit.entity.CustomUserDetails;
 import com.mb.reddit.entity.User;
+
 import com.mb.reddit.repository.UserRepository;
+
 import com.mb.reddit.service.CommunityService;
 import com.mb.reddit.service.NotificationService;
 import com.mb.reddit.service.UserService;
@@ -99,6 +102,7 @@ public class UserController {
         }
 
         UserKarmaDTO karmaDTO = userService.getKarmaDto(user.getId());
+
         Integer notificationCount = notificationService.getNotificationCount();
 
         List<Community> joinedCommunities = communityService.findUserJoinedCommunities();
@@ -117,6 +121,7 @@ public class UserController {
     @GetMapping("/chat")
     public String chatPage(Model model) {
         User user = userService.getCurrentUser();
+
         int notificationCount = notificationService.getNotificationCount();
 
         List<User> connectedUsers = userService.getAllUsers()
@@ -136,6 +141,7 @@ public class UserController {
        Boolean showAllTab = false;
 
        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
        if (authentication != null && authentication.isAuthenticated() &&
                !(authentication.getPrincipal() instanceof String)) {
            CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
@@ -148,6 +154,7 @@ public class UserController {
        User user = userService.getUserById(userId);
 
        UserKarmaDTO karmaDTO = userService.getKarmaDto(user.getId());
+
        Integer notificationCount = notificationService.getNotificationCount();
 
        List<Community> joinedCommunities = communityService.findUserJoinedCommunities();

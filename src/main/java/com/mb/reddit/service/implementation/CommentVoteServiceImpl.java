@@ -7,9 +7,9 @@ import com.mb.reddit.entity.User;
 import com.mb.reddit.exception.custom.CommentNotFoundException;
 import com.mb.reddit.repository.CommentRepository;
 import com.mb.reddit.repository.CommentVoteRepository;
-import com.mb.reddit.repository.UserRepository;
 import com.mb.reddit.service.CommentVoteService;
 
+import com.mb.reddit.service.UserService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -22,18 +22,15 @@ import java.util.Optional;
 public class CommentVoteServiceImpl implements CommentVoteService {
 
 	private final CommentVoteRepository commentVoteRepository;
-	private final UserRepository userRepository;
 	private final CommentRepository commentRepository;
-	private final UserServiceImpl userServiceImpl;
+	private final UserService userService;
 
 	public CommentVoteServiceImpl(CommentVoteRepository commentVoteRepository,
-								  UserRepository userRepository,
 								  CommentRepository commentRepository,
-								  UserServiceImpl userServiceImpl) {
+								  UserService userService) {
 		this.commentVoteRepository = commentVoteRepository;
-		this.userRepository = userRepository;
 		this.commentRepository = commentRepository;
-		this.userServiceImpl = userServiceImpl;
+		this.userService = userService;
 	}
 
 	@Override
@@ -52,7 +49,7 @@ public class CommentVoteServiceImpl implements CommentVoteService {
 				.orElseThrow(() -> new CommentNotFoundException("Comment not found" + commentId));
 
 		Optional<CommentVote> existingVote = commentVoteRepository.findByUserIdAndCommentId(userId, commentId);
-        User user = userServiceImpl.getCurrentUser();
+        User user = userService.getCurrentUser();
 
 		if (existingVote.isPresent()) {
 			CommentVote vote = existingVote.get();
@@ -87,10 +84,12 @@ public class CommentVoteServiceImpl implements CommentVoteService {
 	@Override
 	public Boolean getVoteStatusByCommentId(Long commentId) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
 		if (authentication == null || !authentication.isAuthenticated() ||
 				authentication.getPrincipal() instanceof String) {
 			return false;
 		}
+
 		CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 
 		return commentVoteRepository.findByUserIdAndCommentId(userDetails.getId(), commentId)

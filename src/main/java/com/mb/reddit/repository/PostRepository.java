@@ -83,10 +83,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             """)
     Page<PostWithVotesDTO> getSavedPostDTOsByUserId(@Param("userId") Long userId, Pageable pageable);
 
-    @Query("SELECT u.savedPosts FROM User u WHERE u.id = :userId")
-    Page<Post> getSavedPostsByUserId(@Param("userId") Long userId, Pageable pageable);
-
-    // for top
     @Query("""
             SELECT new com.mb.reddit.dto.PostWithVotesDTO(
                 p.id,
@@ -113,7 +109,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             """)
     Page<PostWithVotesDTO> findTopPosts(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate, Pageable pageable);
 
-    //for raising
     @Query("""
             SELECT new com.mb.reddit.dto.PostWithVotesDTO(
                 p.id,
@@ -140,7 +135,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             """)
     Page<PostWithVotesDTO> findRisingPosts(@Param("threshold") LocalDateTime threshold, Pageable pageable);
 
-    // for new
     @Query("""
             SELECT new com.mb.reddit.dto.PostWithVotesDTO(
                 p.id,

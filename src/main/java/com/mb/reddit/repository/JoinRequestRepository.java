@@ -12,6 +12,5 @@ import java.util.Optional;
 public interface JoinRequestRepository extends JpaRepository<JoinRequest, Long> {
 
     Optional<JoinRequest> findByCommunityAndRequester(Community community, User requester);
-
     List<JoinRequest> findAllByCommunityId(Long communityId);
 }

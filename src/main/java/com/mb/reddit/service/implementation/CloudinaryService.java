@@ -2,7 +2,9 @@ package com.mb.reddit.service.implementation;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+
 import net.coobird.thumbnailator.Thumbnails;
+
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,9 +22,7 @@ public class CloudinaryService {
 
     private static final int MAX_WIDTH = 792;
     private static final int MAX_HEIGHT = 500;
-
     private static final long MAX_IMAGE_SIZE = 20L * 1024 * 1024;
-
     private static final long MAX_VIDEO_SIZE = 50L * 1024 * 1024;
 
     public CloudinaryService(Cloudinary cloudinary) {
@@ -33,7 +33,7 @@ public class CloudinaryService {
         String contentType = file.getContentType();
         long fileSize = file.getSize();
 
-        Map<?, ?> uploadResult;
+        Map<Object, String> uploadResult;
 
         if (contentType.startsWith("image/")) {
             validateImage(fileSize, contentType);

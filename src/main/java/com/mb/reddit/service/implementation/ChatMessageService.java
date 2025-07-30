@@ -2,10 +2,12 @@ package com.mb.reddit.service.implementation;
 
 import com.mb.reddit.entity.ChatMessage;
 import com.mb.reddit.repository.ChatMessageRepository;
+
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ChatMessageService {
@@ -24,6 +26,7 @@ public class ChatMessageService {
                         chatMessage.getRecipientId(),
                         true)
                 .orElseThrow();
+
         chatMessage.setChatId(chatId);
 
         chatMessageRepository.save(chatMessage);
@@ -32,7 +35,8 @@ public class ChatMessageService {
     }
 
     public List<ChatMessage> findChatMessages(String senderId, String recipientId) {
-        var chatId = chatRoomService.getChatRoomId(senderId, recipientId, false);
+        Optional<String> chatId = chatRoomService.getChatRoomId(senderId, recipientId, false);
+
         return chatId.map(chatMessageRepository::findByChatId).orElse(new ArrayList<>());
     }
 }

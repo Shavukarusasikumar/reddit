@@ -2,7 +2,6 @@ package com.mb.reddit.controller;
 
 import com.mb.reddit.entity.CustomUserDetails;
 import com.mb.reddit.service.CommentVoteService;
-import com.mb.reddit.service.implementation.UserServiceImpl;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -78,6 +77,7 @@ public class CommentVoteController {
 		}
 
 		CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+
 		commentVoteService.removeVoteByCommentId(commentId, userDetails.getId());
 
 		return ResponseEntity.ok("Vote removed successfully");

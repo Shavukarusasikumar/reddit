@@ -19,7 +19,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 @Service
@@ -43,12 +42,14 @@ public class CommunityServiceImpl implements CommunityService {
     @Override
     public Community createCommunity(Community community, MultipartFile fileIcon, MultipartFile fileBanner) {
         User user = userService.getCurrentUser();
+
         community.setCreator(user);
         community.setCreatedAt(LocalDateTime.now());
 
         if(fileIcon != null) {
             try {
                 String iconUrl = cloudinaryService.uploadMedia(fileIcon);
+
                 community.setIconUrl(iconUrl);
             } catch(IOException exception) {
                 throw new MediaUploadError("Failed to upload media"+ exception.getMessage());
@@ -58,6 +59,7 @@ public class CommunityServiceImpl implements CommunityService {
         if(fileBanner != null) {
             try {
                 String bannerUrl = cloudinaryService.uploadMedia(fileBanner);
+
                 community.setBannerUrl(bannerUrl);
             } catch(IOException exception) {
                 throw new MediaUploadError("Failed to upload media"+ exception.getMessage());
@@ -78,6 +80,7 @@ public class CommunityServiceImpl implements CommunityService {
 
         if (!community.getMembers().contains(member) && !community.getIsPrivate()) {
             community.getMembers().add(member);
+
             member.getJoinedCommunities().add(community);
         }
     }

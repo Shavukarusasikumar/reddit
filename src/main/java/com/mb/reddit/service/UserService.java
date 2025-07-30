@@ -1,12 +1,7 @@
 package com.mb.reddit.service;
 
 import com.mb.reddit.dto.UserKarmaDTO;
-import com.mb.reddit.entity.Comment;
-import com.mb.reddit.entity.Community;
-import com.mb.reddit.entity.Post;
 import com.mb.reddit.entity.User;
-
-import org.springframework.data.domain.Page;
 
 import java.util.List;
 

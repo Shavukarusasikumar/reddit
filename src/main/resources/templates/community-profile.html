@@ -684,7 +684,7 @@
             </div>
 
             <div class="actions">
-                <button th:if="${isMember}" class="create-post">Create Post</button>
+                <button th:if="${isMember}" class="create-post" onclick="window.location.href='/new-post'">Create Post</button>
 
                 <!-- Show Join/Joined button only if not the creator -->
                 <button th:if="${!isAdmin}"

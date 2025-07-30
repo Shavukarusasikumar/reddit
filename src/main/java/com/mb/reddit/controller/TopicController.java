@@ -26,6 +26,7 @@ public class TopicController {
 	@GetMapping("/topics")
 	public String topicsPage(@RequestParam(required = false) Long topicId, Model model) {
 		List<Topic> topics = topicService.getAllTopics();
+
 		model.addAttribute("topics", topics);
 
 		if (topicId != null) {

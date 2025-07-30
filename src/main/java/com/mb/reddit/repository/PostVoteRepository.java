@@ -1,8 +1,6 @@
 package com.mb.reddit.repository;
 
-import com.mb.reddit.entity.Post;
 import com.mb.reddit.entity.PostVote;
-import com.mb.reddit.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

@@ -31,8 +31,7 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public Integer getNotificationCount() {
-        long getUserTimeStart = System.currentTimeMillis();
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null || !authentication.isAuthenticated() ||
                 authentication.getPrincipal() instanceof String) {
@@ -40,8 +39,9 @@ public class NotificationServiceImpl implements NotificationService {
         }
 
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+
         Long userId = userDetails.getId();
-        long getUserTimeStop = System.currentTimeMillis();
+
         int notificationCount = notificationRepository.countUnreadNotificationsByUserId(userId);
 
         return notificationCount;
@@ -56,6 +56,7 @@ public class NotificationServiceImpl implements NotificationService {
 
         return notifications;
     }
+
 
     @Override
     @Transactional

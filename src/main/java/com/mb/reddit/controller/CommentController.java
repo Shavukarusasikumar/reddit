@@ -5,6 +5,7 @@ import com.mb.reddit.service.CommentService;
 import com.mb.reddit.service.NotificationService;
 
 import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -30,6 +31,7 @@ public class CommentController {
     @PostMapping("/delete-comment/{commentId}")
     public String deleteCommentById(@PathVariable Long commentId) {
         Long postId = commentService.getCommentById(commentId).getPost().getId();
+
         commentService.deleteCommentById(commentId);
 
         return "redirect:/posts/" + postId;
@@ -50,6 +52,7 @@ public class CommentController {
             @PathVariable Long commentId,
             @RequestParam("updatedContent") String updatedContent) {
         Long postId = commentService.getCommentById(commentId).getPost().getId();
+
         commentService.updateComment(commentId, updatedContent);
 
         return "redirect:/posts/" + postId;
@@ -72,6 +75,7 @@ public class CommentController {
             @RequestParam(required = false) Long parentCommentId,
             HttpServletRequest request) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
         if (authentication == null || !authentication.isAuthenticated()
                 || authentication.getPrincipal() instanceof String) {
             return "redirect:/user/login";
@@ -83,6 +87,7 @@ public class CommentController {
         comment.setContent(content);
 
         Comment savedComment = commentService.createComment(comment, postId, parentCommentId);
+
         Post post = savedComment.getPost();
 
         if(!post.getAuthor().getUsername().equals(userDetails.getUsername())) {
@@ -95,6 +100,7 @@ public class CommentController {
             notification.setSenderId(userDetails.getId());
             notification.setSenderName(userDetails.getName());
             notification.setTimestamp(LocalDateTime.now());
+
             notificationService.addNotification(notification);
         }
 
@@ -103,7 +109,7 @@ public class CommentController {
                 "application/json".equals(request.getHeader("Accept")) ||
                 request.getHeader("Content-Type") != null &&
                         request.getHeader("Content-Type").contains("application/x-www-form-urlencoded")) {
-            return "success"; // Return simple response for AJAX
+            return "success";
         }
 
         return "redirect:/posts/" + postId;

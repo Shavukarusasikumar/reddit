@@ -46,7 +46,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
 			newUser.setUsername(generateUniqueUsername(name, email));
 			newUser.setProfilePicture(picture);
 			newUser.setBio("");
-			newUser.setPassword("$2a$12$/ayDca8LhV7cNuCKs7BTl.q.l9STeA.HlGfS.YofUZgHYU4o2cFgS");
+
 			user = userRepository.save(newUser);
 		}
 

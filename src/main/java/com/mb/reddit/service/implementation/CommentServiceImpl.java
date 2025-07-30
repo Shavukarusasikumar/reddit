@@ -129,11 +129,13 @@ public class CommentServiceImpl implements CommentService {
 
         for (Comment comment : comments) {
             Hibernate.initialize(comment.getReplies());
+
             if (comment.getReplies() != null && !comment.getReplies().isEmpty()) {
                 List<Comment> replies = new ArrayList<>(comment.getReplies());
                 comment.setReplies(loadNestedReplies(replies));
             }
         }
+
         return comments;
     }
 
