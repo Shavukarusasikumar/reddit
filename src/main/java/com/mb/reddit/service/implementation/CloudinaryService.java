@@ -33,10 +33,6 @@ public class CloudinaryService {
         String contentType = file.getContentType();
         long fileSize = file.getSize();
 
-        if (contentType == null) {
-            throw new IOException("File has no content type.");
-        }
-
         Map<?, ?> uploadResult;
 
         if (contentType.startsWith("image/")) {

@@ -4,18 +4,13 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Entity
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@Getter
+@Setter
 public class ChatMessage {
 
     @Id
@@ -26,5 +21,5 @@ public class ChatMessage {
     private String senderId;
     private String recipientId;
     private String content;
-    private Date timestamp;
+    private LocalDateTime timestamp;
 }

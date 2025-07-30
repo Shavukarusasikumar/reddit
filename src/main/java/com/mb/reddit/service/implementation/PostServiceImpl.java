@@ -30,9 +30,7 @@ public class PostServiceImpl implements PostService {
     private final CommunityRepository communityRepository;
     private final UserRepository userRepository;
 
-    public PostServiceImpl(PostRepository postRepository, CommentRepository commentRepository,
-                           CloudinaryService cloudinaryService, PostVoteRepository postVoteRepository,
-                           CommunityRepository communityRepository, UserRepository userRepository) {
+    public PostServiceImpl(PostRepository postRepository, CommentRepository commentRepository, CloudinaryService cloudinaryService, PostVoteRepository postVoteRepository, CommunityRepository communityRepository, UserRepository userRepository) {
         this.postRepository = postRepository;
         this.commentRepository = commentRepository;
         this.cloudinaryService = cloudinaryService;
@@ -56,12 +54,13 @@ public class PostServiceImpl implements PostService {
 
         Page<PostWithVotesDTO> page;
 
-        if (keyword != null && !keyword.trim().isEmpty()) {
+        if(keyword != null && !keyword.trim().isEmpty()) {
             page = postRepository.searchPostsByKeyword(keyword, pageable);
-        } else {
+        }
+        else {
             String sortOption = (sort != null) ? sort : "";
 
-            page = switch (sortOption) {
+            page = switch(sortOption) {
                 case "top" -> postRepository.findTopPosts(startDate, endDate, pageable);
                 case "hot" -> postRepository.findHotPosts(startDate, endDate, pageable);
                 case "rising" -> {
@@ -75,22 +74,26 @@ public class PostServiceImpl implements PostService {
 
         Long userId = getLoggedInUserId(authentication);
 
-        if (userId == null) return page;
+        if(userId == null) {
+            return page;
+        }
 
         List<PostWithVotesDTO> postList = page.getContent();
         List<Long> postIds = postList.stream().map(PostWithVotesDTO::getId).toList();
 
-        if (postIds.isEmpty()) return page;
+        if(postIds.isEmpty()) {
+            return page;
+        }
 
         List<PostVote> userVotes = postVoteRepository.findByUserIdAndPostIds(userId, postIds);
 
         Map<Long, Boolean> voteMap = new HashMap<>();
 
-        for (PostVote vote : userVotes) {
+        for(PostVote vote : userVotes) {
             voteMap.put(vote.getPost().getId(), vote.getIsLike());
         }
 
-        for (PostWithVotesDTO post : postList) {
+        for(PostWithVotesDTO post : postList) {
             post.setIsLiked(voteMap.get(post.getId()));
         }
 
@@ -122,14 +125,12 @@ public class PostServiceImpl implements PostService {
     @Transactional
     @Override
     public Post createPost(Post post, Long communityId, MultipartFile media) {
-        long start = System.currentTimeMillis();
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println("loggin user name " + authentication.getName());
         User currentUser = userRepository.findUserByUsername(authentication.getName());
 
-        if (media != null && !media.isEmpty()) {
-            long mediaStart = System.currentTimeMillis();
-
+        if(media != null && !media.isEmpty()) {
             try {
                 String mediaUrl = cloudinaryService.uploadMedia(media);
                 String mediaType = media.getContentType().startsWith("video/") ? "video" : "image";
@@ -137,18 +138,16 @@ public class PostServiceImpl implements PostService {
                 post.setMediaUrl(mediaUrl);
                 post.setCreatedAt(LocalDateTime.now());
                 post.setIsPublished(true);
-            } catch (IOException exception) {
+            } catch(IOException exception) {
                 throw new MediaUploadError("Failed to upload media: " + exception.getMessage());
             }
 
-            long mediaEnd = System.currentTimeMillis();
         }
 
         post.setCreatedAt(LocalDateTime.now());
         post.setIsPublished(true);
 
-        Community community = communityRepository.findById(communityId)
-                .orElseThrow(() -> new RuntimeException("Community not found " + communityId));
+        Community community = communityRepository.findById(communityId).orElseThrow(() -> new RuntimeException("Community not found " + communityId));
 
         post.setAuthor(currentUser);
         post.setUpdatedAt(LocalDateTime.now());
@@ -167,7 +166,7 @@ public class PostServiceImpl implements PostService {
 
         Post oldPost = postRepository.findById(updatedPost.getId()).orElseThrow();
 
-        if (!username.equals(oldPost.getAuthor().getUsername())) {
+        if(!username.equals(oldPost.getAuthor().getUsername())) {
             throw new UnauthorizedAccessException("Cannot update Post");
         }
 
@@ -176,27 +175,30 @@ public class PostServiceImpl implements PostService {
 
         String linkUrl = updatedPost.getLinkUrl();
 
-        if (linkUrl != null && !linkUrl.isBlank()) {
+        if(linkUrl != null && !linkUrl.isBlank()) {
             oldPost.setLinkUrl(linkUrl);
             oldPost.setMediaUrl(null);
             oldPost.setMediaType(null);
-        } else if (media != null && !media.isEmpty()) {
+        }
+        else if(media != null && !media.isEmpty()) {
             try {
                 String mediaUrl = cloudinaryService.uploadMedia(media);
                 String mediaType = media.getContentType().startsWith("video/") ? "video" : "image";
                 oldPost.setMediaUrl(mediaUrl);
                 oldPost.setMediaType(mediaType);
                 oldPost.setLinkUrl(null);
-            } catch (IOException exception) {
+            } catch(IOException exception) {
                 throw new MediaUploadError("Failed to upload media: " + exception.getMessage());
             }
-        } else if (removeMedia) {
+        }
+        else if(removeMedia) {
             oldPost.setMediaUrl(null);
             oldPost.setMediaType(null);
         }
 
         return postRepository.save(oldPost);
     }
+
     @Override
     public Integer getPostVotesByPostId(Long postId) {
         Integer upVoteCount = postVoteRepository.countUpvoteByPostId(postId);
@@ -273,33 +275,23 @@ public class PostServiceImpl implements PostService {
     }
 
     private LocalDateTime[] getTimeRange(String time) {
-        if (time == null || time.isBlank() || time.equals("all")) {
-            return new LocalDateTime[]{ null, null };
+        if(time == null || time.isBlank() || time.equals("all")) {
+            return new LocalDateTime[]{null, null};
         }
 
         LocalDateTime now = LocalDateTime.now();
 
-        return switch (time) {
-            case "today" -> new LocalDateTime[] {
-                    now.toLocalDate().atStartOfDay(),
-                    now.toLocalDate().atStartOfDay().plusDays(1).minusSeconds(1)
-            };
-            case "yesterday" -> new LocalDateTime[] {
-                    now.toLocalDate().minusDays(1).atStartOfDay(),
-                    now.toLocalDate().atStartOfDay().minusSeconds(1)
-            };
-            case "month" -> new LocalDateTime[] {
-                    now.withDayOfMonth(1).toLocalDate().atStartOfDay(),
-                    now.withDayOfMonth(1).toLocalDate().atStartOfDay().plusMonths(1).minusSeconds(1)
-            };
-            case "year" -> new LocalDateTime[] {
-                    now.withDayOfYear(1).toLocalDate().atStartOfDay(),
-                    now.withDayOfYear(1).toLocalDate().atStartOfDay().plusYears(1).minusSeconds(1)
-            };
-            default -> new LocalDateTime[] {
-                    LocalDateTime.of(1970, 1, 1, 0, 0),
-                    LocalDateTime.of(2999, 12, 31, 23, 59, 59)
-            };
+        return switch(time) {
+            case "today" ->
+                    new LocalDateTime[]{now.toLocalDate().atStartOfDay(), now.toLocalDate().atStartOfDay().plusDays(1).minusSeconds(1)};
+            case "yesterday" ->
+                    new LocalDateTime[]{now.toLocalDate().minusDays(1).atStartOfDay(), now.toLocalDate().atStartOfDay().minusSeconds(1)};
+            case "month" ->
+                    new LocalDateTime[]{now.withDayOfMonth(1).toLocalDate().atStartOfDay(), now.withDayOfMonth(1).toLocalDate().atStartOfDay().plusMonths(1).minusSeconds(1)};
+            case "year" ->
+                    new LocalDateTime[]{now.withDayOfYear(1).toLocalDate().atStartOfDay(), now.withDayOfYear(1).toLocalDate().atStartOfDay().plusYears(1).minusSeconds(1)};
+            default ->
+                    new LocalDateTime[]{LocalDateTime.of(1970, 1, 1, 0, 0), LocalDateTime.of(2999, 12, 31, 23, 59, 59)};
         };
     }
 }
