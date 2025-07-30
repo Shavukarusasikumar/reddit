@@ -19,7 +19,6 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
     private String username;
     private String password;
     private String email;
-    private String profilePicture;
     private Collection<? extends GrantedAuthority> authorities;
     private Map<String, Object> attributes;
 
@@ -28,7 +27,6 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
         this.username = user.getUsername();
         this.password = user.getPassword();
         this.email = user.getEmail();
-        this.profilePicture = user.getProfilePicture();
         this.authorities = Collections.emptyList();
     }
 
@@ -80,15 +78,5 @@ public class CustomUserDetails implements UserDetails, OAuth2User {
     @Override
     public boolean isEnabled() {
         return true;
-    }
-
-    public User getUser() {
-        User user = new User();
-        user.setId(this.id);
-        user.setUsername(this.username);
-        user.setPassword(this.password);
-        user.setEmail(this.email);
-        user.setProfilePicture(this.profilePicture);
-        return user;
     }
 }

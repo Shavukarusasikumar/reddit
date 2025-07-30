@@ -47,15 +47,6 @@ public class UserController {
         return "login";
     }
 
-    @GetMapping("/")
-    public String home(Model model, Principal principal) {
-        if (principal != null) {
-            model.addAttribute("username", principal.getName());
-        }
-
-        return "home";
-    }
-
     @GetMapping("/register")
     public String showRegisterPage() {
         return "register";
@@ -80,15 +71,7 @@ public class UserController {
             return "register";
         }
 
-        User registeredUser = userService.registerUser(username, email, password, bio);
-
-        Authentication authentication = new UsernamePasswordAuthenticationToken(
-                registeredUser.getUsername(),
-                null,
-                Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"))
-        );
-
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+        userService.registerUser(username, email, password, bio);
 
         return "redirect:/user/login";
     }
