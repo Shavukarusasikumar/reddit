@@ -2,11 +2,11 @@ package com.mb.reddit.exception;
 
 import com.mb.reddit.exception.custom.*;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-@Controller
+@ControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(UserNotFoundException.class)
@@ -41,15 +41,15 @@ public class GlobalExceptionHandler {
         return "error";
     }
 
-    @ExceptionHandler(CommunityNotFoundException.class)
-    public String handleCommentNotFoundException(CommunityNotFoundException communityNotFoundException, Model model) {
-        model.addAttribute("message", communityNotFoundException.getMessage());
+    @ExceptionHandler(CommentNotFoundException.class)
+    public String handleCommentNotFoundException(CommentNotFoundException commentNotFoundException, Model model) {
+        model.addAttribute("message", commentNotFoundException.getMessage());
         model.addAttribute("title", HttpStatus.NOT_FOUND);
 
         return "error";
     }
 
-    @ExceptionHandler(CommunityNotFoundException.class)
+    @ExceptionHandler(UnauthorizedAccessException.class)
     public String handleUnauthorizedAccessException(UnauthorizedAccessException unauthorizedAccessException, Model model) {
         model.addAttribute("message", unauthorizedAccessException.getMessage());
         model.addAttribute("title", HttpStatus.UNAUTHORIZED);

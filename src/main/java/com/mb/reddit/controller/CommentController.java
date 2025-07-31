@@ -28,45 +28,6 @@ public class CommentController {
         this.notificationService = notificationService;
     }
 
-    @PostMapping("/delete-comment/{commentId}")
-    public String deleteCommentById(@PathVariable Long commentId) {
-        Long postId = commentService.getCommentById(commentId).getPost().getId();
-
-        commentService.deleteCommentById(commentId);
-
-        return "redirect:/posts/" + postId;
-    }
-
-    @GetMapping("/edit-comment/{commentId}")
-    public String getCommentEditForm(@PathVariable Long commentId, Model model) {
-        Comment comment = commentService.getCommentById(commentId);
-
-        model.addAttribute("commentId", commentId);
-        model.addAttribute("updatedContent", comment.getContent());
-
-        return "edit-comment";
-    }
-
-    @PostMapping("/edit-comment/{commentId}")
-    public String updateCommentById(
-            @PathVariable Long commentId,
-            @RequestParam("updatedContent") String updatedContent) {
-        Long postId = commentService.getCommentById(commentId).getPost().getId();
-
-        commentService.updateComment(commentId, updatedContent);
-
-        return "redirect:/posts/" + postId;
-    }
-
-    @GetMapping("/get-all/{postId}")
-    public String getCommentsByPostId(@PathVariable("postId") Long postId, Model model) {
-        List<Comment> comments = commentService.getTopLevelComments(postId);
-
-        model.addAttribute("comments", comments);
-
-        return "comments";
-    }
-
     @PostMapping("/posts/{postId}/comments")
     @ResponseBody
     public String createComment(
