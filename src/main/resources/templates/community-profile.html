@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="'r/' + ${community.name}">Community</title>
-    <link rel="icon" href="images/reddit-logo.webp" type="image/webp">
+    <link rel="icon" href="/images/reddit-logo.webp" type="image/webp">
+    <link rel="stylesheet" href="/css/theme.css"/>
     <style>
         * {
             margin: 0;
@@ -14,9 +15,9 @@
         }
 
         body {
-            background: whitesmoke;
+            background: var(--bg-secondary);
             min-height: 100vh;
-            color: #1c1c1c;
+            color: var(--text-primary);
         }
 
         /* Community Header */
@@ -954,5 +955,8 @@
     });
     /*]]>*/
 </script>
+
+<!-- Global Theme Management -->
+<script src="/js/theme.js"></script>
 </body>
 </html>

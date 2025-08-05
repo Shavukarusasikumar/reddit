@@ -4,14 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login to Reddit Clone</title>
-    <link rel="icon" href="images/reddit-logo.webp" type="image/webp">
+    <link rel="icon" href="/images/reddit-logo.webp" type="image/webp">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/theme.css"/>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap');
 
         body {
             font-family: 'IBM Plex Sans', sans-serif;
-            background-color: #DAE0E6;
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
         }
 
         .reddit-gradient {
@@ -36,7 +38,7 @@
             display: flex;
             align-items: center;
             text-align: center;
-            color: #878A8C;
+            color: var(--text-muted);
             font-size: 14px;
             margin: 16px 0;
         }
@@ -44,7 +46,7 @@
         .divider::before, .divider::after {
             content: "";
             flex: 1;
-            border-bottom: 1px solid #EDEFF1;
+            border-bottom: 1px solid var(--border-light);
         }
 
         .divider::before {
@@ -66,7 +68,7 @@
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
-<div class="flex max-w-5xl w-full bg-white rounded-lg shadow-lg overflow-hidden">
+<div class="flex max-w-5xl w-full bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden" style="background-color: var(--bg-tertiary);">
     <!-- Left side - Reddit character image -->
     <div class="hidden md:flex w-1/2 bg-blue-50 items-center justify-center p-8">
         <div class="text-center">
@@ -81,9 +83,9 @@
         <div class="mb-8">
         </div>
 
-        <h1 class="text-2xl font-bold text-gray-900 mb-2">Log in</h1>
-        <p class="text-gray-500 mb-6">Don't have an account?
-            <a th:href="@{/user/register}" class="text-blue-500 hover:underline" style="color: orangered">Sign Up</a>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2" style="color: var(--text-primary);">Log in</h1>
+        <p class="text-gray-500 dark:text-gray-400 mb-6" style="color: var(--text-secondary);">Don't have an account?
+            <a th:href="@{/user/register}" class="text-blue-500 hover:underline" style="color: var(--link-color);">Sign Up</a>
         </p>
 
         <form th:action="@{/login}" method="post" class="space-y-4">
@@ -148,6 +150,9 @@
             </div>
         </form>
     </div>
-</div>
+    </div>
+    
+    <!-- Global Theme Management -->
+    <script src="/js/theme.js"></script>
 </body>
 </html>

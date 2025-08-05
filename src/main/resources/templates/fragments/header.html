@@ -13,9 +13,9 @@
             display: none;
             position: absolute;
             right: 0;
-            background-color: white;
+            background-color: var(--bg-primary);
             min-width: 140px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 8px var(--shadow);
             z-index: 1000;
             border-radius: 8px;
             overflow: hidden;
@@ -23,15 +23,15 @@
         }
 
         .dropdown-content a {
-            color: black;
+            color: var(--text-primary);
             padding: 10px 14px;
             text-decoration: none;
             display: block;
-            border-bottom: 1px solid #eee;
+            border-bottom: 1px solid var(--border-light);
         }
 
         .dropdown-content a:hover {
-            background-color: #f5f5f5;
+            background-color: var(--hover-bg);
         }
 
         .show {
@@ -55,7 +55,7 @@
         }
     </script>
 
-    <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; border-bottom: 1px solid #ccc;background-color: white;">
+    <div style="display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; border-bottom: 1px solid var(--border-color);background-color: var(--bg-primary);">
 
         <!-- Left: Reddit Logo -->
         <div style="display: flex; align-items: center;">
@@ -73,8 +73,8 @@
                 <input type="text" name="keyword" placeholder="Search Reddit"
                        th:value="${keyword}"
                        style="width: 100%; padding: 8px 12px 8px 36px;
-                  border-radius: 24px; border: 1px solid #ccc;
-                  background-color: #e9eef1; font-size: 14px;">
+                  border-radius: 24px; border: 1px solid var(--border-color);
+                  background-color: var(--bg-search); font-size: 14px; color: var(--text-primary);">
             </form>
 
         </div>
@@ -82,14 +82,19 @@
         <!-- Right: Create + Profile -->
         <div style="display: flex; align-items: center; gap: 16px;">
 
+            <!-- Theme Toggle Button -->
+            <button id="themeToggle" class="theme-toggle" onclick="toggleTheme()">
+                🌙 <span>Dark</span>
+            </button>
+
             <!-- Create Button -->
             <a href="/new-post" style="text-decoration: none;">
                 <div style="cursor: pointer;">
                     <div style="display: flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 24px; transition: background-color 0.2s;"
-                         onmouseover="this.style.backgroundColor='#f6f7f8'"
+                         onmouseover="this.style.backgroundColor='var(--hover-bg)'"
                          onmouseout="this.style.backgroundColor='transparent'">
                         <img src="/images/add-post-icon.webp" alt="Create" style="height: 30px; width: 30px;">
-                        <span style="font-size: 16px; font-weight: 700; color: #000;">Create</span>
+                        <span style="font-size: 16px; font-weight: 700; color: var(--text-primary);">Create</span>
                     </div>
                 </div>
             </a>
@@ -127,7 +132,7 @@
             <div class="dropdown">
                 <div onclick="toggleProfileDropdown()" style="cursor: pointer;">
                     <img src="/images/profile-icon.png" alt="Profile"
-                         style="height: 36px; width: 36px; border-radius: 50%; border: 1px solid #ccc; box-shadow: 0 0 4px rgba(0,0,0,0.1);">
+                         style="height: 36px; width: 36px; border-radius: 50%; border: 1px solid var(--border-color); box-shadow: 0 0 4px var(--shadow);">
                 </div>
                 <div id="profileDropdownMenu" class="dropdown-content">
                     <a href="/user/user">Profile</a>

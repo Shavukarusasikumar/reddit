@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reddit Inc. - The Heart of the Internet</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #DAE0E6;
+            color: #1a1a1b;
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .header {
+            background-color: white;
+            padding: 12px 20px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo svg {
+            width: 32px;
+            height: 32px;
+            fill: #ff4500;
+        }
+
+        .logo span {
+            font-weight: bold;
+            color: #ff4500;
+            font-size: 20px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #ff4500;
+        }
+
+        .visit-reddit-btn {
+            background-color: #ff4500;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            font-weight: bold;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .visit-reddit-btn:hover {
+            background-color: #e63e00;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            background: #ff4500;
+            padding: 80px 20px;
+            text-align: center;
+        }
+
+        .hero-title {
+            font-size: 64px;
+            font-weight: 700;
+            color: #000;
+            margin-bottom: 20px;
+        }
+
+        .hero-description {
+            color: #000;
+            font-size: 18px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        /* Main Content */
+        .main-content {
+            background-color: white;
+            padding: 40px 20px;
+        }
+
+        .content-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .section-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .section-description {
+            color: #7c7c83;
+            font-size: 16px;
+            margin-bottom: 30px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .feature-stack {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            max-width: 600px;
+            text-align: left;
+        }
+
+        .feature-item img {
+            width: 200px;
+            height: 200px;
+            border-radius: 12px;
+            margin: 0 20px;
+            object-fit: cover;
+        }
+
+        .feature-item .text-content {
+            flex: 1;
+        }
+
+        .feature-item h3 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .feature-item p {
+            color: #7c7c83;
+            font-size: 14px;
+        }
+
+        /* Alternate layout for Comment */
+        .feature-item.comment {
+            flex-direction: row-reverse;
+        }
+
+        /* Stats Section */
+        .stats-section {
+            background-color: #f8f9fa;
+            padding: 40px 20px;
+            margin-top: 0;
+        }
+
+        .stats-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .stats-description {
+            color: #7c7c83;
+            font-size: 16px;
+            margin-bottom: 30px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .stats-stack {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+            max-width: 200px;
+        }
+
+        .stat-item h4 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .stat-item p {
+            color: #7c7c83;
+            font-size: 14px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 36px;
+            }
+
+            .feature-item {
+                flex-direction: column;
+                max-width: 300px;
+                text-align: center;
+            }
+
+            .feature-item img {
+                width: 100%;
+                height: auto;
+                margin-bottom: 15px;
+            }
+
+            .section-title, .stats-title {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+<!-- Header -->
+<header class="header">
+    <div class="logo">
+        <svg viewBox="0 0 20 20">
+            <circle cx="10" cy="10" r="10"/>
+            <circle cx="8" cy="8" r="1" fill="white"/>
+            <circle cx="12" cy="8" r="1" fill="white"/>
+            <path d="M7 12 Q10 15 13 12" stroke="white" stroke-width="1" fill="none"/>
+        </svg>
+        <span>reddit</span>
+    </div>
+    <nav>
+        <ul class="nav-links">
+            <li><a th:href="@{/company}" href="/company" th:text="#{nav.company}">Company</a></li>
+            <li><a th:href="@{/values}" href="/values" th:text="#{nav.values}">Values</a></li>
+            <li><a th:href="@{/news}" href="/news" th:text="#{nav.news}">News</a></li>
+        </ul>
+    </nav>
+    <a th:href="@{https://www.reddit.com}" href="https://www.reddit.com" class="visit-reddit-btn" th:text="#{btn.visit.reddit}">Visit Reddit</a>
+</header>
+
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="content-container">
+        <h1 class="hero-title" th:text="#{hero.title}">The heart of the internet</h1>
+        <p class="hero-description" th:text="#{hero.description}">
+            Reddit is home to thousands of communities, endless conversation, and authentic human connection. Whether you're into breaking news, sports, TV fan theories, or a never-ending stream of the internet's cutest animals, there's a community on Reddit for you.
+        </p>
+    </div>
+</section>
+
+<!-- Main Content -->
+<section class="main-content">
+    <div class="content-container">
+        <h2 class="section-title" th:text="#{info.how.title}">How does Reddit work?</h2>
+        <p class="section-description" th:text="#{info.how.description}">
+            Every day, millions of people around the world post, vote, and comment in communities organized around their interests.
+        </p>
+        <div class="feature-stack">
+            <div class="feature-item">
+                <img th:src="@{images/Posts.webp}" alt="Post Icon" />
+                <div class="text-content">
+                    <h3 th:text="#{info.post.title}">Post</h3>
+                    <p th:text="#{info.post.description}">The community can share content by posting stories, links, images, and videos.</p>
+                </div>
+            </div>
+            <div class="feature-item comment">
+                <img th:src="@{/static/images/Comment@2x.png}" src="/static/images/Comment@2x.png" alt="Comment Icon" />
+                <div class="text-content">
+                    <h3 th:text="#{info.comment.title}">Comment</h3>
+                    <p th:text="#{info.comment.description}">The community comments on posts. Comments provide discussion and often humor.</p>
+                </div>
+            </div>
+            <div class="feature-item">
+                <img th:src="@{/static/images/Vote@2x.png}" src="/static/images/Vote@2x.png" alt="Vote Icon" />
+                <div class="text-content">
+                    <h3 th:text="#{info.vote.title}">Vote</h3>
+                    <p th:text="#{info.vote.description}">Comments & posts can be upvoted or downvoted. The most interesting content rises to the top.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="stats-section">
+    <div class="content-container">
+        <h2 class="stats-title" th:text="#{stats.title}">Reddit by the numbers</h2>
+        <p class="stats-description" th:text="#{stats.description}">
+            Reddit is a growing family of millions of diverse people sharing the things they care about most. As of March 31, 2025
+        </p>
+        <div class="stats-stack">
+            <div class="stat-item">
+                <h4 th:text="#{stats.daily}">73.1M+ Daily active uniques</h4>
+                <p>Daily active users</p>
+            </div>
+            <div class="stat-item">
+                <h4 th:text="#{stats.weekly}">157.3M+ Weekly active uniques</h4>
+                <p>Weekly active users</p>
+            </div>
+            <div class="stat-item">
+                <h4 th:text="#{stats.communities}">14K+ Active communities</h4>
+                <p>Number of communities</p>
+            </div>
+            <div class="stat-item">
+                <h4 th:text="#{stats.posts}">16.8B+ Posts & comments</h4>
+                <p>Total posts and comments</p>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

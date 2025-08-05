@@ -6,6 +6,7 @@
     <title>Reddit Clone - Home</title>
     <link rel="icon" href="images/reddit-logo.webp" type="image/webp">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+    <link rel="stylesheet" href="/css/theme.css"/>
 
     <style>
         html, body {
@@ -13,6 +14,8 @@
             padding: 0;
             height: 100%;
             overflow: hidden;
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
         }
 
         .page-layout-container {
@@ -59,10 +62,10 @@
         }
 
         .home-main {
-            background-color: #ffffff;
+            background-color: var(--bg-tertiary);
             padding: 16px;
             border-radius: 8px;
-            border: none;
+            border: 1px solid var(--border-light);
         }
 
         @media (max-width: 1024px) {
@@ -86,7 +89,7 @@
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            background-color: #0079d3;
+            background-color: var(--toast-bg);
             color: white;
             padding: 10px 20px;
             border-radius: 6px;
@@ -230,12 +233,12 @@
 <style>
     .post-container {
         display: flex;
-        background-color: white;
+        background-color: var(--bg-tertiary);
         margin-bottom: 10px;
         border-radius: 4px;
         overflow: hidden;
         transition: border-color 0.2s;
-         border-bottom: 1px solid #edeff1;
+        border-bottom: 1px solid var(--border-light);
         padding-bottom: 10px;
     }
 
@@ -272,17 +275,18 @@
     .community-link {
         margin-left : 15px;
         text-decoration: none;
-        color: #1c1c1c;
+        color: var(--text-primary);
         font-weight: bold;
         font-size: 16px;
     }
 
     .community-link:hover {
         text-decoration: underline;
+        color: var(--link-color);
     }
 
     .post-time {
-        color: #787c7e;
+        color: var(--text-muted);
         margin-left: 4px;
     }
 
@@ -296,13 +300,13 @@
         font-size: 20px;
         font-weight: 800;
         line-height: 22px;
-        color: #1c1c1c;
+        color: var(--text-primary);
         margin-bottom: 8px;
         cursor: pointer;
     }
 
     .post-title:hover {
-        color: #0079d3;
+        color: var(--link-color);
     }
 
     .post-media {
@@ -316,7 +320,7 @@
     }
 
     .post-text {
-        color: #1c1c1c;
+        color: var(--text-primary);
         font-size: 14px;
         line-height: 21px;
         margin-bottom: 8px;
@@ -340,13 +344,13 @@
         border-radius: 2px;
         cursor: pointer;
         text-decoration: none;
-        color: #787c7e;
+        color: var(--text-muted);
         font-weight: bold;
         transition: background-color 0.2s;
     }
 
     .action-button:hover {
-        background-color: #f6f7f8;
+        background-color: var(--hover-bg);
     }
 
     .action-button i {
@@ -364,20 +368,20 @@
         cursor: pointer;
         padding: 2px;
         border-radius: 2px;
-        color: #878a8c;
+        color: var(--text-muted);
         transition: color 0.2s, background-color 0.2s;
     }
 
     .likes-count i:hover {
-        background-color: #f6f7f8;
+        background-color: var(--hover-bg);
     }
 
     .likes-count .upvote-btn.active {
-        color: #ff4500; /* Orange when upvoted */
+        color: var(--upvote-color); /* Orange when upvoted */
     }
 
     .likes-count .downvote-btn.active {
-        color: #7193ff; /* Blue when downvoted */
+        color: var(--downvote-color); /* Blue when downvoted */
     }
 
     .menu-container {
@@ -447,9 +451,9 @@
 
     .filter-dropdown {
         appearance: none;
-        background-color: #f6f7f8;
-        color: #1a1a1b;
-        border: 1px solid #ccc;
+        background-color: var(--bg-secondary);
+        color: var(--text-primary);
+        border: 1px solid var(--border-color);
         border-radius: 4px;
         padding: 8px 32px 8px 12px;
         font-size: 14px;
@@ -459,8 +463,8 @@
     }
 
     .filter-dropdown:hover {
-        border-color: #0079d3;
-        background-color: #ffffff;
+        border-color: var(--link-color);
+        background-color: var(--bg-primary);
     }
 
     .filter-dropdown:focus {
@@ -789,8 +793,10 @@ function loadMorePosts() {
         clearTimeout(showCopyToast._t);
         showCopyToast._t = setTimeout(() => toast.classList.remove('show'), 2000);
     }
-</script>
+    </script>
 
+    <!-- Global Theme Management -->
+    <script src="/js/theme.js"></script>
 
 </body>
 </html>

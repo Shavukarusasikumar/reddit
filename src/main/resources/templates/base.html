@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:fragment="base(title, content)">
+<head>
+    <meta charset="UTF-8"/>
+    <title th:text="${title}">Reddit Clone</title>
+    <link rel="icon" href="/images/reddit-logo.webp" type="image/webp">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+    <link rel="stylesheet" href="/css/theme.css"/>
+    
+    <!-- Additional CSS can be added here -->
+    <th:block th:replace="${additionalCss} ?: ~{}" />
+    
+    <style>
+        /* Base styles that apply to all pages */
+        html, body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        
+        /* Common form styles */
+        input, textarea, select {
+            background-color: var(--bg-search);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 8px 12px;
+            font-size: 14px;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--link-color);
+            box-shadow: 0 0 0 2px rgba(0, 121, 211, 0.2);
+        }
+        
+        input::placeholder, textarea::placeholder {
+            color: var(--text-muted);
+        }
+        
+        /* Button styles */
+        .btn {
+            background-color: var(--link-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.2s ease;
+        }
+        
+        .btn:hover {
+            background-color: #005fa3;
+        }
+        
+        .btn-secondary {
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+        
+        .btn-secondary:hover {
+            background-color: var(--hover-bg);
+        }
+        
+        /* Card styles */
+        .card {
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        
+        /* Link styles */
+        a {
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+        
+        a:hover {
+            color: var(--link-color);
+        }
+        
+        /* Loading spinner */
+        .loading {
+            color: var(--text-primary);
+        }
+        
+        /* Error messages */
+        .error-message {
+            color: #ff4500;
+            background-color: rgba(255, 69, 0, 0.1);
+            border: 1px solid #ff4500;
+            border-radius: 4px;
+            padding: 8px 12px;
+            margin: 8px 0;
+        }
+        
+        /* Success messages */
+        .success-message {
+            color: #46d160;
+            background-color: rgba(70, 209, 96, 0.1);
+            border: 1px solid #46d160;
+            border-radius: 4px;
+            padding: 8px 12px;
+            margin: 8px 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header-container">
+        <div th:replace="fragments/header :: header(${notificationCount})"></div>
+    </div>
+    
+    <!-- Main Content -->
+    <div th:replace="${content}">
+        <!-- Content will be inserted here -->
+    </div>
+    
+    <!-- Global Theme Management -->
+    <script src="/js/theme.js"></script>
+    
+    <!-- Additional JavaScript can be added here -->
+    <th:block th:replace="${additionalJs} ?: ~{}" />
+</body>
+</html> 

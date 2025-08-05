@@ -2,7 +2,8 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <link rel="icon" href="images/reddit-logo.webp" type="image/webp">
+    <link rel="icon" href="/images/reddit-logo.webp" type="image/webp">
+    <link rel="stylesheet" href="/css/theme.css"/>
     <title th:text="${title} ?: 'Access Denied'">Access Denied</title>
     <style>
         * {
@@ -12,7 +13,8 @@
         body {
             margin: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #f7f9fc;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -20,9 +22,9 @@
         }
 
         .card {
-            background: #ffffff;
+            background: var(--bg-tertiary);
             border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 30px var(--shadow);
             padding: 40px 50px;
             max-width: 500px;
             text-align: center;
@@ -37,7 +39,7 @@
 
         p {
             font-size: 18px;
-            color: #555;
+            color: var(--text-secondary);
             margin-bottom: 30px;
         }
 
@@ -45,7 +47,7 @@
             display: inline-block;
             padding: 12px 25px;
             font-size: 16px;
-            background-color: #3498db;
+            background-color: var(--link-color);
             color: white;
             text-decoration: none;
             border-radius: 8px;
@@ -53,7 +55,7 @@
         }
 
         a.button:hover {
-            background-color: #2980b9;
+            background-color: #005fa3;
         }
 
         .icon {
@@ -75,5 +77,8 @@
 
     <a th:href="@{/}" class="button">Return to Home</a>
 </div>
+
+<!-- Global Theme Management -->
+<script src="/js/theme.js"></script>
 </body>
 </html>

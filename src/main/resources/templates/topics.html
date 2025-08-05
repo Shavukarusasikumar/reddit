@@ -4,18 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reddit Clone - Topics</title>
-    <link rel="icon" href="images/reddit-logo.webp" type="image/webp">
+    <link rel="icon" href="/images/reddit-logo.webp" type="image/webp">
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/theme.css"/>
     <style>
-        :root {
-            --reddit-orange: #FF5700;
-            --reddit-dark: #1A1A1B;
-            --reddit-light-dark: #272729;
-            --reddit-gray: #DAE0E6;
-            --reddit-blue: #FF5700;
-            --reddit-white: #FFFFFF;
-            --reddit-light-gray: #F6F7F8;
-        }
 
         * {
             margin: 0;
@@ -25,8 +17,8 @@
         }
 
         body {
-            background-color: var(--reddit-gray);
-            color: var(--reddit-dark);
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
         }
 
         .container {
@@ -39,9 +31,9 @@
 
         .topics-sidebar {
             width: 280px;
-            background-color: var(--reddit-white);
+            background-color: var(--bg-tertiary);
             border-radius: 4px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px var(--shadow);
             padding: 16px;
             position: sticky;
             top: 20px;
@@ -52,9 +44,9 @@
             font-size: 16px;
             font-weight: 500;
             padding-bottom: 12px;
-            border-bottom: 1px solid var(--reddit-gray);
+            border-bottom: 1px solid var(--border-light);
             margin-bottom: 12px;
-            color: var(--reddit-dark);
+            color: var(--text-primary);
         }
 
         .topics-list {
@@ -66,7 +58,7 @@
         }
 
         .topic-link {
-            color: var(--reddit-dark);
+            color: var(--text-primary);
             text-decoration: none;
             font-size: 14px;
             font-weight: 500;
@@ -77,13 +69,13 @@
         }
 
         .topic-link:hover {
-            background-color: var(--reddit-light-gray);
-            color: var(--reddit-blue);
+            background-color: var(--hover-bg);
+            color: var(--link-color);
         }
 
         .topic-link.active {
-            background-color: var(--reddit-light-gray);
-            color: var(--reddit-blue);
+            background-color: var(--hover-bg);
+            color: var(--link-color);
             font-weight: 600;
         }
 
@@ -95,7 +87,7 @@
             font-size: 18px;
             font-weight: 500;
             margin-bottom: 16px;
-            color: var(--reddit-dark);
+            color: var(--text-primary);
         }
 
         .communities-grid {
@@ -267,5 +259,8 @@
         window.location.href = newUrl.toString();
     }
 </script>
+
+<!-- Global Theme Management -->
+<script src="/js/theme.js"></script>
 </body>
 </html>

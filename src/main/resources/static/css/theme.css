@@ -1,0 +1,249 @@
+/* Global Theme Variables */
+:root {
+    /* Light mode variables */
+    --bg-primary: white;
+    --bg-secondary: #f6f7f8;
+    --bg-search: #e9eef1;
+    --bg-tertiary: #ffffff;
+    --text-primary: #000;
+    --text-secondary: #666;
+    --text-muted: #787c7e;
+    --border-color: #ccc;
+    --border-light: #eee;
+    --shadow: rgba(0,0,0,0.1);
+    --hover-bg: #f5f5f5;
+    --link-color: #0079d3;
+    --upvote-color: #ff4500;
+    --downvote-color: #7193ff;
+    --notification-bg: red;
+    --toast-bg: #0079d3;
+}
+
+[data-theme="dark"] {
+    /* Dark mode variables */
+    --bg-primary: #1a1a1b;
+    --bg-secondary: #272729;
+    --bg-search: #272729;
+    --bg-tertiary: #1a1a1b;
+    --text-primary: #d7dadc;
+    --text-secondary: #818384;
+    --text-muted: #818384;
+    --border-color: #343536;
+    --border-light: #343536;
+    --shadow: rgba(0,0,0,0.3);
+    --hover-bg: #343536;
+    --link-color: #4fbcff;
+    --upvote-color: #ff4500;
+    --downvote-color: #7193ff;
+    --notification-bg: #ff4500;
+    --toast-bg: #0079d3;
+}
+
+/* Global theme application */
+html, body {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Header styles */
+.header-container {
+    background-color: var(--bg-primary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+/* Main content area */
+.home-main {
+    background-color: var(--bg-tertiary);
+    border: 1px solid var(--border-light);
+}
+
+/* Post styles */
+.post-container {
+    background-color: var(--bg-tertiary);
+    border: 1px solid var(--border-light);
+    color: var(--text-primary);
+}
+
+.post-title {
+    color: var(--text-primary);
+}
+
+.post-title:hover {
+    color: var(--link-color);
+}
+
+.post-text {
+    color: var(--text-primary);
+}
+
+.post-time {
+    color: var(--text-muted);
+}
+
+.community-link {
+    color: var(--text-primary);
+}
+
+.community-link:hover {
+    color: var(--link-color);
+}
+
+/* Action buttons */
+.action-button {
+    color: var(--text-muted);
+}
+
+.action-button:hover {
+    background-color: var(--hover-bg);
+}
+
+/* Vote buttons */
+.likes-count i {
+    color: var(--text-muted);
+}
+
+.likes-count .upvote-btn.active {
+    color: var(--upvote-color);
+}
+
+.likes-count .downvote-btn.active {
+    color: var(--downvote-color);
+}
+
+/* Filter styles */
+.filter-dropdown {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+.filter-dropdown:hover {
+    background-color: var(--bg-primary);
+}
+
+/* Toast notification */
+.copy-toast {
+    background-color: var(--toast-bg);
+}
+
+/* Notification badge */
+.notification-badge {
+    background-color: var(--notification-bg);
+}
+
+/* Sidebar styles */
+.home-left, .home-right {
+    background-color: var(--bg-tertiary);
+    border: 1px solid var(--border-light);
+}
+
+/* Search input */
+input[type="text"] {
+    background-color: var(--bg-search);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+}
+
+input[type="text"]::placeholder {
+    color: var(--text-muted);
+}
+
+/* Links */
+a {
+    color: var(--text-primary);
+}
+
+a:hover {
+    color: var(--link-color);
+}
+
+/* Theme toggle button */
+.theme-toggle {
+    background: none;
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    transition: all 0.2s ease;
+}
+
+.theme-toggle:hover {
+    background-color: var(--hover-bg);
+}
+
+/* Dropdown styles */
+.dropdown-content {
+    background-color: var(--bg-primary);
+    border: 1px solid var(--border-light);
+    box-shadow: 0 4px 8px var(--shadow);
+}
+
+.dropdown-content a {
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-light);
+}
+
+.dropdown-content a:hover {
+    background-color: var(--hover-bg);
+}
+
+/* Profile image */
+.profile-image {
+    border: 1px solid var(--border-color);
+    box-shadow: 0 0 4px var(--shadow);
+}
+
+/* Loading spinner */
+.loading {
+    color: var(--text-primary);
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    .page-layout {
+        background-color: var(--bg-secondary);
+    }
+}
+
+/* Additional dark mode improvements */
+[data-theme="dark"] .bg-white {
+    background-color: var(--bg-tertiary) !important;
+}
+
+[data-theme="dark"] .text-gray-900 {
+    color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .text-gray-500 {
+    color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .text-gray-700 {
+    color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .border-gray-300 {
+    border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .bg-gray-50 {
+    background-color: var(--bg-secondary) !important;
+}
+
+/* Smooth transitions for theme switching */
+* {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Ensure proper contrast in dark mode */
+[data-theme="dark"] input,
+[data-theme="dark"] textarea,
+[data-theme="dark"] select {
+    background-color: var(--bg-search);
+    color: var(--text-primary);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+    color: var(--text-muted);
+} 

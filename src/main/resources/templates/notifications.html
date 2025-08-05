@@ -3,11 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <title>Notifications</title>
-    <link rel="icon" href="images/reddit-logo.webp" type="image/webp">
+    <link rel="icon" href="/images/reddit-logo.webp" type="image/webp">
+    <link rel="stylesheet" href="/css/theme.css"/>
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
-            background-color: #f0f2f5;
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
             margin: 0;
             padding: 0;
         }
@@ -15,17 +17,17 @@
         .container {
             max-width: 720px;
             margin: 40px auto;
-            background-color: #ffffff;
+            background-color: var(--bg-tertiary);
             padding: 24px 32px;
             border-radius: 12px;
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+            box-shadow: 0 6px 16px var(--shadow);
         }
 
         h2 {
             font-size: 26px;
             margin-bottom: 24px;
-            color: #333;
-            border-bottom: 2px solid #e1e1e1;
+            color: var(--text-primary);
+            border-bottom: 2px solid var(--border-light);
             padding-bottom: 10px;
         }
 
@@ -34,31 +36,31 @@
             margin-bottom: 16px;
             border-radius: 10px;
             transition: background 0.2s;
-            border: 1px solid #e0e0e0;
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+            border: 1px solid var(--border-light);
+            box-shadow: 0 1px 4px var(--shadow);
         }
 
         .notification-card.unread {
-            background-color: #ffffff;
+            background-color: var(--bg-tertiary);
         }
 
         .notification-card.read {
-            background-color: #ebebeb;
+            background-color: var(--bg-secondary);
         }
 
         .notification-card:hover {
-            background-color: #f0f6ff;
+            background-color: var(--hover-bg);
         }
 
         .message {
             font-size: 16px;
-            color: #222;
+            color: var(--text-primary);
             line-height: 1.5;
         }
 
         .message a {
             font-weight: bold;
-            color: #0079d3;
+            color: var(--link-color);
             text-decoration: none;
         }
 
@@ -68,7 +70,7 @@
 
         .timestamp {
             font-size: 13px;
-            color: #777;
+            color: var(--text-muted);
             margin-top: 8px;
         }
 
@@ -82,21 +84,21 @@
         .pagination a {
             padding: 6px 12px;
             text-decoration: none;
-            color: #0079d3;
+            color: var(--link-color);
             font-weight: 600;
-            border: 1px solid #ddd;
+            border: 1px solid var(--border-color);
             border-radius: 6px;
             transition: background 0.2s, color 0.2s;
         }
 
         .pagination a:hover {
-            background-color: #f0f0f0;
+            background-color: var(--hover-bg);
         }
 
         .pagination a.active {
-            background-color: #0079d3;
+            background-color: var(--link-color);
             color: white;
-            border-color: #0079d3;
+            border-color: var(--link-color);
         }
     </style>
 </head>
@@ -150,5 +152,7 @@
     </div>
 </div>
 
+<!-- Global Theme Management -->
+<script src="/js/theme.js"></script>
 </body>
 </html>

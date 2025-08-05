@@ -3,30 +3,32 @@
 <head>
   <meta charset="UTF-8">
   <title>Edit Post</title>
-  <link rel="icon" href="images/reddit-logo.webp" type="image/webp">
+  <link rel="icon" href="/images/reddit-logo.webp" type="image/webp">
+  <link rel="stylesheet" href="/css/theme.css"/>
   <style>
     body {
         font-family: Arial, sans-serif;
         margin: 0;
         padding: 0;
-        background-color: #f8f9fa;
+        background-color: var(--bg-secondary);
+        color: var(--text-primary);
     }
     .container {
         width: 70%;
         margin: 30px auto;
-        background: #fff;
+        background: var(--bg-tertiary);
         padding: 20px;
         border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 2px 8px var(--shadow);
     }
     h1 {
         margin: 0 0 15px;
         font-size: 24px;
-        color: #333;
+        color: var(--text-primary);
     }
     .back-link {
         text-decoration: none;
-        color: #007bff;
+        color: var(--link-color);
         float: right;
         font-size: 14px;
     }
@@ -37,15 +39,17 @@
         font-weight: bold;
         display: block;
         margin-bottom: 5px;
-        color: #555;
+        color: var(--text-primary);
     }
     input[type="text"], textarea {
         width: 100%;
         padding: 10px;
-        border: 1px solid #ccc;
+        border: 1px solid var(--border-color);
         border-radius: 4px;
         font-size: 14px;
         resize: vertical;
+        background-color: var(--bg-search);
+        color: var(--text-primary);
     }
     .footer-buttons {
         margin-top: 20px;
@@ -147,5 +151,7 @@
   }
 </script>
 
+<!-- Global Theme Management -->
+<script src="/js/theme.js"></script>
 </body>
 </html>
