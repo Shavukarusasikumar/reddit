@@ -87,7 +87,7 @@
         }
 
         .topic-box.selected {
-            background-color: #007bff;
+            background-color: var(--link-color);
             color: white;
         }
 
@@ -97,7 +97,7 @@
         }
 
         .submit-btn {
-            background-color: #007bff;
+            background-color: var(--link-color);
             color: white;
             padding: 10px 20px;
             border: none;
@@ -105,10 +105,79 @@
             cursor: pointer;
             width: 100%;
             font-size: 16px;
+            transition: background-color 0.2s ease;
         }
 
         .submit-btn:hover {
-            background-color: #0056b3;
+            background-color: #005fa3;
+        }
+
+        /* Dark mode specific overrides */
+        [data-theme="dark"] body {
+            background-color: var(--bg-secondary) !important;
+            color: var(--text-primary) !important;
+        }
+
+        [data-theme="dark"] .form-container {
+            background-color: var(--bg-tertiary) !important;
+            box-shadow: 0 4px 10px var(--shadow) !important;
+        }
+
+        [data-theme="dark"] input[type="text"],
+        [data-theme="dark"] textarea,
+        [data-theme="dark"] select {
+            background-color: var(--bg-search) !important;
+            color: var(--text-primary) !important;
+            border-color: var(--border-color) !important;
+        }
+
+        [data-theme="dark"] input[type="text"]:focus,
+        [data-theme="dark"] textarea:focus,
+        [data-theme="dark"] select:focus {
+            border-color: var(--link-color) !important;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(79, 188, 255, 0.2);
+        }
+
+        [data-theme="dark"] .topics-container-wrapper {
+            background-color: var(--bg-search) !important;
+            border-color: var(--border-color) !important;
+        }
+
+        [data-theme="dark"] .topic-box {
+            background-color: var(--bg-secondary) !important;
+            color: var(--text-primary) !important;
+        }
+
+        [data-theme="dark"] .topic-box:hover {
+            background-color: var(--hover-bg) !important;
+        }
+
+        [data-theme="dark"] .privacy-options label {
+            color: var(--text-primary) !important;
+        }
+
+        [data-theme="dark"] input[type="radio"] {
+            accent-color: var(--link-color);
+        }
+
+        [data-theme="dark"] input[type="file"] {
+            color: var(--text-primary) !important;
+        }
+
+        /* File input styling for dark mode */
+        [data-theme="dark"] input[type="file"]::file-selector-button {
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 6px 12px;
+            margin-right: 8px;
+            cursor: pointer;
+        }
+
+        [data-theme="dark"] input[type="file"]::file-selector-button:hover {
+            background-color: var(--hover-bg);
         }
 
     </style>

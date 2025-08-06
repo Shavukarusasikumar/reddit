@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <title th:text="'u/' + ${user.username}">User Profile</title>
+    <link rel="icon" href="/images/reddit-logo.webp" type="image/webp">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+    <link rel="stylesheet" href="/css/theme.css"/>
+    
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+        
+        .page-layout-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header-container {
+            background-color: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header-container">
+        <div th:replace="fragments/header :: header(${notificationCount})"></div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <div th:replace="fragments/user-profile-middle :: userFragment"></div>
+    </div>
+    
+    <!-- Global Theme Management -->
+    <script src="/js/theme.js"></script>
+</body>
+</html> 

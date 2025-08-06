@@ -14,10 +14,10 @@
 
         .sidebar {
             width: 100%;
-            background-color: #ffffff;
+            background-color: var(--bg-tertiary);
             padding: 16px;
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px var(--shadow);
             height: 100%;
             box-sizing: border-box;
             overflow-y: auto;
@@ -31,7 +31,7 @@
             gap: 12px;
             padding: 10px 12px;
             font-size: 20px;
-            color: #1c1c1c;
+            color: var(--text-primary);
             text-decoration: none;
             border-radius: 6px;
             transition: background-color 0.2s ease, color 0.2s ease;
@@ -40,9 +40,9 @@
         }
 
         .sidebar-link:hover {
-            background-color: #f6f7f8;
+            background-color: var(--hover-bg);
             text-decoration: none;
-            color: #1c1c1c;
+            color: var(--text-primary);
         }
 
         .sidebar-link i {
@@ -55,7 +55,7 @@
 
         .sidebar-section {
             margin: 20px 0 16px 0;
-            border-top: 1px solid #edeff1;
+            border-top: 1px solid var(--border-light);
             padding-top: 16px;
         }
 
@@ -69,7 +69,7 @@
             padding: 8px 12px;
             font-weight: 700;
             font-size: 16px;
-            color: #878a8c;
+            color: var(--text-muted);
             text-transform: uppercase;
             letter-spacing: 0.8px;
             margin-bottom: 8px;
@@ -91,7 +91,7 @@
         }
 
         .community-item:hover {
-            background-color: #f6f7f8;
+            background-color: var(--hover-bg);
         }
 
         .community-item img {
@@ -103,7 +103,7 @@
         }
 
         .community-link {
-            color: #1c1c1c;
+            color: var(--text-primary);
             font-size: 14px;
             font-weight: 500;
             text-decoration: none;
@@ -114,7 +114,7 @@
         }
 
         .community-link:hover {
-            color: #0079d3;
+            color: var(--link-color);
             text-decoration: none;
         }
 
@@ -124,7 +124,7 @@
             gap: 8px;
             padding: 8px 12px;
             margin-bottom: 8px;
-            color: #0079d3;
+            color: var(--link-color);
             font-size: 14px;
             font-weight: 600;
             text-decoration: none;
@@ -133,9 +133,9 @@
         }
 
         .create-community-btn:hover {
-            background-color: #f6f7f8;
+            background-color: var(--hover-bg);
             text-decoration: none;
-            color: #0079d3;
+            color: var(--link-color);
         }
 
         .create-community-btn i {
@@ -152,18 +152,18 @@
         }
 
         .sidebar::-webkit-scrollbar-thumb {
-            background: #c1c1c1;
+            background: var(--text-muted);
             border-radius: 3px;
         }
 
         .sidebar::-webkit-scrollbar-thumb:hover {
-            background: #a8a8a8;
+            background: var(--text-secondary);
         }
 
         /* Firefox scrollbar */
         .sidebar {
             scrollbar-width: thin;
-            scrollbar-color: #c1c1c1 transparent;
+            scrollbar-color: var(--text-muted) transparent;
         }
 
         /* Ensure proper spacing */
@@ -198,7 +198,7 @@
         .sidebar-link:focus,
         .community-link:focus,
         .create-community-btn:focus {
-            outline: 2px solid #0079d3;
+            outline: 2px solid var(--link-color);
             outline-offset: 2px;
         }
 

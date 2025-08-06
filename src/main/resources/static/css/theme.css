@@ -159,15 +159,33 @@ a:hover {
 }
 
 /* Theme toggle button */
-.theme-toggle {
+.theme-toggle, #themeToggle {
     background: none;
     border: 1px solid var(--border-color);
     color: var(--text-primary);
+    border-radius: 20px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
     transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 4px;
 }
 
-.theme-toggle:hover {
+.theme-toggle:hover, #themeToggle:hover {
     background-color: var(--hover-bg);
+    border-color: var(--link-color);
+}
+
+.theme-toggle:active, #themeToggle:active {
+    transform: scale(0.95);
+}
+
+.theme-toggle:focus, #themeToggle:focus {
+    outline: 2px solid var(--link-color);
+    outline-offset: 2px;
 }
 
 /* Dropdown styles */
@@ -246,4 +264,331 @@ a:hover {
 [data-theme="dark"] input::placeholder,
 [data-theme="dark"] textarea::placeholder {
     color: var(--text-muted);
+}
+
+/* Comprehensive dark mode coverage for fragments and divs */
+[data-theme="dark"] .sidebar,
+[data-theme="dark"] .left-sidebar-container,
+[data-theme="dark"] .right-sidebar-container,
+[data-theme="dark"] .post-sidebar {
+    background-color: var(--bg-tertiary) !important;
+    color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .sidebar-link,
+[data-theme="dark"] .community-link,
+[data-theme="dark"] .post-title,
+[data-theme="dark"] .sidebar-heading {
+    color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .sidebar-link:hover,
+[data-theme="dark"] .community-link:hover {
+    color: var(--link-color) !important;
+    background-color: var(--hover-bg) !important;
+}
+
+[data-theme="dark"] .section-header,
+[data-theme="dark"] .post-meta {
+    color: var(--text-muted) !important;
+}
+
+[data-theme="dark"] .post-card,
+[data-theme="dark"] .community-item {
+    border-color: var(--border-light) !important;
+}
+
+[data-theme="dark"] .post-card:hover,
+[data-theme="dark"] .community-item:hover {
+    background-color: var(--hover-bg) !important;
+}
+
+[data-theme="dark"] .create-community-btn {
+    color: var(--link-color) !important;
+}
+
+[data-theme="dark"] .create-community-btn:hover {
+    background-color: var(--hover-bg) !important;
+}
+
+[data-theme="dark"] .post-image-container {
+    background-color: var(--bg-secondary) !important;
+}
+
+/* Additional div elements that need theme coverage */
+[data-theme="dark"] div {
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .page-layout {
+    background-color: var(--bg-secondary) !important;
+}
+
+[data-theme="dark"] .home-main {
+    background-color: var(--bg-tertiary) !important;
+    border-color: var(--border-light) !important;
+}
+
+/* Form and container elements dark mode support */
+[data-theme="dark"] .form-container,
+[data-theme="dark"] .container,
+[data-theme="dark"] .main-container {
+    background-color: var(--bg-tertiary) !important;
+    color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .form-group,
+[data-theme="dark"] .field-group {
+    color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .topic-box,
+[data-theme="dark"] .tag,
+[data-theme="dark"] .chip {
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .topic-box:hover,
+[data-theme="dark"] .tag:hover,
+[data-theme="dark"] .chip:hover {
+    background-color: var(--hover-bg) !important;
+}
+
+[data-theme="dark"] .topics-container-wrapper,
+[data-theme="dark"] .checkbox-group,
+[data-theme="dark"] .radio-group {
+    background-color: var(--bg-search) !important;
+    border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .privacy-options label,
+[data-theme="dark"] .form-label,
+[data-theme="dark"] label {
+    color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] input[type="radio"],
+[data-theme="dark"] input[type="checkbox"] {
+    accent-color: var(--link-color);
+}
+
+/* File input dark mode styling */
+[data-theme="dark"] input[type="file"] {
+    color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] input[type="file"]::file-selector-button {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 6px 12px;
+    margin-right: 8px;
+    cursor: pointer;
+}
+
+[data-theme="dark"] input[type="file"]::file-selector-button:hover {
+    background-color: var(--hover-bg);
+}
+
+/* Button styling for dark mode */
+[data-theme="dark"] .btn,
+[data-theme="dark"] .submit-btn,
+[data-theme="dark"] .button,
+[data-theme="dark"] button[type="submit"] {
+    background-color: var(--link-color) !important;
+    color: white !important;
+}
+
+[data-theme="dark"] .btn:hover,
+[data-theme="dark"] .submit-btn:hover,
+[data-theme="dark"] .button:hover,
+[data-theme="dark"] button[type="submit"]:hover {
+    background-color: #005fa3 !important;
+} 
+
+/* Add these to your existing CSS variables if not already present */
+[data-theme="dark"] .text-editor,
+[data-theme="dark"] .rich-text-editor,
+[data-theme="dark"] .title-input,
+[data-theme="dark"] .link-input {
+    background-color: var(--bg-tertiary) !important;
+    color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .text-editor::placeholder,
+[data-theme="dark"] .rich-text-editor::placeholder,
+[data-theme="dark"] .title-input::placeholder,
+[data-theme="dark"] .link-input::placeholder {
+    color: var(--text-muted) !important;
+}
+
+[data-theme="dark"] .toolbar {
+    background-color: var(--bg-search) !important;
+    border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .media-upload {
+    background-color: var(--bg-secondary) !important;
+    border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .description-section {
+    background-color: var(--bg-tertiary) !important;
+}
+
+[data-theme="dark"] .detail-row {
+    border-color: var(--border-light) !important;
+} 
+
+/* Add these comprehensive dark mode overrides for user profile */
+[data-theme="dark"] .user-fragment {
+    background-color: var(--bg-tertiary) !important;
+}
+
+[data-theme="dark"] .sidebar-card {
+    background-color: var(--bg-tertiary) !important;
+    border-color: var(--border-light) !important;
+}
+
+[data-theme="dark"] .card-title {
+    color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .sidebar-card p {
+    color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .user-meta-item {
+    color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .meta-value {
+    color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .empty-state {
+    color: var(--text-muted) !important;
+}
+
+[data-theme="dark"] .section-btn {
+    color: var(--text-primary) !important;
+}
+
+[data-theme="dark"] .section-btn:hover {
+    background-color: var(--hover-bg) !important;
+}
+
+[data-theme="dark"] .section-btn.active {
+    background-color: var(--hover-bg) !important;
+    color: var(--link-color) !important;
+}
+
+/* Force theme toggle button to work properly */
+[data-theme="dark"] #themeToggle {
+    color: var(--text-primary) !important;
+    background-color: var(--bg-tertiary) !important;
+    border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] #themeToggle:hover {
+    background-color: var(--hover-bg) !important;
+} 
+
+/* Add these comprehensive dark mode overrides for chat page */
+[data-theme="dark"] #user-search input {
+    background-color: var(--bg-search) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] #user-search input::placeholder {
+    color: var(--text-muted) !important;
+}
+
+[data-theme="dark"] #user-search input:focus {
+    border-color: var(--link-color) !important;
+}
+
+[data-theme="dark"] .user-item {
+    background-color: var(--bg-tertiary) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-light) !important;
+}
+
+[data-theme="dark"] .user-item:hover {
+    background-color: var(--hover-bg) !important;
+}
+
+[data-theme="dark"] .user-item::before {
+    color: var(--link-color) !important;
+}
+
+[data-theme="dark"] #user-list-container {
+    background-color: var(--bg-primary) !important;
+}
+
+[data-theme="dark"] #user-search {
+    background-color: var(--bg-primary) !important;
+}
+
+[data-theme="dark"] #user-list {
+    background-color: var(--bg-primary) !important;
+}
+
+/* Ensure no white spaces between user items */
+[data-theme="dark"] .user-item + .user-item {
+    border-top: none !important;
+    margin-top: 0 !important;
+}
+
+[data-theme="dark"] button[type="submit"] {
+    background-color: var(--link-color) !important;
+    color: white !important;
+}
+
+[data-theme="dark"] button[type="submit"]:hover {
+    background-color: #005fa3 !important;
+}
+
+[data-theme="dark"] #chat-messages {
+    background-color: var(--bg-tertiary) !important;
+    border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] #message {
+    background-color: var(--bg-tertiary) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] #message::placeholder {
+    color: var(--text-muted) !important;
+}
+
+[data-theme="dark"] #message:focus {
+    border-color: var(--link-color) !important;
+} 
+
+/* Force chat messages to be completely dark */
+[data-theme="dark"] #chat-messages {
+    background-color: #000000 !important; /* Force black */
+    border: none !important;
+    color: var(--text-primary) !important;
+}
+
+[data-theme="light"] #chat-messages {
+    background-color: var(--bg-tertiary) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+/* Also fix the chat section background */
+[data-theme="dark"] #chat-section {
+    background-color: var(--bg-secondary) !important;
+}
+
+[data-theme="dark"] #chat-container {
+    background-color: var(--bg-secondary) !important;
 } 

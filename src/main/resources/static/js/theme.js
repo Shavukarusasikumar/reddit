@@ -17,6 +17,8 @@ class ThemeManager {
     }
 
     applyTheme(theme) {
+        // Apply theme to both html and body elements for better coverage
+        document.documentElement.setAttribute('data-theme', theme);
         document.body.setAttribute('data-theme', theme);
         this.currentTheme = theme;
         localStorage.setItem('theme', theme);
@@ -48,11 +50,24 @@ class ThemeManager {
     }
 
     addThemeToggleListeners() {
-        // Listen for clicks on theme toggle buttons
+        // Listen for clicks on theme toggle buttons using event delegation
         document.addEventListener('click', (e) => {
-            if (e.target.closest('#themeToggle') || e.target.closest('.theme-toggle')) {
+            const button = e.target.closest('#themeToggle') || e.target.closest('.theme-toggle');
+            if (button) {
+                e.preventDefault();
+                e.stopPropagation();
                 this.toggleTheme();
             }
+        });
+        
+        // Also add direct event listeners to existing theme toggle buttons
+        const existingButtons = document.querySelectorAll('#themeToggle, .theme-toggle');
+        existingButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.toggleTheme();
+            });
         });
     }
 }
@@ -69,11 +84,14 @@ function toggleTheme() {
     }
 }
 
+// Emergency fallback - ensure theme manager exists
+if (!window.themeManager) {
+    window.themeManager = new ThemeManager();
+}
+
 // Listen for theme changes and update components that need it
 document.addEventListener('themeChanged', (e) => {
     const theme = e.detail.theme;
-    console.log('Theme changed to:', theme);
-    
     // Update any components that need theme-specific behavior
     // For example, charts, maps, or other components that need theme awareness
 }); 

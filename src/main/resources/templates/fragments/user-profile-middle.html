@@ -21,11 +21,11 @@
         }
 
        .user-fragment {
-           background-color: #ffffff;
+           background-color: var(--bg-tertiary);
            padding: 16px;
            border-radius: 8px;
            font-family: 'Segoe UI', sans-serif;
-           box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+           box-shadow: 0 2px 8px var(--shadow);
            max-width: 650px;
            width: 100%;
            justify-self: center;
@@ -43,7 +43,7 @@
          height: 60px;
          border-radius: 50%;
          object-fit: cover;
-         border: 2px solid #e0e0e0;
+         border: 2px solid var(--border-color);
        }
 
        .user-info {
@@ -57,12 +57,12 @@
        .user-info .username {
          font-weight: 600;
          font-size: 16px;
-         color: #222;
+         color: var(--text-primary);
        }
 
        .user-info .user-handle {
          font-size: 14px;
-         color: #666;
+         color: var(--text-secondary);
          text-overflow: ellipsis;
          overflow: hidden;
          white-space: nowrap;
@@ -84,19 +84,19 @@
       padding: 10px 14px;
       font-size: 15px;
       font-weight: 500;
-      color: #333;
+      color: var(--text-primary);
       cursor: pointer;
       transition: background-color 0.2s ease, color 0.2s ease;
       border-radius: 6px;
     }
 
     .user-actions button:hover {
-      background-color: #f0f0f0;
+      background-color: var(--hover-bg);
     }
 
     .user-actions button.active {
-      background-color: #e3effd;
-      color: #005999;
+      background-color: var(--hover-bg);
+      color: var(--link-color);
     }
 
 
@@ -108,22 +108,22 @@
 
    .post-container {
        display: flex;
-       background-color: white;
+       background-color: var(--bg-tertiary);
        margin-bottom: 10px;
        border : none;
-       border-bottom : 2px solid #ccc;
+       border-bottom : 2px solid var(--border-color);
        border-radius: 4px;
        overflow: hidden;
        transition: border-color 0.2s;
    }
 
    .post-container:hover {
-       border-color: #898989;
+       border-color: var(--text-muted);
    }
 
    .post-votes {
        width: 40px;
-       background-color: #f8f9fa;
+       background-color: var(--bg-secondary);
        display: flex;
        flex-direction: column;
        align-items: center;
@@ -145,24 +145,25 @@
 
    .post-header-left {
        font-size: 12px;
-       color: #787c7e;
+       color: var(--text-muted);
        display: flex;
        align-items: center;
    }
 
    .community-link {
        text-decoration: none;
-       color: #1c1c1c;
+       color: var(--text-primary);
        font-weight: bold;
        font-size: 12px;
    }
 
    .community-link:hover {
        text-decoration: underline;
+       color: var(--link-color);
    }
 
    .post-time {
-       color: #787c7e;
+       color: var(--text-muted);
        margin-left: 4px;
    }
 
@@ -176,13 +177,13 @@
        font-size: 18px;
        font-weight: 500;
        line-height: 22px;
-       color: #1c1c1c;
+       color: var(--text-primary);
        margin-bottom: 8px;
        cursor: pointer;
    }
 
    .post-title:hover {
-       color: #0079d3;
+       color: var(--link-color);
    }
 
    .post-media {
@@ -196,7 +197,7 @@
    }
 
    .post-text {
-       color: #1c1c1c;
+       color: var(--text-primary);
        font-size: 14px;
        line-height: 21px;
        margin-bottom: 8px;
@@ -206,7 +207,7 @@
        display: flex;
        gap: 4px;
        font-size: 12px;
-       color: #787c7e;
+       color: var(--text-muted);
        align-items: center;
    }
 
@@ -218,13 +219,13 @@
        border-radius: 2px;
        cursor: pointer;
        text-decoration: none;
-       color: #787c7e;
+       color: var(--text-muted);
        font-weight: bold;
        transition: background-color 0.2s;
    }
 
    .action-button:hover {
-       background-color: #f6f7f8;
+       background-color: var(--hover-bg);
    }
 
    .action-button i {
@@ -232,7 +233,7 @@
    }
 
    .join-btn {
-       background-color: #0079d3;
+       background-color: var(--link-color);
        color: white;
        border: none;
        padding: 4px 16px;
@@ -253,13 +254,13 @@
        border: none;
        font-size: 16px;
        cursor: pointer;
-       color: #787c7e;
+       color: var(--text-muted);
        padding: 4px;
        border-radius: 2px;
    }
 
    .menu-btn:hover {
-       background-color: #f6f7f8;
+       background-color: var(--hover-bg);
    }
 
 
@@ -276,9 +277,9 @@
    .menu-dropdown {
        display: none;
        position: absolute;
-       background-color: white;
-       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-       border: 1px solid #edeff1;
+       background-color: var(--bg-primary);
+       box-shadow: 0 2px 4px var(--shadow);
+       border: 1px solid var(--border-light);
        border-radius: 4px;
        right: 0;
        top: 100%;
@@ -289,14 +290,14 @@
    .menu-dropdown a {
        display: block;
        padding: 8px 16px;
-       color: #1c1c1c;
+       color: var(--text-primary);
        text-decoration: none;
        font-size: 14px;
        font-weight: 400;
    }
 
    .menu-dropdown a:hover {
-       background-color: #f6f7f8;
+       background-color: var(--hover-bg);
    }
 
    .menu-container:hover .menu-dropdown {
@@ -309,34 +310,34 @@
        padding: 0 25px;
        box-sizing: border-box;
        font-family: 'Segoe UI', sans-serif;
-       background-color: #f5faff;
+       background-color: var(--bg-secondary);
    }
 
    .sidebar-card {
-       background-color: #ffffff;
-       border: 1px solid #d8eafc;
+       background-color: var(--bg-tertiary);
+       border: 1px solid var(--border-light);
        border-radius: 12px;
        padding: 16px;
        margin-bottom: 16px;
        width: 100%;
-       box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+       box-shadow: 0 1px 4px var(--shadow);
    }
 
    .sidebar-card.profile-card,
    .sidebar-card.karma-card {
-       background-color: #e9f3fc;
+       background-color: var(--bg-secondary);
    }
 
    .card-title {
        font-size: 18px;
        font-weight: 600;
-       color: #222;
+       color: var(--text-primary);
        margin-bottom: 8px;
    }
 
    .sidebar-card p {
        font-size: 14px;
-       color: #444;
+       color: var(--text-primary);
        line-height: 1.5;
    }
 
@@ -344,7 +345,7 @@
        padding-left: 20px;
        margin: 0;
        font-size: 14px;
-       color: #444;
+       color: var(--text-primary);
    }
 
    .sidebar-card ul li {
@@ -361,7 +362,7 @@
        display: flex;
        justify-content: space-between;
        font-size: 14px;
-       color: #555;
+       color: var(--text-secondary);
    }
 
    .meta-label {
@@ -370,7 +371,7 @@
 
    .meta-value {
        font-weight: 600;
-       color: #000;
+       color: var(--text-primary);
    }
 
    .role-list {
@@ -380,20 +381,19 @@
 
    .role-list li::before {
        content: "✓";
-       color: #0079d3;
+       color: var(--link-color);
        margin-right: 8px;
    }
 
    .empty-state {
        text-align: center;
        padding: 40px;
-       color: #666;
+       color: var(--text-muted);
        font-style: italic;
    }
     </style>
 </head>
 <body>
-<div th:replace="fragments/header :: header(${notificationCount})"></div>
 
 <div class="layout-container">
     <aside class="home-left"
@@ -442,22 +442,22 @@
         <!-- Karma Card -->
 
         <div class="sidebar-card karma-card"
-             style="background-color: #e9f3fc; border: 1px solid #d8eafc; border-radius: 12px; padding: 16px; margin-bottom: 16px; width: 100%; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);">
-            <div class="card-title" style="font-size: 18px; font-weight: 600; color: #222; margin-bottom: 8px;">Karma</div>
+             style="background-color: var(--bg-secondary); border: 1px solid var(--border-light); border-radius: 12px; padding: 16px; margin-bottom: 16px; width: 100%; box-shadow: 0 1px 4px var(--shadow);">
+            <div class="card-title" style="font-size: 18px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px;">Karma</div>
             <div class="user-meta-card" style="display: flex; flex-direction: column; gap: 10px;">
-                <div class="user-meta-item" style="display: flex; justify-content: space-between; font-size: 14px; color: #555;">
+                <div class="user-meta-item" style="display: flex; justify-content: space-between; font-size: 14px; color: var(--text-secondary);">
                     <span class="meta-label" style="font-weight: 500;">Post Karma</span>
-                    <span class="meta-value" style="font-weight: 600; color: #000;"
+                    <span class="meta-value" style="font-weight: 600; color: var(--text-primary);"
                           th:text="${karma != null && karma.postKarma != null ? karma.postKarma : 'Not Set'}">0</span>
                 </div>
-                <div class="user-meta-item" style="display: flex; justify-content: space-between; font-size: 14px; color: #555;">
+                <div class="user-meta-item" style="display: flex; justify-content: space-between; font-size: 14px; color: var(--text-secondary);">
                     <span class="meta-label" style="font-weight: 500;">Comment Karma</span>
-                    <span class="meta-value" style="font-weight: 600; color: #000;"
+                    <span class="meta-value" style="font-weight: 600; color: var(--text-primary);"
                           th:text="${karma != null && karma.commentKarma != null ? karma.commentKarma : 'Not Set'}">0</span>
                 </div>
-                <div class="user-meta-item" style="display: flex; justify-content: space-between; font-size: 14px; color: #555;">
+                <div class="user-meta-item" style="display: flex; justify-content: space-between; font-size: 14px; color: var(--text-secondary);">
                     <span class="meta-label" style="font-weight: 500;">Total Karma</span>
-                    <span class="meta-value" style="font-weight: 600; color: #000;"
+                    <span class="meta-value" style="font-weight: 600; color: var(--text-primary);"
                           th:text="${karma != null ? (karma.postKarma != null ? karma.postKarma : 0) + (karma.commentKarma != null ? karma.commentKarma : 0) : 'Not Set'}">0</span>
                 </div>
 
@@ -601,5 +601,8 @@
       loadInitialContent(); // Load posts by default
     });
 </script>
+
+<!-- Global Theme Management -->
+<script src="/js/theme.js"></script>
 </body>
 </html>

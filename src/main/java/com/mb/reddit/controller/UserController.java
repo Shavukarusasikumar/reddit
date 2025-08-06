@@ -111,7 +111,7 @@ public class UserController {
         model.addAttribute("karma", karmaDTO);
         model.addAttribute("user", user);
 
-        return "fragments/user-profile-middle";
+        return "user-profile"; // Changed to return the wrapper page
     }
 
     @GetMapping("/chat")
@@ -162,6 +162,6 @@ public class UserController {
        model.addAttribute("karma", karmaDTO);
        model.addAttribute("user", user);
 
-       return "fragments/user-profile-middle";
+       return "user-profile"; // Changed to return the wrapper page
     }
 }

@@ -247,7 +247,7 @@
     .vote-count {
         font-size: 20px;
         font-weight: bold;
-        color: #1c1c1c;
+        color: var(--text-primary);
         margin: 0 4px;
     }
 
@@ -267,7 +267,7 @@
 
     .post-header-left {
         font-size: 12px;
-        color: #787c7e;
+        color: var(--text-muted);
         display: flex;
         align-items: center;
     }
@@ -331,7 +331,7 @@
         align-items: center;
         gap: 6px; /* spacing between buttons */
         font-size: 20px;
-        color: #787c7e;
+        color: var(--text-muted);
         margin-top: 8px;
         flex-wrap: wrap; /* Wrap if screen is small */
     }
@@ -393,21 +393,21 @@
         border: none;
         font-size: 16px;
         cursor: pointer;
-        color: #787c7e;
+        color: var(--text-muted);
         padding: 4px;
         border-radius: 2px;
     }
 
     .menu-btn:hover {
-        background-color: #f6f7f8;
+        background-color: var(--hover-bg);
     }
 
     .menu-dropdown {
         display: none;
         position: absolute;
-        background-color: white;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        border: 1px solid #edeff1;
+        background-color: var(--bg-primary);
+        box-shadow: 0 2px 4px var(--shadow);
+        border: 1px solid var(--border-light);
         border-radius: 4px;
         right: 0;
         top: 100%;
@@ -418,14 +418,14 @@
     .menu-dropdown a {
         display: block;
         padding: 8px 16px;
-        color: #1c1c1c;
+        color: var(--text-primary);
         text-decoration: none;
         font-size: 14px;
         font-weight: 400;
     }
 
     .menu-dropdown a:hover {
-        background-color: #f6f7f8;
+        background-color: var(--hover-bg);
     }
 
     .menu-container:hover .menu-dropdown {
@@ -476,7 +476,7 @@
     .filter-form label {
         font-weight: 500;
         font-size: 14px;
-        color: #555;
+        color: var(--text-primary);
     }
 
     #timeFilterWrapper {
