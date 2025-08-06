@@ -10,6 +10,8 @@ import com.mb.reddit.entity.User;
 import com.mb.reddit.service.CommunityService;
 import com.mb.reddit.service.FlairService;
 import com.mb.reddit.service.PostService;
+import com.mb.reddit.service.TopicService;
+import com.mb.reddit.entity.Topic;
 
 import com.mb.reddit.service.PostVoteService;
 import com.mb.reddit.service.implementation.UserServiceImpl;
@@ -40,10 +42,13 @@ public class PostController {
     public final FlairService flairService;
     public final NotificationService notificationService;
     public final UserServiceImpl userServiceImpl;
-    private final CommentVoteService commentVoteService;
     private final CommentVoteRepository commentVoteRepository;
+    private final TopicService topicService;
 
-    public PostController(PostService postService, UserService userService, CommunityService communityService, FlairService flairService, CommentService commentService, PostVoteService postVoteService, NotificationService notificationService, UserServiceImpl userServiceImpl, CommentVoteService commentVoteService, CommentVoteRepository commentVoteRepository) {
+    public PostController(PostService postService, UserService userService, CommunityService communityService,
+                          FlairService flairService, CommentService commentService, PostVoteService postVoteService,
+                          NotificationService notificationService, UserServiceImpl userServiceImpl,
+                          CommentVoteRepository commentVoteRepository, TopicService topicService) {
         this.postService = postService;
         this.commentService = commentService;
         this.postVoteService = postVoteService;
@@ -52,8 +57,8 @@ public class PostController {
         this.flairService = flairService;
         this.userServiceImpl = userServiceImpl;
         this.notificationService = notificationService;
-        this.commentVoteService = commentVoteService;
         this.commentVoteRepository = commentVoteRepository;
+        this.topicService = topicService;
     }
 
     @GetMapping("/new-post")
@@ -87,31 +92,49 @@ public class PostController {
     }
 
     @GetMapping("/")
-    public String getAllPosts(@RequestParam(defaultValue = "0") int pageNumber, @RequestParam(defaultValue = "10") int pageSize, @RequestParam(required = false) String sort, @RequestParam(required = false) String time, @RequestParam(required = false) String keyword, Model model) {
+    public String getAllPosts(@RequestParam(defaultValue = "0") int pageNumber, 
+                         @RequestParam(defaultValue = "10") int pageSize, 
+                         @RequestParam(required = false) String sort, 
+                         @RequestParam(required = false) String time, 
+                         @RequestParam(required = false) String keyword,
+                         @RequestParam(required = false) Long topicId,
+                         @RequestParam(required = false) List<Long> topicIds,
+                         Model model) {
 
-        long start = System.currentTimeMillis();
+    Page<PostWithVotesDTO> posts;
 
-        Page<PostWithVotesDTO> posts = postService.getAllPost(pageNumber, pageSize, sort, time, keyword);
-
-
-        List<Community> joinedCommunities = communityService.findUserJoinedCommunities();
-        List<Community> recentCommunities = joinedCommunities.stream().limit(5).toList().reversed();
-        List<PostWithVotesDTO> latest10Posts = posts.getContent();
-        Integer notificationCount = notificationService.getNotificationCount();
-
-        model.addAttribute("notificationCount", notificationCount);
-        model.addAttribute("posts", latest10Posts);
-        model.addAttribute("recentPosts", latest10Posts);
-        model.addAttribute("communities", joinedCommunities);
-        model.addAttribute("recentCommunities", recentCommunities);
-        model.addAttribute("hasNext", posts.hasNext());
-
-        model.addAttribute("selectedSort", sort != null ? sort : "");
-        model.addAttribute("time", time != null ? time : "");
-        model.addAttribute("keyword", keyword != null ? keyword : "");
-        model.addAttribute("hideFilters", "popular".equalsIgnoreCase(sort));
-        return "home";
+    if (topicId != null) {
+        posts = postService.getPostsByTopicId(topicId, pageNumber, pageSize);
+    } else if (topicIds != null && !topicIds.isEmpty()) {
+        posts = postService.getPostsByTopicIds(topicIds, pageNumber, pageSize);
+    } else {
+        posts = postService.getAllPost(pageNumber, pageSize, sort, time, keyword);
     }
+
+    List<Community> joinedCommunities = communityService.findUserJoinedCommunities();
+    List<Community> recentCommunities = joinedCommunities.stream().limit(5).toList().reversed();
+    List<PostWithVotesDTO> latest10Posts = posts.getContent();
+    Integer notificationCount = notificationService.getNotificationCount();
+
+    List<Topic> topics = topicService.getAllTopics();
+    model.addAttribute("topics", topics);
+
+    model.addAttribute("notificationCount", notificationCount);
+    model.addAttribute("posts", latest10Posts);
+    model.addAttribute("recentPosts", latest10Posts);
+    model.addAttribute("communities", joinedCommunities);
+    model.addAttribute("recentCommunities", recentCommunities);
+    model.addAttribute("hasNext", posts.hasNext());
+
+    model.addAttribute("selectedSort", sort != null ? sort : "");
+    model.addAttribute("time", time != null ? time : "");
+    model.addAttribute("keyword", keyword != null ? keyword : "");
+    model.addAttribute("topicId", topicId);
+    model.addAttribute("topicIds", topicIds);
+    model.addAttribute("hideFilters", "popular".equalsIgnoreCase(sort));
+    
+    return "home";
+}
 
     @GetMapping("/scroll")
     public String getMorePosts(@RequestParam(defaultValue = "0") int pageNumber, @RequestParam(defaultValue = "10") int pageSize, @RequestParam(required = false) String sort, @RequestParam(required = false) String time, @RequestParam(required = false) String keyword, Model model) {
@@ -302,9 +325,29 @@ public class PostController {
         }
     }
 
-    // In PostController.getPostById method, replace the commentVotes logic with:
+    @GetMapping("/topic/{topicId}")
+    public String getPostsByTopic(@PathVariable Long topicId,
+                             @RequestParam(defaultValue = "0") int pageNumber,
+                             @RequestParam(defaultValue = "10") int pageSize,
+                             Model model) {
+    
+        Page<PostWithVotesDTO> posts = postService.getPostsByTopicId(topicId, pageNumber, pageSize);
+        Topic topic = topicService.getTopicById(topicId);
+        
+        List<Community> joinedCommunities = communityService.findUserJoinedCommunities();
+        Integer notificationCount = notificationService.getNotificationCount();
+        
+        model.addAttribute("posts", posts.getContent());
+        model.addAttribute("topic", topic);
+        model.addAttribute("communities", joinedCommunities);
+        model.addAttribute("notificationCount", notificationCount);
+        model.addAttribute("hasNext", posts.hasNext());
+        model.addAttribute("currentPage", pageNumber);
+        model.addAttribute("totalPages", posts.getTotalPages());
+        
+        return "topic-posts";
+    }
 
-    // Add this helper method to PostController:
     private void populateCommentVotes(List<Comment> comments, Map<Long, Integer> commentVotes) {
         if(comments == null || comments.isEmpty()) {
             return;
@@ -314,41 +357,22 @@ public class PostController {
             int voteCount = commentService.getVoteCountForComment(comment.getId());
             commentVotes.put(comment.getId(), voteCount);
 
-            // Recursively populate votes for replies
             if(comment.getReplies() != null && !comment.getReplies().isEmpty()) {
                 populateCommentVotes(comment.getReplies(), commentVotes);
             }
         }
     }
-
-
-    //    private void populateUserCommentVotes(List<Comment> comments, Map<Long, Boolean> userCommentVotes, Long userId) {
-    //        for (Comment comment : comments) {
-    //            Boolean voteStatus = commentVoteService.getVoteStatusByCommentIdAndCurrentUser(comment.getId());
-    //            if (voteStatus != null) {
-    //                userCommentVotes.put(comment.getId(), voteStatus);
-    //            }
-    //
-    //            if (comment.getReplies() != null && !comment.getReplies().isEmpty()) {
-    //                populateUserCommentVotes(comment.getReplies(), userCommentVotes, userId);
-    //            }
-    //        }
-    //    }
-
-    // Add this to PostController
     private void populateUserCommentVotes(List<Comment> comments, Map<Long, Boolean> userCommentVotes, Long userId) {
         if(comments == null || comments.isEmpty()) {
             return;
         }
 
         for(Comment comment : comments) {
-            // Get vote status for current comment
             Optional<CommentVote> vote = commentVoteRepository.findByUserIdAndCommentId(userId, comment.getId());
             if(vote.isPresent()) {
                 userCommentVotes.put(comment.getId(), vote.get().getIsLike());
             }
 
-            // Recursively populate votes for replies
             if(comment.getReplies() != null && !comment.getReplies().isEmpty()) {
                 populateUserCommentVotes(comment.getReplies(), userCommentVotes, userId);
             }

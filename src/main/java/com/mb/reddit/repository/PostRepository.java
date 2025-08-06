@@ -11,19 +11,15 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
 
-    @Query("""
-    SELECT p FROM Post p 
-    WHERE p.community.id = :communityId 
-    AND (p.community.isPrivate = false OR :userId IN (
-        SELECT m.id FROM p.community.members m
-    ))
-""")
-    Page<Post> getPostsByCommunityId(@Param("communityId") Long communityId, @Param("userId") Long userId, Pageable pageable);
-
+    @Query("SELECT p FROM Post p WHERE p.community.id = :communityId AND " +
+            "(p.community.isPrivate = false OR :userId IN (SELECT m.id FROM p.community.members m))")
+    Page<Post> getPostsByCommunityId(@Param("communityId") Long communityId, @Param("userId") Long userId,
+                                     Pageable pageable);
     @Query("""
                 SELECT new com.mb.reddit.dto.PostWithVotesDTO(
                     p.id,
@@ -284,4 +280,53 @@ public interface PostRepository extends JpaRepository<Post, Long> {
                 ) DESC
             """)
     Page<PostWithVotesDTO> findHotPosts(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate, Pageable pageable);
+
+    @Query("""
+    SELECT new com.mb.reddit.dto.PostWithVotesDTO(
+        p.id,
+        p.title,
+        p.content,
+        p.mediaUrl,
+        p.mediaType,
+        p.linkUrl,
+        p.community.name,
+        p.community.iconUrl,
+        p.createdAt,
+        (SELECT COUNT(v) FROM PostVote v WHERE v.post = p AND v.isLike = true),
+        (SELECT COUNT(v) FROM PostVote v WHERE v.post = p AND v.isLike = false),
+        (SELECT COUNT(c) FROM Comment c WHERE c.post = p)
+    )
+    FROM Post p
+    JOIN p.community.topics t
+    WHERE p.isPublished = true 
+      AND p.community.isPrivate = false
+      AND t.id = :topicId
+    ORDER BY p.createdAt DESC
+""")
+Page<PostWithVotesDTO> findPostsByTopicId(@Param("topicId") Long topicId, Pageable pageable);
+
+@Query("""
+    SELECT new com.mb.reddit.dto.PostWithVotesDTO(
+        p.id,
+        p.title,
+        p.content,
+        p.mediaUrl,
+        p.mediaType,
+        p.linkUrl,
+        p.community.name,
+        p.community.iconUrl,
+        p.createdAt,
+        (SELECT COUNT(v) FROM PostVote v WHERE v.post = p AND v.isLike = true),
+        (SELECT COUNT(v) FROM PostVote v WHERE v.post = p AND v.isLike = false),
+        (SELECT COUNT(c) FROM Comment c WHERE c.post = p)
+    )
+    FROM Post p
+    JOIN p.community.topics t
+    WHERE p.isPublished = true 
+      AND p.community.isPrivate = false
+      AND t.id IN :topicIds
+    ORDER BY p.createdAt DESC
+""")
+Page<PostWithVotesDTO> findPostsByTopicIds(@Param("topicIds") List<Long> topicIds, Pageable pageable);
+
 }

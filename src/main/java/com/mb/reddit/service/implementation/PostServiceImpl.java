@@ -59,19 +59,19 @@ public class PostServiceImpl implements PostService {
         Page<PostWithVotesDTO> page;
 
         if (keyword != null && !keyword.trim().isEmpty()) {
-            page = postRepository.searchPostsByKeyword(keyword, userId, pageable);
+            page = postRepository.searchPostsByKeyword(keyword, pageable);
         } else {
             String sortOption = (sort != null) ? sort : "";
 
             page = switch (sortOption) {
-                case "top" -> postRepository.findTopPosts(startDate, endDate, userId, pageable);
-                case "hot" -> postRepository.findHotPosts(startDate, endDate, userId, pageable);
+                case "top" -> postRepository.findTopPosts(startDate, endDate, pageable);
+                case "hot" -> postRepository.findHotPosts(startDate, endDate, pageable);
                 case "rising" -> {
                     LocalDateTime timeThreshold = LocalDateTime.now().minusHours(96);
-                    yield postRepository.findRisingPosts(timeThreshold, userId, pageable);
+                    yield postRepository.findRisingPosts(timeThreshold, pageable);
                 }
-                case "popular" -> postRepository.findPopularPosts(userId, pageable);
-                default -> postRepository.findPublicPosts(userId, pageable);
+                case "popular" -> postRepository.findPopularPosts(pageable);
+                default -> postRepository.findPublicPosts(pageable);
             };
         }
 
@@ -96,7 +96,8 @@ public class PostServiceImpl implements PostService {
     }
 
     private Long getLoggedInUserId(Authentication authentication) {
-        if(authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getName())) {
+        if (authentication == null || !authentication.isAuthenticated() || 
+            "anonymousUser".equals(authentication.getName())) {
             return null;
         }
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
@@ -113,7 +114,7 @@ public class PostServiceImpl implements PostService {
     public void deletePost(Long postId) {
         Post post = postRepository.findById(postId).orElseThrow(() -> new RuntimeException("Post not found"));
 
-        for(User user : post.getSavedByUser()) {
+        for (User user : post.getSavedByUser()) {
             user.getSavedPosts().remove(post);
         }
 
@@ -123,7 +124,7 @@ public class PostServiceImpl implements PostService {
     @Transactional
     @Override
     public Post createPost(Post post, Long communityId, MultipartFile media) {
-        long start = System.currentTimeMillis(); // Start total timer
+        long start = System.currentTimeMillis();
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = userRepository.findUserByUsername(authentication.getName());
@@ -163,10 +164,7 @@ public class PostServiceImpl implements PostService {
         long saveStart = System.currentTimeMillis();
         Post savedPost = postRepository.save(post);
         long saveEnd = System.currentTimeMillis();
-        System.out.println("⏱️ DB save time: " + (saveEnd - saveStart) + " ms");
-
-        long totalEnd = System.currentTimeMillis();
-        System.out.println("✅ Total createPost time: " + (totalEnd - start) + " ms");
+        System.out.println("✅ Total createPost time: " + (saveEnd - start) + " ms");
 
         return savedPost;
     }
@@ -209,6 +207,7 @@ public class PostServiceImpl implements PostService {
 
         return postRepository.save(oldPost);
     }
+
     @Override
     public Integer getPostVotesByPostId(Long postId) {
         Integer upVoteCount = postVoteRepository.countUpvoteByPostId(postId);
@@ -235,9 +234,7 @@ public class PostServiceImpl implements PostService {
         Boolean isLike = true;
         Page<PostWithVotesDTO> postsPage = postRepository.getVotedPostsDTO(userId, isLike, pageable);
 
-        System.out.println(postsPage);
         postsPage.forEach(post -> {
-            System.out.println(post);
             String showTime = TimeAgoUtils.getTimeAgo(post.getCreatedAt());
             post.setShowTime(showTime);
         });
@@ -283,39 +280,66 @@ public class PostServiceImpl implements PostService {
     public Page<Post> getPostsByCommunityId(Long communityId, int pageNumber, int pageSize) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
 
-        return postRepository.getPostsByCommunityId(communityId, pageable);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Long userId = getLoggedInUserId(authentication);
+
+        return postRepository.getPostsByCommunityId(communityId, userId, pageable);
+    }
+
+    @Override
+    public Page<PostWithVotesDTO> getPostsByTopicId(Long topicId, int pageNumber, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        Page<PostWithVotesDTO> postsPage = postRepository.findPostsByTopicId(topicId, pageable);
+        
+        postsPage.forEach(post -> {
+            String showTime = TimeAgoUtils.getTimeAgo(post.getCreatedAt());
+            post.setShowTime(showTime);
+        });
+        
+        return postsPage;
+    }
+
+    @Override
+    public Page<PostWithVotesDTO> getPostsByTopicIds(List<Long> topicIds, int pageNumber, int pageSize) {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize);
+        Page<PostWithVotesDTO> postsPage = postRepository.findPostsByTopicIds(topicIds, pageable);
+        
+        postsPage.forEach(post -> {
+            String showTime = TimeAgoUtils.getTimeAgo(post.getCreatedAt());
+            post.setShowTime(showTime);
+        });
+        
+        return postsPage;
     }
 
     private LocalDateTime[] getTimeRange(String time) {
         if (time == null || time.isBlank() || time.equals("all")) {
-            return new LocalDateTime[]{ null, null };
+            return new LocalDateTime[]{null, null};
         }
 
         LocalDateTime now = LocalDateTime.now();
 
         return switch (time) {
-            case "today" -> new LocalDateTime[] {
+            case "today" -> new LocalDateTime[]{
                     now.toLocalDate().atStartOfDay(),
                     now.toLocalDate().atStartOfDay().plusDays(1).minusSeconds(1)
             };
-            case "yesterday" -> new LocalDateTime[] {
+            case "yesterday" -> new LocalDateTime[]{
                     now.toLocalDate().minusDays(1).atStartOfDay(),
                     now.toLocalDate().atStartOfDay().minusSeconds(1)
             };
-            case "month" -> new LocalDateTime[] {
+            case "month" -> new LocalDateTime[]{
                     now.withDayOfMonth(1).toLocalDate().atStartOfDay(),
                     now.withDayOfMonth(1).toLocalDate().atStartOfDay().plusMonths(1).minusSeconds(1)
             };
-            case "year" -> new LocalDateTime[] {
+            case "year" -> new LocalDateTime[]{
                     now.withDayOfYear(1).toLocalDate().atStartOfDay(),
                     now.withDayOfYear(1).toLocalDate().atStartOfDay().plusYears(1).minusSeconds(1)
             };
-            default -> new LocalDateTime[] {
+            default -> new LocalDateTime[]{
                     LocalDateTime.of(1970, 1, 1, 0, 0),
                     LocalDateTime.of(2999, 12, 31, 23, 59, 59)
             };
         };
     }
-
-
 }

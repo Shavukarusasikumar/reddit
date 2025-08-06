@@ -1,6 +1,4 @@
-<!-- File: src/main/resources/templates/fragments/left-sidebar-fragment.html -->
 <th:block xmlns:th="http://www.thymeleaf.org" th:fragment="leftSidebar (communities, recentCommunities)">
-    <!-- Font Awesome (needed for the icons) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 
     <style>
@@ -142,7 +140,47 @@
             font-size: 14px;
         }
 
-        /* Custom scrollbar for the sidebar */
+        .tech-filter-section {
+            margin: 20px 0 16px 0;
+            border-top: 1px solid var(--border-light);
+            padding-top: 16px;
+        }
+
+        .tech-filter-form {
+            padding: 0 12px;
+        }
+
+        .tech-filter-select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border-light);
+            border-radius: 6px;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 14px;
+            font-family: inherit;
+            transition: border-color 0.2s ease;
+        }
+
+        .tech-filter-select:focus {
+            outline: none;
+            border-color: var(--link-color);
+        }
+
+        .tech-filter-select option {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+        }
+
+        .selected-tech-info {
+            padding: 8px 12px;
+            margin-top: 8px;
+            background-color: var(--hover-bg);
+            border-radius: 6px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
         .sidebar::-webkit-scrollbar {
             width: 6px;
         }
@@ -160,23 +198,19 @@
             background: var(--text-secondary);
         }
 
-        /* Firefox scrollbar */
         .sidebar {
             scrollbar-width: thin;
             scrollbar-color: var(--text-muted) transparent;
         }
 
-        /* Ensure proper spacing */
         .sidebar > *:last-child {
             margin-bottom: 0;
         }
 
-        /* Smooth scrolling behavior */
         .sidebar {
             scroll-behavior: smooth;
         }
 
-        /* Prevent text selection on interactive elements */
         .sidebar-link,
         .community-item {
             -webkit-user-select: none;
@@ -185,7 +219,6 @@
             user-select: none;
         }
 
-        /* Links should allow text selection */
         .community-link,
         .create-community-btn {
             -webkit-user-select: text;
@@ -194,7 +227,6 @@
             user-select: text;
         }
 
-        /* Focus states for accessibility */
         .sidebar-link:focus,
         .community-link:focus,
         .create-community-btn:focus {
@@ -202,7 +234,6 @@
             outline-offset: 2px;
         }
 
-        /* Active state for better feedback */
         .sidebar-link:active,
         .community-item:active {
             transform: scale(0.98);
@@ -224,6 +255,36 @@
                 <i class="fas fa-hashtag"></i>
                 <span>Explore</span>
             </a>
+
+            <!-- Technology Filter Section -->
+            <div class="tech-filter-section">
+                <div class="section-header">
+                    <span>Filter by Technology</span>
+                </div>
+                <div class="tech-filter-form">
+                    <form method="get" action="/" onchange="this.submit()">
+                        <!-- Preserve existing sort and time parameters -->
+                        <input type="hidden" name="sort" th:value="${selectedSort}">
+                        <input type="hidden" name="time" th:value="${time}">
+                        <input type="hidden" name="keyword" th:value="${keyword}">
+                        
+                        <select name="topicId" class="tech-filter-select">
+                            <option value="">All Technologies</option>
+                            <th:block th:each="topic : ${topics}">
+                                <option th:value="${topic.id}"
+                                        th:text="${topic.name}"
+                                        th:selected="${topic.id} == ${topicId}"></option>
+                            </th:block>
+                        </select>
+                    </form>
+                    
+                    <!-- Show selected technology info -->
+                    <div th:if="${topicId != null}" class="selected-tech-info">
+                        <i class="fas fa-filter"></i>
+                        <span th:text="'Showing posts for: ' + ${topics.?[id == topicId][0].name}"></span>
+                    </div>
+                </div>
+            </div>
 
             <!-- Recent Section -->
             <div class="sidebar-section">

@@ -1,8 +1,6 @@
-<!-- fragments/right-sidebar.html -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" th:fragment="communityDetail">
 <head>
-    <!-- ✅ [UNCHANGED STYLES AND LINK] -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <style>
         .sidebar-container {
@@ -90,25 +88,20 @@
     </style>
 </head>
 <body>
-<!-- ✅ Fragment wrapper: sidebar-container -->
 <div class="sidebar-container">
     <div class="right-sidebar">
-        <!-- 1. Community name + join/joined -->
         <div class="row">
             <div class="community-name" th:text="'r/'+${community.name}">r/ExampleCommunity</div>
             <button class="join-btn" th:classappend="${isJoined} ? 'joined-btn' : ''"
                     th:text="${isJoined} ? 'Joined' : 'Join'"></button>
         </div>
 
-        <!-- 2. Community title -->
         <div class="community-title" th:text="'The ' + ${community.name} + ' Community'">Example Community Title</div>
 
-        <!-- 3. Community description -->
         <div class="community-description" th:text="${community.description}">
             This is a description of the community that talks about what this subreddit is for.
         </div>
 
-        <!-- 4. Created at -->
         <div class="meta-info">
             <i class="fa-solid fa-calendar-days"></i>
             <span th:text="'Created on ' + ${#temporals.format(community.createdAt, 'dd MMM yyyy')}">
@@ -116,17 +109,14 @@
             </span>
         </div>
 
-        <!-- 5. Privacy -->
         <div class="meta-info">
             <i class="fa-solid fa-lock-open" th:if="${community.isPrivate}"></i>
             <i class="fa-solid fa-lock" th:if="${!community.isPrivate}"></i>
             <span th:text="${community.isPrivate} ? 'Private' : 'Public'">Public</span>
         </div>
 
-        <!-- 6. Divider -->
         <div class="divider"></div>
 
-        <!-- 7. Owner photo and name -->
         <div class="owner-info">
             <img th:src="${owner.profilePicture}" alt="Owner Profile">
             <div class="owner-name" th:text="${owner.username}">John Doe</div>
