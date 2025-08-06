@@ -54,26 +54,27 @@ public class PostServiceImpl implements PostService {
         LocalDateTime startDate = timeRange[0];
         LocalDateTime endDate = timeRange[1];
 
+        Long userId = getLoggedInUserId(authentication);
+
         Page<PostWithVotesDTO> page;
 
         if (keyword != null && !keyword.trim().isEmpty()) {
-            page = postRepository.searchPostsByKeyword(keyword, pageable);
+            page = postRepository.searchPostsByKeyword(keyword, userId, pageable);
         } else {
             String sortOption = (sort != null) ? sort : "";
 
             page = switch (sortOption) {
-                case "top" -> postRepository.findTopPosts(startDate, endDate, pageable);
-                case "hot" -> postRepository.findHotPosts(startDate, endDate, pageable);
+                case "top" -> postRepository.findTopPosts(startDate, endDate, userId, pageable);
+                case "hot" -> postRepository.findHotPosts(startDate, endDate, userId, pageable);
                 case "rising" -> {
                     LocalDateTime timeThreshold = LocalDateTime.now().minusHours(96);
-                    yield postRepository.findRisingPosts(timeThreshold, pageable);
+                    yield postRepository.findRisingPosts(timeThreshold, userId, pageable);
                 }
-                case "popular" -> postRepository.findPopularPosts(pageable);
-                default -> postRepository.findPublicPosts(pageable);
+                case "popular" -> postRepository.findPopularPosts(userId, pageable);
+                default -> postRepository.findPublicPosts(userId, pageable);
             };
         }
 
-        Long userId = getLoggedInUserId(authentication);
         if (userId == null) return page;
 
         List<PostWithVotesDTO> postList = page.getContent();

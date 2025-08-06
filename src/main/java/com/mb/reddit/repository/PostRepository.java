@@ -15,8 +15,14 @@ import java.time.LocalDateTime;
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
 
-    @Query("SELECT p FROM Post p WHERE p.community.id = :communityId")
-    Page<Post> getPostsByCommunityId(@Param("communityId") Long communityId, Pageable pageable);
+    @Query("""
+    SELECT p FROM Post p 
+    WHERE p.community.id = :communityId 
+    AND (p.community.isPrivate = false OR :userId IN (
+        SELECT m.id FROM p.community.members m
+    ))
+""")
+    Page<Post> getPostsByCommunityId(@Param("communityId") Long communityId, @Param("userId") Long userId, Pageable pageable);
 
     @Query("""
                 SELECT new com.mb.reddit.dto.PostWithVotesDTO(
@@ -86,7 +92,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     @Query("SELECT u.savedPosts FROM User u WHERE u.id = :userId")
     Page<Post> getSavedPostsByUserId(@Param("userId") Long userId, Pageable pageable);
 
-    // for top
     @Query("""
             SELECT new com.mb.reddit.dto.PostWithVotesDTO(
                 p.id,
@@ -113,7 +118,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             """)
     Page<PostWithVotesDTO> findTopPosts(@Param("startDate") LocalDateTime startDate, @Param("endDate") LocalDateTime endDate, Pageable pageable);
 
-    //for raising
     @Query("""
             SELECT new com.mb.reddit.dto.PostWithVotesDTO(
                 p.id,
@@ -140,7 +144,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
             """)
     Page<PostWithVotesDTO> findRisingPosts(@Param("threshold") LocalDateTime threshold, Pageable pageable);
 
-    // for new
     @Query("""
             SELECT new com.mb.reddit.dto.PostWithVotesDTO(
                 p.id,
