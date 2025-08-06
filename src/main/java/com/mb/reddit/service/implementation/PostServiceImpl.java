@@ -289,8 +289,12 @@ public class PostServiceImpl implements PostService {
     @Override
     public Page<PostWithVotesDTO> getPostsByTopicId(Long topicId, int pageNumber, int pageSize) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
-        Page<PostWithVotesDTO> postsPage = postRepository.findPostsByTopicId(topicId, pageable);
         
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Long userId = getLoggedInUserId(authentication);
+
+        Page<PostWithVotesDTO> postsPage = postRepository.findPostsByTopicId(topicId, userId, pageable);
+
         postsPage.forEach(post -> {
             String showTime = TimeAgoUtils.getTimeAgo(post.getCreatedAt());
             post.setShowTime(showTime);
@@ -302,7 +306,11 @@ public class PostServiceImpl implements PostService {
     @Override
     public Page<PostWithVotesDTO> getPostsByTopicIds(List<Long> topicIds, int pageNumber, int pageSize) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize);
-        Page<PostWithVotesDTO> postsPage = postRepository.findPostsByTopicIds(topicIds, pageable);
+        
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Long userId = getLoggedInUserId(authentication);
+        
+        Page<PostWithVotesDTO> postsPage = postRepository.findPostsByTopicIds(topicIds, userId, pageable);
         
         postsPage.forEach(post -> {
             String showTime = TimeAgoUtils.getTimeAgo(post.getCreatedAt());

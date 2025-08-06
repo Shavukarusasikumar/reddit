@@ -299,11 +299,11 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     FROM Post p
     JOIN p.community.topics t
     WHERE p.isPublished = true 
-      AND p.community.isPrivate = false
+      AND (p.community.isPrivate = false OR :userId IN (SELECT m.id FROM p.community.members m))
       AND t.id = :topicId
     ORDER BY p.createdAt DESC
 """)
-Page<PostWithVotesDTO> findPostsByTopicId(@Param("topicId") Long topicId, Pageable pageable);
+Page<PostWithVotesDTO> findPostsByTopicId(@Param("topicId") Long topicId, @Param("userId") Long userId, Pageable pageable);
 
 @Query("""
     SELECT new com.mb.reddit.dto.PostWithVotesDTO(
@@ -323,10 +323,10 @@ Page<PostWithVotesDTO> findPostsByTopicId(@Param("topicId") Long topicId, Pageab
     FROM Post p
     JOIN p.community.topics t
     WHERE p.isPublished = true 
-      AND p.community.isPrivate = false
+      AND (p.community.isPrivate = false OR :userId IN (SELECT m.id FROM p.community.members m))
       AND t.id IN :topicIds
     ORDER BY p.createdAt DESC
 """)
-Page<PostWithVotesDTO> findPostsByTopicIds(@Param("topicIds") List<Long> topicIds, Pageable pageable);
+Page<PostWithVotesDTO> findPostsByTopicIds(@Param("topicIds") List<Long> topicIds, @Param("userId") Long userId, Pageable pageable);
 
 }

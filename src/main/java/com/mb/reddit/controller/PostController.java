@@ -101,6 +101,7 @@ public class PostController {
                          @RequestParam(required = false) List<Long> topicIds,
                          Model model) {
 
+    List<Topic> topics = topicService.getAllTopics();
     Page<PostWithVotesDTO> posts;
 
     if (topicId != null) {
@@ -116,9 +117,7 @@ public class PostController {
     List<PostWithVotesDTO> latest10Posts = posts.getContent();
     Integer notificationCount = notificationService.getNotificationCount();
 
-    List<Topic> topics = topicService.getAllTopics();
     model.addAttribute("topics", topics);
-
     model.addAttribute("notificationCount", notificationCount);
     model.addAttribute("posts", latest10Posts);
     model.addAttribute("recentPosts", latest10Posts);

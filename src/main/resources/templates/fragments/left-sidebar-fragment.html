@@ -281,7 +281,7 @@
                     <!-- Show selected technology info -->
                     <div th:if="${topicId != null}" class="selected-tech-info">
                         <i class="fas fa-filter"></i>
-                        <span th:text="'Showing posts for: ' + ${topics.?[id == topicId][0].name}"></span>
+                        <span th:text="'Showing posts for topic ID: ' + ${topicId}"></span>
                     </div>
                 </div>
             </div>
